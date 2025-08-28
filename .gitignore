@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+dist/
+.env
+*.log
+
+# Angular
+frontend/dist/
+frontend/node_modules/
+
+# Python
+__pycache__/
+*.pkl
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
