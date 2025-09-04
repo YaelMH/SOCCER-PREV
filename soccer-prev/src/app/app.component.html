@@ -1,4 +1,12 @@
 <main>
-  <h1 class="bg-amber-500"> angular con tailwind</h1>
+  <nav class="hidden md:flex items-center gap-2">
+  <a routerLink="/recommendations" routerLinkActive="nav-link-active" class="nav-link">Recomendaciones</a>
+  <a routerLink="/warmup"          routerLinkActive="nav-link-active" class="nav-link">Rutinas</a>
+  <a routerLink="/education"       routerLinkActive="nav-link-active" class="nav-link">Contenido</a>
+  <a routerLink="/alerts"          routerLinkActive="nav-link-active" class="nav-link">Alertas</a>
+  <a routerLink="/history"         routerLinkActive="nav-link-active" class="nav-link">Historial</a>
+  <a routerLink="/profile"         routerLinkActive="nav-link-active" class="nav-link">Perfil</a>
+</nav>
+
 </main>
 <router-outlet />
