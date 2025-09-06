@@ -14,7 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 // Conecta la ruta '/api/recomendacion' con el archivo de rutas que vamos a crear
-app.use('/api/recomendacion', require('./routes/recomendacion'));
+const recomendacionRoute = require('./routes/recomendacion');
+app.use('/api/recomendacion', recomendacionRoute);
 
 // Inicia el servidor en el puerto 3000 y muestra un mensaje en consola
 app.listen(3000, () => {
