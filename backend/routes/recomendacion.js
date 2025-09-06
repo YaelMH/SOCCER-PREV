@@ -1,21 +1,34 @@
-// backend/routes/recomendacion.js
+/*
+ * En este endpoint se construye la recomendación final para el usuario.
+ * La decisión principal de GRAVEDAD la estamos basando en la sensación del usuario:
+ *   - dolor_nivel (1–10)
+ *   - dolor_zona  (texto libre y lo normalizamos a zonas típicas)
+ *   - dolor_dias  (duración en días)
+ *
+ * Si el modelo falla o tarda, igual se busca que devuelva una respuesta basada en dolor.
+ */
+
 const express = require('express');
 const { spawn } = require('child_process');
 const path = require('path');
 
 const router = express.Router();
 
-/* ───────────── Helpers de normalización ───────────── */
+
+/** Normalizar: se quitan nulos, se recorta y paso a minúsculas. */
 function normStr(v) { return (v ?? '').toString().trim().toLowerCase(); }
+
+/** Devuelve fecha local para mostrar ya cuando tengamos el front y también ISO por si la guardo en BD. */
 function fechaAhora() {
   const d = new Date();
   return { iso: d.toISOString(), local: d.toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) };
 }
 
-/* ───────────── Zonas → tipo sugerido (heurístico) ─────────────
-   * No sustituye al modelo, pero orienta la recomendación si "otra lesión"
-   * o cuando la zona es muy característica.
-*/
+/* Zonas tipo
+ * Esta parte NO sustituye al modelo; solo me ayuda a orientar  el modelo responde "Otra lesión".
+ */
+
+/** Mapeo entradas libres de zona a etiquetas controladas. */
 function normalizaZona(z) {
   z = normStr(z);
   if (!z) return 'desconocida';
@@ -31,20 +44,21 @@ function normalizaZona(z) {
   if (z.includes('hombro')) return 'hombro';
   if (z.includes('muñec') || z.includes('man') || z.includes('dedo')) return 'mano_muñeca';
   if (z.includes('pie')) return 'pie';
-  return z; // devolver lo que sea que venga
+  return z; // si no la reconoce, se deja tal cual se ingreso
 }
 
+/** Por zona (ya normalizada) sugiero un tipo genérico. */
 function tipoSugeridoPorZona(zonaNorm) {
   const mapa = {
     tobillo: 'Esguince',
-    rodilla: 'Esguince',           // (podría ser ligamento/menisco; mantenemos genérico)
+    rodilla: 'Esguince',           // podría ser menisco/ligamento, lo dejo genérico
     isquiotibiales: 'Desgarre',
     cuadriceps: 'Desgarre',
     muslo: 'Desgarre',
     pantorrilla: 'Desgarre',
     ingle: 'Desgarre',
-    hombro: 'Luxación',            // si hubo “zafón”/impacto
-    mano_muñeca: 'Otra lesión',    // contusión/tendinopatía, fractura si trauma fuerte
+    hombro: 'Luxación',            // típico si “se zafó” o hubo impacto
+    mano_muñeca: 'Otra lesión',    // contusión/tendinopatía (o fractura si trauma fuerte)
     pie: 'Otra lesión',
     cadera: 'Otra lesión',
     espalda: 'Otra lesión'
@@ -52,17 +66,18 @@ function tipoSugeridoPorZona(zonaNorm) {
   return mapa[zonaNorm] || 'Otra lesión';
 }
 
-/* ───────────── Triage por dolor (PRINCIPAL) ─────────────
-   * Define gravedad con base en nivel/días.
-   * Muy doloroso (>=8) o dolor prolongado (>=14 días) → Alta
-   * Moderado (5–7) o 7–13 días → Media
-   * Leve/reciente → Baja
-*/
+/*
+ * La GRAVEDAD la definimos principalmente con nivel/duración del dolor o si es una fuerte lesión que tenga urgencia medica.
+ *   - nivel ≥ 8  o días ≥ 14  -Alta
+ *   - nivel 5–7 o días 7–13   -Media
+ *   - resto                   -Baja
+ * Si el tipo final es “Fractura” o “Luxación”, fuerzo “Alta”.
+ */
 function gravedadPorDolor(nivel, dias, tipoFinal) {
   const n = Number(nivel) || 0;
   const d = Number(dias) || 0;
 
-  // Sospecha de urgencia si tipo final es fractura/luxación
+  // Si el tipo implica urgencia por definición, priorizo Alta.
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') return 'Alta';
 
   if (n >= 8 || d >= 14) return 'Alta';
@@ -70,23 +85,26 @@ function gravedadPorDolor(nivel, dias, tipoFinal) {
   return 'Baja';
 }
 
-/* ir/urgencia según dolor y tipo */
+//NIVEL DE URGENCIA
 function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona) {
+  // Urgencia inmediata si sospecho fractura o luxación.
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') {
     return { necesario: true, urgente: true, motivo: 'Sospecha de daño óseo/articular. Requiere valoración inmediata.' };
   }
+  // Dolor muy intenso o gravedad alta → sugerir valoración (no urgente).
   if (gravedad === 'Alta' || Number(nivelDolor) >= 8) {
     return { necesario: true, urgente: false, motivo: 'Dolor intenso o persistente. Recomendada valoración clínica/fisioterapia.' };
   }
-  // zonas con alerta si persiste > 7–10 días
+  // Articulaciones clave con dolor que no cede en 10 días "sugerir valoración".
   const zonasCríticas = ['rodilla', 'hombro', 'tobillo'];
   if (zonasCríticas.includes(zona) && Number(diasDolor) >= 10) {
     return { necesario: true, urgente: false, motivo: 'Dolor persistente en articulación clave. Sugerida valoración.' };
   }
+  // Caso leve/reciente  "autocuidado y vigilancia 48–72 h".
   return { necesario: false, urgente: false, motivo: 'Si no mejora en 48–72 h o empeora, buscar valoración.' };
 }
 
-/* Descripción personalizada */
+/** Generamos un texto corto que combine tipo + zona + intensidad/tiempo. */
 function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
   const base = {
     'Esguince': 'Lesión de ligamentos por torsión/inestabilidad articular.',
@@ -95,11 +113,13 @@ function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
     'Luxación': 'Pérdida de congruencia articular (se “zafa” la articulación).',
     'Otra lesión': 'Molestia inespecífica (contusión, tendinopatía u otra).'
   };
-  const ztxt = zona !== 'desconocida' ? ` Reportas dolor en ${zona} (intensidad ${nivel}/10, ${dias} día(s)).` : ` Intensidad ${nivel}/10, ${dias} día(s).`;
+  const ztxt = zona !== 'desconocida'
+    ? ` Reportas dolor en ${zona} (intensidad ${nivel}/10, ${dias} día(s)).`
+    : ` Intensidad ${nivel}/10, ${dias} día(s).`;
   return (base[tipoFinal] || base['Otra lesión']) + ztxt;
 }
 
-/* Recomendaciones base + ajustes por gravedad */
+/** Armo recomendaciones tipo price es decir que se quedan fijas y ajusto según gravedad/tipo. */
 function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
   const PRICE = [
     'Proteger e inmovilizar la zona lesionada.',
@@ -117,6 +137,7 @@ function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
     'Otra lesión': [...PRICE, 'Si no mejora en 48–72 h, solicitar valoración.']
   };
 
+  // Si es alta y no es una urgencia “pura”, igual se destaca el buscar valoración.
   if (gravedad === 'Alta' && (tipoFinal === 'Esguince' || tipoFinal === 'Desgarre' || tipoFinal === 'Otra lesión')) {
     porTipo[tipoFinal].push('Dolor muy intenso o limitación fuerte → acudir a valoración médica.');
   }
@@ -124,14 +145,14 @@ function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
   return porTipo[tipoFinal] || porTipo['Otra lesión'];
 }
 
-/* Combina tipo del modelo con la zona: si el modelo devuelve "Otra" y la zona es muy típica, usamos la de zona */
+/** Si el modelo da "Otra" y la zona es muy típica, me quedo con la de zona. */
 function decidirTipoFinal(tipoModelo, zonaNorm) {
   const sugerido = tipoSugeridoPorZona(zonaNorm);
   if (tipoModelo === 'Otra lesión' && sugerido) return sugerido;
   return tipoModelo || sugerido || 'Otra lesión';
 }
 
-/* Construye respuesta rica, basándose PRINCIPALMENTE en el dolor */
+/** Construyo el payload final que consume el frontend. */
 function construirRespuesta({ tipoModelo, datos }) {
   const zonaNorm = normalizaZona(datos.dolor_zona);
   const tipoFinal = decidirTipoFinal(tipoModelo, zonaNorm);
@@ -144,11 +165,11 @@ function construirRespuesta({ tipoModelo, datos }) {
     fechaISO: fecha.iso,
     tipo_lesion: tipoFinal,
     nombre: `Lesión compatible con ${normStr(tipoFinal)}`,
-    gravedad,              // Baja / Media / Alta (principal: dolor)
-    especialista,          // { necesario, urgente, motivo }
+    gravedad,              // Baja / Media / Alta (definida por dolor)
+    especialista,          // necesario/urgente y motivo 
     descripcion: descripcionPorTipo(tipoFinal, zonaNorm, datos.dolor_nivel, datos.dolor_dias),
     recomendaciones: recomendacionesPorTipoYDolor(tipoFinal, gravedad),
-    dolor: {               // eco útil para UI
+    dolor: {               // eco que uso en UI o para auditoría
       nivel: Number(datos.dolor_nivel) || 0,
       dias: Number(datos.dolor_dias) || 0,
       zona: zonaNorm
@@ -157,26 +178,20 @@ function construirRespuesta({ tipoModelo, datos }) {
   };
 }
 
-/* ───────────── Endpoint ─────────────
-   Espera AHORA estos campos clave del usuario:
-   - dolor_nivel (1–10)  | requerido
-   - dolor_zona  (texto) | requerido
-   - dolor_dias  (>=0)   | requerido
-   (y puede recibir los anteriores del modelo: edad, posicion, etc. como complemento)
-*/
 router.post('/', (req, res) => {
   const datos = { ...req.body };
 
-  // Validación principal (dolor)
+  // 1) Valido lo esencial: sin dolor_* no puedo priorizar gravedad.
   if (datos.dolor_nivel === undefined || datos.dolor_zona === undefined || datos.dolor_dias === undefined) {
     return res.status(400).json({ error: 'Campos requeridos: dolor_nivel, dolor_zona, dolor_dias' });
   }
-  // Normalización mínima
+
+  // 2) Normalizo/casteo lo principal de las entradas obligatorias.
   datos.dolor_nivel = Number(datos.dolor_nivel);
   datos.dolor_dias  = Number(datos.dolor_dias);
   datos.dolor_zona  = normStr(datos.dolor_zona);
 
-  // (Opcional) Casteo de los anteriores si llegan (el pipeline imputa faltantes)
+  // 3) (Opcional) Casteo el resto si llegan; el pipeline de Python quitara faltantes.
   const nums = [
     'edad','peso','estatura_m','frecuencia_juego_semana','duracion_partido_min',
     'entrena','calienta','calentamiento_min','horas_sueno','hidratacion_ok',
@@ -187,15 +202,17 @@ router.post('/', (req, res) => {
   nums.forEach(k => { if (datos[k] !== undefined) datos[k] = Number(datos[k]); });
   ['nivel','superficie','clima'].forEach(k => { if (datos[k] !== undefined) datos[k] = normStr(datos[k]); });
 
-  // Ejecutar Python (modelo) SOLO para sugerir tipo (no define gravedad)
+  // 4) Llamo a Python SOLO para sugerir el tipo (la gravedad YA la tengo por dolor).
   const scriptPath = path.resolve(__dirname, '../ml/predict.py');
   const py = spawn('python3', [scriptPath, JSON.stringify(datos)], { cwd: path.resolve(__dirname, '..') });
 
   let out = '', err = '';
+
+  // Para no quedarme colgado si Python se tarda, aplico un timeout defensivo.
   const killer = setTimeout(() => {
-    console.error('⏱️  Timeout ejecutando Python');
+    console.error(' Timeout ejecutando Python');
     py.kill('SIGKILL');
-    // Aún sin modelo, devolvemos recomendación basada en dolor
+    // Aunque falle el modelo, siempre regreso una recomendación basada en dolor.
     const payload = construirRespuesta({ tipoModelo: 'Otra lesión', datos });
     return res.status(200).json(payload);
   }, 15000);
@@ -203,6 +220,7 @@ router.post('/', (req, res) => {
   py.stdout.on('data', d => { out += d.toString(); });
   py.stderr.on('data', d => { err += d.toString(); console.error('🐍 stderr:', d.toString()); });
 
+  // Cuando Python termina, construyo el payload final y se responde.
   py.on('close', code => {
     clearTimeout(killer);
     const tipoModelo = (!err && code === 0 && out) ? out.toString().trim() : 'Otra lesión';
@@ -212,3 +230,4 @@ router.post('/', (req, res) => {
 });
 
 module.exports = router;
+
