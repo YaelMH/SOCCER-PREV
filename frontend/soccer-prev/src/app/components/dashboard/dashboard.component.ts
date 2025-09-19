@@ -145,4 +145,17 @@ export class DashboardComponent implements OnInit {
   goToProfile(): void {
     this.router.navigate(['/profile']);
   }
+  /**
+ * Navegar a rutinas de calentamiento
+ */
+goToWarmupRoutines(): void {
+  this.router.navigate(['/warmup-routines']);
+}
+
+/**
+ * Navegar a contenido educativo
+ */
+goToEducationalContent(): void {
+  this.router.navigate(['/educational-content']);
+}
 }

@@ -1,1 +1,292 @@
-<p>profile works!</p>
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Header con navegación -->
+  <div class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center">
+          <button
+            (click)="goBack()"
+            class="mr-4 p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h1 class="text-2xl font-bold text-gray-900">Mi Perfil</h1>
+        </div>
+
+        <div class="text-sm text-gray-500">
+          Soccer-Prev
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+    <!-- Mensajes de éxito/error -->
+    <div class="px-4 sm:px-0 mb-6">
+      <div *ngIf="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+        <div class="flex">
+          <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          {{ successMessage }}
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <div class="flex">
+          <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Layout Principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Panel de Información Personal -->
+      <div class="lg:col-span-2">
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Información Personal
+              </h3>
+
+              <div *ngIf="!isEditing" class="flex space-x-2">
+                <button
+                  (click)="startEditing()"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                  Editar Perfil
+                </button>
+              </div>
+
+              <div *ngIf="isEditing" class="flex space-x-2">
+                <button
+                  (click)="saveProfile()"
+                  [disabled]="isLoading"
+                  class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 transition-colors duration-200">
+                  <span *ngIf="!isLoading">Guardar</span>
+                  <span *ngIf="isLoading">Guardando...</span>
+                </button>
+                <button
+                  (click)="cancelEditing()"
+                  [disabled]="isLoading"
+                  class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 transition-colors duration-200">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+
+            <!-- Modo Vista -->
+            <div *ngIf="!isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Nombre Completo</label>
+                <p class="mt-1 text-sm text-gray-900">{{ currentUser?.name || 'No especificado' }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Email</label>
+                <p class="mt-1 text-sm text-gray-900">{{ currentUser?.email || 'No especificado' }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Edad</label>
+                <p class="mt-1 text-sm text-gray-900">{{ currentUser?.age || 'No especificado' }} años</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Peso</label>
+                <p class="mt-1 text-sm text-gray-900">{{ currentUser?.weight || 'No especificado' }} kg</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Posición</label>
+                <p class="mt-1 text-sm text-gray-900">{{ currentUser?.position || 'No especificado' }}</p>
+              </div>
+            </div>
+
+            <!-- Modo Edición -->
+            <div *ngIf="isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Nombre Completo *</label>
+                <input
+                  type="text"
+                  id="name"
+                  [(ngModel)]="profileForm.name"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              </div>
+
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  [(ngModel)]="profileForm.email"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              </div>
+
+              <div>
+                <label for="age" class="block text-sm font-medium text-gray-700">Edad</label>
+                <input
+                  type="number"
+                  id="age"
+                  [(ngModel)]="profileForm.age"
+                  min="16"
+                  max="60"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              </div>
+
+              <div>
+                <label for="weight" class="block text-sm font-medium text-gray-700">Peso (kg)</label>
+                <input
+                  type="number"
+                  id="weight"
+                  [(ngModel)]="profileForm.weight"
+                  min="40"
+                  max="150"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              </div>
+
+              <div class="md:col-span-2">
+                <label for="position" class="block text-sm font-medium text-gray-700">Posición en el campo</label>
+                <select
+                  id="position"
+                  [(ngModel)]="profileForm.position"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Selecciona tu posición</option>
+                  <option *ngFor="let pos of positions" [value]="pos.value">
+                    {{ pos.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel lateral con estadísticas -->
+      <div class="lg:col-span-1">
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Estadísticas</h3>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Lesiones registradas</span>
+              <span class="text-lg font-medium text-gray-900">{{ injuryHistory.length }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Actividades registradas</span>
+              <span class="text-lg font-medium text-gray-900">{{ activityHistory.length }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Días desde última lesión</span>
+              <span class="text-lg font-medium text-green-600">35</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de Lesiones -->
+    <div class="mt-8">
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Historial de Lesiones
+            </h3>
+            <button
+              (click)="addInjury()"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+              Registrar Lesión
+            </button>
+          </div>
+
+          <div class="overflow-hidden">
+            <div class="space-y-4">
+              <div *ngFor="let injury of injuryHistory"
+                   class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <h4 class="text-sm font-medium text-gray-900">{{ injury.type }}</h4>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            [class]="getInjuryStatusClass(injury.status)">
+                        {{ injury.status }}
+                      </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-600">
+                      <div><strong>Fecha:</strong> {{ injury.date }}</div>
+                      <div><strong>Ubicación:</strong> {{ injury.location }}</div>
+                      <div><strong>Gravedad:</strong> {{ injury.severity }}</div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600">
+                      <strong>Tiempo de recuperación:</strong> {{ injury.recoveryTime }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="injuryHistory.length === 0" class="text-center py-8 text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p>No tienes lesiones registradas</p>
+                <p class="text-sm">¡Mantén este buen récord!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de Actividad -->
+    <div class="mt-8">
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Historial de Actividad
+            </h3>
+            <button
+              (click)="addActivity()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+              Registrar Actividad
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div *ngFor="let activity of activityHistory"
+                 class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <h4 class="text-sm font-medium text-gray-900">{{ activity.activity }}</h4>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          [class]="getIntensityClass(activity.intensity)">
+                      {{ activity.intensity }}
+                    </span>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
+                    <div><strong>Fecha:</strong> {{ activity.date }}</div>
+                    <div><strong>Duración:</strong> {{ activity.duration }}</div>
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    <strong>Notas:</strong> {{ activity.notes }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

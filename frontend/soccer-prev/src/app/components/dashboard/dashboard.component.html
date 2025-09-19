@@ -177,7 +177,7 @@
 
           <div class="space-y-4">
             <div *ngFor="let activity of dashboardData.recentActivity"
-                 class="flex items-center space-x-3">
+                class="flex items-center space-x-3">
 
               <div class="flex-shrink-0">
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
@@ -206,64 +206,66 @@
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="mt-8">
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Acciones Rápidas
-          </h3>
+   <!-- Quick Actions -->
+<div class="mt-8">
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Acciones Rápidas
+      </h3>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <!-- Registrar Condición Física -->
-            <button class="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors duration-200">
-              <div class="w-8 h-8 bg-green-500 rounded-md mx-auto mb-2 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                </svg>
-              </div>
-              <h4 class="text-sm font-medium text-gray-900">Registrar Estado</h4>
-              <p class="text-xs text-gray-600 mt-1">Actualizar condición física</p>
-            </button>
-
-            <!-- Ver Rutinas -->
-            <button class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200">
-              <div class="w-8 h-8 bg-blue-500 rounded-md mx-auto mb-2 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
-                </svg>
-              </div>
-              <h4 class="text-sm font-medium text-gray-900">Rutinas</h4>
-              <p class="text-xs text-gray-600 mt-1">Calentamiento y ejercicios</p>
-            </button>
-
-            <!-- Contenido Educativo -->
-            <button class="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-center transition-colors duration-200">
-              <div class="w-8 h-8 bg-yellow-500 rounded-md mx-auto mb-2 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-              <h4 class="text-sm font-medium text-gray-900">Aprende</h4>
-              <p class="text-xs text-gray-600 mt-1">Contenido educativo</p>
-            </button>
-
-            <!-- Mi Perfil -->
-            <button
-              (click)="goToProfile()"
-              class="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors duration-200">
-              <div class="w-8 h-8 bg-purple-500 rounded-md mx-auto mb-2 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                </svg>
-              </div>
-              <h4 class="text-sm font-medium text-gray-900">Mi Perfil</h4>
-              <p class="text-xs text-gray-600 mt-1">Configurar cuenta</p>
-            </button>
+        <!-- Rutinas de Calentamiento -->
+        <button
+          (click)="goToWarmupRoutines()"
+          class="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors duration-200">
+          <div class="w-8 h-8 bg-green-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+            </svg>
           </div>
-        </div>
+          <h4 class="text-sm font-medium text-gray-900">Calentamiento</h4>
+          <p class="text-xs text-gray-600 mt-1">Rutinas personalizadas</p>
+        </button>
+
+        <!-- Ver Rutinas -->
+        <button
+          (click)="goToEducationalContent()"
+          class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200">
+          <div class="w-8 h-8 bg-blue-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+            </svg>
+          </div>
+          <h4 class="text-sm font-medium text-gray-900">Aprende</h4>
+          <p class="text-xs text-gray-600 mt-1">Contenido educativo</p>
+        </button>
+
+        <!-- Registrar Estado -->
+        <button class="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-center transition-colors duration-200">
+          <div class="w-8 h-8 bg-yellow-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <h4 class="text-sm font-medium text-gray-900">Registrar Estado</h4>
+          <p class="text-xs text-gray-600 mt-1">Actualizar condición física</p>
+        </button>
+
+        <!-- Mi Perfil -->
+        <button
+          (click)="goToProfile()"
+          class="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors duration-200">
+          <div class="w-8 h-8 bg-purple-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <h4 class="text-sm font-medium text-gray-900">Mi Perfil</h4>
+          <p class="text-xs text-gray-600 mt-1">Configurar cuenta</p>
+        </button>
       </div>
     </div>
-  </main>
+  </div>
 </div>

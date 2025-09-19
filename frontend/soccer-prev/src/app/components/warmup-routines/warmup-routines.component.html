@@ -1,0 +1,290 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Header con navegación -->
+  <div class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center">
+          <button
+            (click)="goBack()"
+            class="mr-4 p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h1 class="text-2xl font-bold text-gray-900">Rutinas de Calentamiento</h1>
+        </div>
+
+        <div class="text-sm text-gray-500">
+          Soccer-Prev
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rutina Activa (Modal/Overlay) -->
+  <div *ngIf="isRoutineActive && activeRoutine"
+       class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+
+      <!-- Header de rutina activa -->
+      <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-t-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">{{ activeRoutine.name }}</h2>
+          <button
+            (click)="finishRoutine()"
+            class="text-white hover:text-gray-200">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between text-sm mb-2">
+            <span>Progreso: {{ currentExerciseIndex + 1 }}/{{ activeRoutine.exercises.length }}</span>
+            <span>{{ routineProgress }}%</span>
+          </div>
+          <div class="w-full bg-blue-200 rounded-full h-2">
+            <div class="bg-white rounded-full h-2 transition-all duration-500"
+                 [style.width.%]="routineProgress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ejercicio actual -->
+      <div *ngIf="currentExercise" class="p-6">
+        <div class="text-center mb-6">
+          <!-- Timer -->
+          <div class="text-6xl font-bold text-blue-600 mb-4">
+            {{ formatTime(exerciseTimer) }}
+          </div>
+
+          <!-- Nombre del ejercicio -->
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">
+            {{ currentExercise.name }}
+          </h3>
+
+          <!-- Descripción -->
+          <p class="text-gray-600 mb-4">
+            {{ currentExercise.description }}
+          </p>
+
+          <!-- Repeticiones si aplica -->
+          <div *ngIf="currentExercise.repetitions"
+               class="bg-blue-50 rounded-lg p-4 mb-4">
+            <div class="text-lg font-medium text-blue-900">
+              Repeticiones: {{ currentExercise.repetitions }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <h4 class="font-medium text-gray-900 mb-3">Instrucciones:</h4>
+          <ul class="space-y-2">
+            <li *ngFor="let instruction of currentExercise.instructions"
+                class="flex items-start space-x-2 text-sm text-gray-700">
+              <svg class="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>{{ instruction }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Controles de navegación -->
+        <div class="flex items-center justify-between">
+          <button
+            (click)="previousExercise()"
+            [disabled]="currentExerciseIndex === 0"
+            class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+            Anterior
+          </button>
+
+          <div class="flex space-x-2">
+            <button
+              (click)="pauseRoutine()"
+              class="px-6 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors duration-200">
+              Pausar
+            </button>
+            <button
+              (click)="resumeRoutine()"
+              class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
+              Continuar
+            </button>
+          </div>
+
+          <button
+            (click)="nextExercise()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+            {{ currentExerciseIndex === activeRoutine.exercises.length - 1 ? 'Finalizar' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" *ngIf="!isRoutineActive">
+
+    <!-- Intro Section -->
+    <div class="px-4 sm:px-0 mb-8">
+      <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow p-6 text-white mb-6">
+        <h2 class="text-xl font-bold mb-2">¡Prepárate para entrenar!</h2>
+        <p class="text-green-100">
+          Rutinas de calentamiento personalizadas según tu posición y nivel.
+          Un buen calentamiento reduce el riesgo de lesiones hasta en un 50%.
+        </p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="px-4 sm:px-0 mb-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Filtrar Rutinas</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Filtro por posición -->
+          <div>
+            <label for="position" class="block text-sm font-medium text-gray-700 mb-2">
+              Posición
+            </label>
+            <select
+              id="position"
+              [(ngModel)]="selectedPosition"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              <option *ngFor="let pos of positions" [value]="pos.value">
+                {{ pos.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtro por dificultad -->
+          <div>
+            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">
+              Dificultad
+            </label>
+            <select
+              id="difficulty"
+              [(ngModel)]="selectedDifficulty"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              <option *ngFor="let diff of difficulties" [value]="diff.value">
+                {{ diff.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4 text-sm text-gray-600">
+          Mostrando {{ filteredRoutines.length }} rutina{{ filteredRoutines.length !== 1 ? 's' : '' }}
+          <span *ngIf="hasUserPosition()"> - Tu posición: {{ getUserPosition() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Rutinas -->
+    <div class="px-4 sm:px-0">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div *ngFor="let routine of filteredRoutines"
+              class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+
+          <div class="p-6">
+            <!-- Header de la rutina -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <h3 class="text-lg font-medium text-gray-900">{{ routine.name }}</h3>
+
+                  <!-- Indicador de completado -->
+                  <div *ngIf="routine.completed" class="text-green-600">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <p class="text-gray-600 text-sm mb-3">{{ routine.description }}</p>
+
+                <!-- Badges informativos -->
+                <div class="flex flex-wrap items-center space-x-2 mb-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [class]="getDifficultyClass(routine.difficulty)">
+                    {{ routine.difficulty.charAt(0).toUpperCase() + routine.difficulty.slice(1) }}
+                  </span>
+
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ routine.totalDuration }} min
+                  </span>
+
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {{ routine.exercises.length }} ejercicios
+                  </span>
+
+                  <span *ngIf="routine.position !== 'general'"
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {{ routine.position.charAt(0).toUpperCase() + routine.position.slice(1) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lista de ejercicios -->
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Ejercicios incluidos:</h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li *ngFor="let exercise of routine.exercises.slice(0, 3)" class="flex items-center space-x-2">
+                  <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>{{ exercise.name }} ({{ formatTime(exercise.duration) }})</span>
+                </li>
+                <li *ngIf="routine.exercises.length > 3" class="text-xs text-gray-500 ml-6">
+                  ... y {{ routine.exercises.length - 3 }} más
+                </li>
+              </ul>
+            </div>
+
+            <!-- Beneficios -->
+            <div class="mb-6">
+              <h4 class="text-sm font-medium text-gray-900 mb-2">Beneficios:</h4>
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let benefit of routine.benefits.slice(0, 2)"
+                      class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-50 text-green-700">
+                  {{ benefit }}
+                </span>
+                <span *ngIf="routine.benefits.length > 2"
+                      class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-50 text-gray-600">
+                  +{{ routine.benefits.length - 2 }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Botón de acción -->
+            <button
+              (click)="startRoutine(routine)"
+              class="w-full px-4 py-2 text-sm font-medium text-white rounded-md transition-colors duration-200"
+              [class]="routine.completed
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-blue-600 hover:bg-blue-700'">
+              {{ routine.completed ? 'Repetir Rutina' : 'Iniciar Rutina' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay rutinas -->
+        <div *ngIf="filteredRoutines.length === 0"
+             class="col-span-full text-center py-12">
+          <div class="bg-white rounded-lg shadow p-8">
+            <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay rutinas disponibles</h3>
+            <p class="text-gray-600">No se encontraron rutinas con los filtros seleccionados.</p>
+            <p class="text-sm text-gray-500 mt-2">Intenta ajustar los filtros para ver más opciones.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
