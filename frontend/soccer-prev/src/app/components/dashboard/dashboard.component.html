@@ -1,1 +1,269 @@
-<p>dashboard works!</p>
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Navigation Header -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-gray-900">Soccer-Prev</h1>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <!-- Usuario actual -->
+          <div class="flex items-center space-x-3">
+            <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+              <span class="text-sm font-medium text-white">
+              {{ getUserInitial() }}
+            </span>
+            </div>
+            <span class="text-sm text-gray-700">{{ getUserName() }}</span>
+          </div>
+
+          <!-- Botón logout -->
+          <button
+            (click)="logout()"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+    <!-- Welcome Section -->
+    <div class="px-4 py-6 sm:px-0">
+      <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow p-6 text-white mb-8">
+        <h2 class="text-2xl font-bold mb-2">
+          ¡Bienvenido, {{ getUserName() }}!
+        </h2>
+        <p class="text-green-100">
+          Mantente en forma y previene lesiones con nuestras recomendaciones personalizadas.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+      <!-- Total Recomendaciones -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Total Recomendaciones
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ dashboardData.quickStats.totalRecommendations }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completadas Hoy -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Completadas Hoy
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ dashboardData.quickStats.completedToday }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riesgo de Lesión -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Riesgo de Lesión
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ dashboardData.quickStats.injuryRisk }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Layout for Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Recomendaciones Recientes -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Recomendaciones Recientes
+          </h3>
+
+          <div class="space-y-4">
+            <div *ngFor="let rec of dashboardData.recentRecommendations"
+                  class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h4 class="text-sm font-medium text-gray-900 mb-1">
+                    {{ rec.title }}
+                  </h4>
+                  <p class="text-sm text-gray-600 mb-2">
+                    {{ rec.description }}
+                  </p>
+
+                  <!-- Priority Badge -->
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [class]="getPriorityClass(rec.priority)">
+                    Prioridad {{ rec.priority }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ver todas las recomendaciones -->
+          <div class="mt-6">
+            <button
+              (click)="goToRecommendations()"
+              class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200">
+              Ver Todas las Recomendaciones
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad Reciente -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Actividad Reciente
+          </h3>
+
+          <div class="space-y-4">
+            <div *ngFor="let activity of dashboardData.recentActivity"
+                 class="flex items-center space-x-3">
+
+              <div class="flex-shrink-0">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                      [class]="getActivityTypeClass(activity.type)">
+                  {{ activity.date }}
+                </span>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-900">
+                  {{ activity.activity }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ver historial completo -->
+          <div class="mt-6">
+            <button
+              (click)="goToProfile()"
+              class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+              Ver Historial Completo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8">
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Acciones Rápidas
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- Registrar Condición Física -->
+            <button class="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors duration-200">
+              <div class="w-8 h-8 bg-green-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <h4 class="text-sm font-medium text-gray-900">Registrar Estado</h4>
+              <p class="text-xs text-gray-600 mt-1">Actualizar condición física</p>
+            </button>
+
+            <!-- Ver Rutinas -->
+            <button class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors duration-200">
+              <div class="w-8 h-8 bg-blue-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <h4 class="text-sm font-medium text-gray-900">Rutinas</h4>
+              <p class="text-xs text-gray-600 mt-1">Calentamiento y ejercicios</p>
+            </button>
+
+            <!-- Contenido Educativo -->
+            <button class="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-center transition-colors duration-200">
+              <div class="w-8 h-8 bg-yellow-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h4 class="text-sm font-medium text-gray-900">Aprende</h4>
+              <p class="text-xs text-gray-600 mt-1">Contenido educativo</p>
+            </button>
+
+            <!-- Mi Perfil -->
+            <button
+              (click)="goToProfile()"
+              class="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors duration-200">
+              <div class="w-8 h-8 bg-purple-500 rounded-md mx-auto mb-2 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <h4 class="text-sm font-medium text-gray-900">Mi Perfil</h4>
+              <p class="text-xs text-gray-600 mt-1">Configurar cuenta</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
