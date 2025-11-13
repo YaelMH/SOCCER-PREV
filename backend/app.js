@@ -1,23 +1,33 @@
 // Importa el módulo Express para crear el servidor
 const express = require('express');
-
 // Importa CORS para permitir conexiones entre frontend y backend
 const cors = require('cors');
 
-// Inicializa la aplicación Express
 const app = express();
 
-// Middleware para permitir solicitudes desde otros dominios (CORS)
+// CORS abierto (dev). En prod limita: cors({ origin: 'https://tu-front.com' })
 app.use(cors());
-
-// Middleware para interpretar datos JSON enviados en las peticiones
+// Parseo JSON
 app.use(express.json());
 
-// Conecta la ruta '/api/recomendacion' con el archivo de rutas que vamos a crear
-const recomendacionRoute = require('./routes/recomendacion');
-app.use('/api/recomendacion', recomendacionRoute);
+// === Endpoints de diagnóstico ===
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, at: new Date().toISOString() });
+});
 
-// Inicia el servidor en el puerto 3000 y muestra un mensaje en consola
+app.post('/api/echo', (req, res) => {
+  console.log('/api/echo body:', req.body);
+  res.json({ you_sent: req.body, at: new Date().toISOString() });
+});
+
+// === Tu endpoint real ===
+const recomendacionRoute = require('./routes/recomendacion');
+app.use('/api/recomendacion', (req, res, next) => {
+  console.log('/api/recomendacion body:', req.body);
+  next();
+}, recomendacionRoute);
+
+// Server
 app.listen(3000, () => {
   console.log('Servidor backend escuchando en http://localhost:3000');
 });
