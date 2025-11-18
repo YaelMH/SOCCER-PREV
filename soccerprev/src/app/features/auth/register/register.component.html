@@ -1,0 +1,149 @@
+<div class="w-full max-w-xl mx-auto">
+  <div class="bg-app-card border border-app-border rounded-2xl shadow-xl p-6 sm:p-8">
+    <!-- Encabezado -->
+    <div class="mb-6 text-center">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+        Crear cuenta
+      </p>
+      <h1 class="mt-2 text-2xl sm:text-3xl font-bold">
+        Registro de Soccer-Prev
+      </h1>
+      <p class="mt-2 text-sm text-text-muted">
+        Ingrese sus datos para acceder a las funcionalidades de prevención de lesiones.
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <form
+      class="space-y-4"
+      (ngSubmit)="onSubmit()"
+      #registerForm="ngForm"
+    >
+      <!-- Nombre -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">
+          Nombre completo
+        </label>
+        <input
+          type="text"
+          name="fullName"
+          [(ngModel)]="form.fullName"
+          required
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+          placeholder="Nombre y apellidos"
+        />
+      </div>
+
+      <!-- Correo -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">
+          Correo institucional
+        </label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="form.email"
+          required
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+          placeholder="ejemplo@escom.ipn.mx"
+        />
+      </div>
+
+      <!-- Rol -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">
+          Rol en el equipo
+        </label>
+        <select
+          name="role"
+          [(ngModel)]="form.role"
+          required
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+        >
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="player">Jugador</option>
+          <option value="coach">Entrenador</option>
+          <option value="staff">Staff médico</option>
+        </select>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">
+            Contraseña
+          </label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="form.password"
+            required
+            minlength="6"
+            class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+            placeholder="********"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">
+            Confirmar contraseña
+          </label>
+          <input
+            type="password"
+            name="confirmPassword"
+            [(ngModel)]="form.confirmPassword"
+            required
+            minlength="6"
+            class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+            placeholder="********"
+          />
+        </div>
+      </div>
+
+      <!-- Términos -->
+      <div class="flex items-start gap-2 text-xs text-text-muted">
+        <input
+          type="checkbox"
+          name="terms"
+          [(ngModel)]="form.acceptTerms"
+          required
+          class="mt-0.5 h-4 w-4 rounded border-app-border bg-slate-900 text-primary focus:ring-primary"
+        />
+        <span>
+          Acepto el tratamiento de mis datos conforme a los lineamientos del proyecto de investigación
+          y únicamente para fines académicos.
+        </span>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div
+        *ngIf="errorMessage"
+        class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-lg px-3 py-2"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botón -->
+      <button
+        type="submit"
+        [disabled]="registerForm.invalid || loading"
+        class="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition"
+      >
+        <span *ngIf="!loading">Crear cuenta</span>
+        <span *ngIf="loading">Registrando usuario...</span>
+      </button>
+    </form>
+
+    <!-- Link a login -->
+    <div class="mt-4 text-xs text-center text-text-muted">
+      ¿Ya tiene una cuenta?
+      <button
+        type="button"
+        class="underline underline-offset-4 hover:text-primary"
+        (click)="goToLogin()"
+      >
+        Inicie sesión aquí
+      </button>
+    </div>
+  </div>
+</div>
