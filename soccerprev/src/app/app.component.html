@@ -1,5 +1,33 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-900">
-  <h1 class="text-3xl font-bold text-white">
-    Soccer-Prev Front 💪⚽
-  </h1>
+<div class="min-h-screen bg-app-bg text-text-main flex flex-col">
+  <!-- Navbar -->
+  <header class="border-b border-app-border bg-app-card/80 backdrop-blur flex items-center justify-between px-6 py-3">
+    <div class="flex items-center gap-2">
+      <div class="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold">
+        SP
+      </div>
+      <div>
+        <p class="text-sm font-semibold tracking-wide">
+          SOCCER-PREV
+        </p>
+        <p class="text-[11px] text-text-muted">
+          Prevención de lesiones en fútbol soccer
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 text-xs text-text-muted">
+      <!-- Aquí después pones nombre de usuario, rol, etc. -->
+      <span class="hidden sm:inline">TT2 · ESCOM</span>
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="flex-1 flex items-center justify-center px-4 py-6">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer muy discreto -->
+  <footer class="border-t border-app-border text-[11px] text-text-muted px-4 py-2 text-center">
+    SOCCER-PREV · Aplicación web para la prevención de lesiones · ESCOM - IPN
+  </footer>
 </div>
