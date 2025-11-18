@@ -1,0 +1,146 @@
+<div class="space-y-6">
+  <!-- Encabezado -->
+  <section class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+        Contenido preventivo
+      </p>
+      <h1 class="mt-1 text-2xl sm:text-3xl font-bold">
+        Contenido multimedia de prevención
+      </h1>
+      <p class="mt-2 text-sm text-text-muted max-w-xl">
+        Aquí consulto videos, infografías y artículos enfocados en prevenir lesiones de fútbol
+        soccer, alineados con los riesgos identificados en el TT-1.
+      </p>
+    </div>
+
+    <div class="text-[11px] text-text-muted rounded-2xl border border-app-border bg-app-card/80 px-4 py-3 max-w-xs">
+      <p class="font-semibold text-xs mb-1">Objetivo de este módulo</p>
+      <p>
+        Este módulo atiende el caso de uso <strong>CU5 – Visualizar Contenido Multimedia Preventivas</strong>
+        descrito en el documento TT-1.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filtros -->
+  <section class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <h2 class="text-sm font-semibold">Filtros de contenido</h2>
+      <div class="flex flex-wrap gap-2 text-xs">
+        <!-- Tipo -->
+        <div class="flex items-center gap-2">
+          <span class="text-text-muted">Tipo:</span>
+          <button
+            type="button"
+            class="px-2 py-1 rounded-full border text-[11px] transition"
+            [ngClass]="selectedType === 'todos'
+              ? 'bg-primary text-white border-primary'
+              : 'border-app-border text-text-muted hover:border-primary hover:text-primary'"
+            (click)="selectedType = 'todos'"
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 rounded-full border text-[11px] transition"
+            [ngClass]="selectedType === 'video'
+              ? 'bg-primary text-white border-primary'
+              : 'border-app-border text-text-muted hover:border-primary hover:text-primary'"
+            (click)="selectedType = 'video'"
+          >
+            Videos
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 rounded-full border text-[11px] transition"
+            [ngClass]="selectedType === 'infografia'
+              ? 'bg-primary text-white border-primary'
+              : 'border-app-border text-text-muted hover:border-primary hover:text-primary'"
+            (click)="selectedType = 'infografia'"
+          >
+            Infografías
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 rounded-full border text-[11px] transition"
+            [ngClass]="selectedType === 'articulo'
+              ? 'bg-primary text-white border-primary'
+              : 'border-app-border text-text-muted hover:border-primary hover:text-primary'"
+            (click)="selectedType = 'articulo'"
+          >
+            Artículos
+          </button>
+        </div>
+
+        <!-- Nivel -->
+        <div class="flex items-center gap-2">
+          <span class="text-text-muted">Nivel:</span>
+          <select
+            [(ngModel)]="selectedLevel"
+            class="rounded-full border border-app-border bg-slate-950 px-3 py-1 text-[11px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="todos">Todos</option>
+            <option value="básico">Básico</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzado">Avanzado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid de contenido -->
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <article
+      *ngFor="let item of filteredContents"
+      class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-lg shadow-slate-950/50"
+    >
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px]"
+            [ngClass]="{
+              'bg-primary/10 text-primary': item.type === 'video',
+              'bg-accent/10 text-accent': item.type === 'infografia',
+              'bg-warning/10 text-warning': item.type === 'articulo'
+            }"
+          >
+            {{ getTypeLabel(item.type) }}
+          </span>
+          <span class="text-[11px] text-text-muted">
+            {{ item.duration }}
+          </span>
+        </div>
+
+        <h3 class="text-sm font-semibold">
+          {{ item.title }}
+        </h3>
+        <p class="text-xs text-text-muted">
+          {{ item.description }}
+        </p>
+
+        <div class="flex flex-wrap gap-2 mt-2 text-[11px] text-text-muted">
+          <span class="rounded-full border border-app-border px-2 py-0.5">
+            Zona: {{ item.focusZone }}
+          </span>
+          <span class="rounded-full border border-app-border px-2 py-0.5">
+            Nivel: {{ item.level | titlecase }}
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between items-center text-[11px] text-text-muted">
+        <span>
+          *En TT-2 esta card se conecta a la fuente real (video/enlace).
+        </span>
+        <button
+          type="button"
+          class="rounded-full border border-primary/60 bg-primary/10 px-3 py-1 text-[11px] text-primary hover:bg-primary/20 transition"
+        >
+          Ver detalle
+        </button>
+      </div>
+    </article>
+  </section>
+</div>

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { AuthService } from '../../../auth/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -19,7 +19,7 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private AuthService: AuthService) {}
 
   onSubmit() {
     if (!this.form.email || !this.form.password) return;
@@ -28,6 +28,7 @@ export class LoginComponent {
     this.errorMessage = '';
 
     setTimeout(() => {
+      this.AuthService.login(this.form.email, this.form.password);
       this.loading = false;
       this.router.navigate(['/dashboard']); // futura ruta de panel principal
     }, 700);

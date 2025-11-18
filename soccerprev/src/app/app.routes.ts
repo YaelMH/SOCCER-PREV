@@ -6,17 +6,24 @@ import { DashboardComponent } from './features/dashboard/dashboard/dashboard.com
 import { ProfileComponent } from './features/profile/profile.component';
 import { ConditionComponent } from './features/condition/condition.component';
 import { HistoryComponent } from './features/history/history.component';
-
+import { ContentComponent } from './features/content/content.component';
+import { WarmupComponent } from './features/warmup/warmup.component';
+import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
+    // rutas públicas (sin sesión)
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegisterComponent },
-  { path: 'recuperar-password', component: RecoverPasswordComponent},
-  { path: 'perfil', component: ProfileComponent },
-  { path: 'condicion-actual', component: ConditionComponent },
-  { path: 'dashboard', component: DashboardComponent},
-  { path: 'historial', component: HistoryComponent },
+  { path: 'recuperar-password', component: RecoverPasswordComponent },
+
+  // rutas protegidas (solo con sesión)
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'perfil', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'condicion-actual', component: ConditionComponent, canActivate: [authGuard] },
+  { path: 'historial', component: HistoryComponent, canActivate: [authGuard] },
+  {path:  'contenido', component: ContentComponent, canActivate: [authGuard]},
+  {path:  'calentamiento', component: WarmupComponent, canActivate: [authGuard]},
+  // redirect por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];
-
