@@ -27,11 +27,8 @@ export class LoginComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    // Aquí después conectas con el servicio de Auth (Firebase o lo que hayan definido)
     setTimeout(() => {
       this.loading = false;
-
-      // por ahora, simula login exitoso
       this.router.navigate(['/dashboard']); // futura ruta de panel principal
     }, 700);
   }

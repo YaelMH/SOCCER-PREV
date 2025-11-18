@@ -5,6 +5,7 @@ import { RecoverPasswordComponent } from './features/auth/recover-password/recov
 import { DashboardComponent } from './features/dashboard/dashboard/dashboard.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { ConditionComponent } from './features/condition/condition.component';
+import { HistoryComponent } from './features/history/history.component';
 
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'perfil', component: ProfileComponent },
   { path: 'condicion-actual', component: ConditionComponent },
   { path: 'dashboard', component: DashboardComponent},
+  { path: 'historial', component: HistoryComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];

@@ -53,7 +53,6 @@ export class ProfileComponent {
   };
 
   toggleEdit() {
-    // Aquí luego conectas con servicio para guardar cambios.
     this.editing = !this.editing;
   }
 

@@ -65,10 +65,7 @@ export class ConditionComponent {
   submitMessage = '';
 
   onSubmit() {
-    // Aquí luego mandas esto a Firebase / API.
-    // Por ahora solo simula guardado.
     this.submitMessage = 'Condición registrada correctamente para el día de hoy.';
 
-    // En defensa de TT puedes decir que esto se manda al módulo de análisis de riesgo.
   }
 }

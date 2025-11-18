@@ -34,7 +34,6 @@ export class RegisterComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    // Aquí luego llamas servicio de registro (Firebase, API, etc.)
     setTimeout(() => {
       this.loading = false;
       // Simulación de registro exitoso

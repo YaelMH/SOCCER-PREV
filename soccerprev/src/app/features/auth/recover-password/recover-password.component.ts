@@ -21,7 +21,6 @@ export class RecoverPasswordComponent {
     this.loading = true;
     this.message = '';
 
-    // Aquí luego llamas a Firebase / API para enviar correo
     setTimeout(() => {
       this.loading = false;
       this.message =
