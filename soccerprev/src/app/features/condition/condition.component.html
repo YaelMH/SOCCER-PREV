@@ -1,0 +1,133 @@
+<div class="w-full max-w-4xl mx-auto space-y-6">
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+        Condición actual
+      </p>
+      <h1 class="mt-1 text-2xl sm:text-3xl font-bold">
+        Registro diario de condición
+      </h1>
+      <p class="mt-2 text-sm text-text-muted max-w-xl">
+        Capture su estado físico y de ánimo antes de la sesión. Esta información se usa para ajustar
+        el nivel de riesgo y las recomendaciones de la aplicación.
+      </p>
+    </div>
+
+    <span class="text-[11px] text-text-muted">
+      Fecha de registro: {{ today | date:'yyyy-MM-dd' }}
+    </span>
+  </div>
+
+  <!-- Formulario -->
+  <form class="space-y-5" (ngSubmit)="onSubmit()">
+    <!-- Estado de ánimo -->
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-3">
+      <label class="block text-sm font-medium text-text-main">
+        ¿Cómo se siente hoy?
+      </label>
+      <p class="text-xs text-text-muted">
+        Seleccione la opción que mejor describa su estado general antes del entrenamiento o partido.
+      </p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+        <button
+          *ngFor="let mood of moods"
+          type="button"
+          (click)="conditionForm.mood = mood.value"
+          [ngClass]="[
+            'p-3 rounded-lg text-center transition-all duration-200 hover:shadow-md border',
+            conditionForm.mood === mood.value
+              ? mood.color + ' border-primary ring-2 ring-offset-2 ring-primary/70'
+              : 'bg-slate-900 border-app-border text-text-muted'
+          ]"
+        >
+          <div class="text-2xl mb-1">{{ mood.emoji }}</div>
+          <div class="text-sm font-medium">{{ mood.label }}</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Carga física y descanso -->
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
+      <h2 class="text-sm font-semibold">Carga física y descanso</h2>
+
+      <div class="grid sm:grid-cols-3 gap-4 text-sm">
+        <!-- Horas de sueño -->
+        <div class="space-y-1">
+          <label class="text-xs text-text-muted">
+            Horas de sueño (última noche)
+          </label>
+          <input
+            type="number"
+            min="0"
+            max="24"
+            step="0.5"
+            [(ngModel)]="conditionForm.sleepHours"
+            name="sleepHours"
+            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+
+        <!-- Percepción de fatiga -->
+        <div class="space-y-1">
+          <label class="text-xs text-text-muted">
+            Percepción de fatiga (1 = muy baja, 10 = muy alta)
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            [(ngModel)]="conditionForm.fatigue"
+            name="fatigue"
+            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+
+        <!-- Dolor general -->
+        <div class="space-y-1">
+          <label class="text-xs text-text-muted">
+            Nivel de dolor general (1 = nada, 10 = intenso)
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            [(ngModel)]="conditionForm.pain"
+            name="pain"
+            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Zonas con molestia -->
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-3">
+      <h2 class="text-sm font-semibold">Zonas con molestia</h2>
+      <p class="text-xs text-text-muted">
+        Si presenta alguna molestia específica, descríbala brevemente.
+      </p>
+      <textarea
+        [(ngModel)]="conditionForm.discomfortAreas"
+        name="discomfortAreas"
+        rows="3"
+        class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 resize-none"
+        placeholder="Ejemplo: Molestia ligera en tobillo izquierdo al correr."
+      ></textarea>
+    </div>
+
+    <!-- Mensaje submit -->
+    <div *ngIf="submitMessage" class="text-xs bg-accent/10 border border-accent/40 text-accent rounded-lg px-3 py-2">
+      {{ submitMessage }}
+    </div>
+
+    <!-- Botón -->
+    <div class="flex justify-end">
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark transition"
+      >
+        Guardar condición de hoy
+      </button>
+    </div>
+  </form>
+</div>
