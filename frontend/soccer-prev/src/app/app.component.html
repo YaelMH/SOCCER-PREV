@@ -1,0 +1,22 @@
+<h2>Generar recomendación</h2>
+
+<form [formGroup]="form" (ngSubmit)="generar()">
+
+  <label>Nivel de dolor:</label>
+  <input type="number" formControlName="dolor_nivel">
+
+  <label>Zona del dolor:</label>
+  <input type="text" formControlName="dolor_zona">
+
+  <label>Días con dolor:</label>
+  <input type="number" formControlName="dolor_dias">
+
+  <button type="submit">Enviar</button>
+</form>
+
+<hr>
+
+<div *ngIf="resultado">
+  <h3>Respuesta del backend</h3>
+  <pre>{{ resultado | json }}</pre>
+</div>
