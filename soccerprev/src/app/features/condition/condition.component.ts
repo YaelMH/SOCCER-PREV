@@ -1,20 +1,28 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface MoodOption {
-  value: 'muy_bien' | 'bien' | 'cansado' | 'molesto';
-  label: string;
-  emoji: string;
-  color: string; // clases de Tailwind
-}
+import { RecommendationService } from '../../services/recommendation.service';
 
 interface ConditionForm {
-  mood: MoodOption['value'] | null;
-  sleepHours: number | null;
-  fatigue: number | null;
-  pain: number | null;
-  discomfortAreas: string;
+  edad: number | null;
+  peso: number | null;
+  estatura_m: number | null;
+  duracion_partido_min: number | null;
+  frecuencia_juego_semana: number | null;
+  entrena: number | null;
+  calienta: number | null;
+  calentamiento_min: number | null;
+  horas_sueno: number | null;
+  hidratacion_ok: number | null;
+  lesiones_ultimo_anno: number | null;
+  recuperacion_sem: number | null;
+  posicion: string;
+  nivel: string;
+  superficie: string;
+  clima: string;
+  dolor_nivel: number | null;
+  dolor_zona: string;
+  dolor_dias: number | null;
 }
 
 @Component({
@@ -27,45 +35,53 @@ interface ConditionForm {
 export class ConditionComponent {
   today = new Date();
 
-  moods: MoodOption[] = [
-    {
-      value: 'muy_bien',
-      label: 'Muy bien',
-      emoji: '💪',
-      color: 'bg-accent/10 text-accent'
-    },
-    {
-      value: 'bien',
-      label: 'Bien',
-      emoji: '🙂',
-      color: 'bg-primary/10 text-primary'
-    },
-    {
-      value: 'cansado',
-      label: 'Cansado',
-      emoji: '😮‍💨',
-      color: 'bg-warning/10 text-warning'
-    },
-    {
-      value: 'molesto',
-      label: 'Con dolor',
-      emoji: '🤕',
-      color: 'bg-danger/10 text-danger'
-    }
-  ];
-
   conditionForm: ConditionForm = {
-    mood: null,
-    sleepHours: null,
-    fatigue: null,
-    pain: null,
-    discomfortAreas: ''
+    edad: 22,
+    peso: 63,
+    estatura_m: 1.63,
+    duracion_partido_min: 90,
+    frecuencia_juego_semana: 2,
+    entrena: 1,
+    calienta: 1,
+    calentamiento_min: 15,
+    horas_sueno: 7,
+    hidratacion_ok: 1,
+    lesiones_ultimo_anno: 1,
+    recuperacion_sem: 1,
+    posicion: '1',
+    nivel: 'intermedio',
+    superficie: 'pasto',
+    clima: 'templado',
+    dolor_nivel: 4,
+    dolor_zona: 'tobillo izquierdo',
+    dolor_dias: 3
   };
 
   submitMessage = '';
+  cargando = false;
+  error = '';
+  recomendacion: any | null = null;   // aquí guardamos lo que devuelve el back
+
+  constructor(private recommendationService: RecommendationService) {}
 
   onSubmit() {
-    this.submitMessage = 'Condición registrada correctamente para el día de hoy.';
+    this.cargando = true;
+    this.error = '';
+    this.submitMessage = '';
+    this.recomendacion = null;
 
+    this.recommendationService.generarRecomendacion(this.conditionForm).subscribe({
+      next: (respuesta) => {
+        console.log('Respuesta del backend:', respuesta);
+        this.cargando = false;
+        this.recomendacion = respuesta;
+        this.submitMessage = 'Recomendación generada correctamente.';
+      },
+      error: (error) => {
+        console.error('Error al generar recomendación:', error);
+        this.cargando = false;
+        this.error = 'Ocurrió un error al generar la recomendación.';
+      }
+    });
   }
 }
