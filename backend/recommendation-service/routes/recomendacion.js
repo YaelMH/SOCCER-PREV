@@ -203,7 +203,7 @@ router.post('/', (req, res) => {
   ['nivel','superficie','clima'].forEach(k => { if (datos[k] !== undefined) datos[k] = normStr(datos[k]); });
 
   // 4) Llamo a Python SOLO para sugerir el tipo (la gravedad YA la tengo por dolor).
-  const scriptPath = path.resolve(__dirname, '../ml-inference-service/predict.py');
+  const scriptPath = path.resolve(__dirname, '../ml/predict.py');
   const py = spawn('python3', [scriptPath, JSON.stringify(datos)], { cwd: path.resolve(__dirname, '..') });
 
   let out = '', err = '';
