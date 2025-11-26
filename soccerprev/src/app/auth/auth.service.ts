@@ -1,43 +1,81 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+// 💥 NUEVA IMPORTACIÓN: sendPasswordResetEmail
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, authState, User, sendEmailVerification, sendPasswordResetEmail } from '@angular/fire/auth';
+import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root'
 })
 export class AuthService {
-  // aquí guardo la llave que voy a usar en localStorage para simular la sesión
-  private readonly TOKEN_KEY = 'soccerprev_token';
 
-  // aquí manejo el estado de si hay sesión o no
-  private loggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
+  private auth = inject(Auth);
+  private firestore = inject(Firestore);
 
-  constructor() {}
+  // Observable que avisa si hay sesión o no
+  authChanges(): Observable<User | null> {
+    return authState(this.auth);
+  }
 
-  // aquí reviso si ya existe un "token" guardado
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
-  }
+  // Saber si hay usuario activo (sin navbar)
+  isAuthenticated(): Promise<boolean> {
+    return new Promise(resolve => {
+      const sub = this.authChanges().subscribe(user => {
+        resolve(!!user);
+        sub.unsubscribe();
+      });
+    });
+  }
 
-  // aquí regreso el estado actual de autenticación (true/false)
-  isAuthenticated(): boolean {
-    return this.loggedIn$.value;
-  }
+  // ===========================
+  //      REGISTRO
+  // ===========================
+  async registerUser(email: string, password: string, data: any): Promise<void> {
+    
+    // 1. Crear el usuario en Firebase Authentication
+    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+    const user = credential.user; // Obtener el objeto User
+    const uid = user.uid;
 
-  // aquí expongo un observable para reaccionar a cambios de sesión en el template
-  authChanges(): Observable<boolean> {
-    return this.loggedIn$.asObservable();
-  }
+    await sendEmailVerification(user); 
 
-  // aquí simulo el login (después conecto esto a Firebase / backend real)
-  login(email: string, password: string): void {
-    // por ahora no valido nada, solo marco que ya hay sesión
-    localStorage.setItem(this.TOKEN_KEY, 'demo-token');
-    this.loggedIn$.next(true);
-  }
+    // 2. Guardar datos adicionales en Firestore
+    await setDoc(doc(this.firestore, 'users', uid), {
+      email: email,
+      
+      nombre: data.firstName, 
+      apellidoPaterno: data.lastNameP,
+      apellidoMaterno: data.lastNameM,
+      
+      birthDate: data.birthDate,
+      height: data.height,
+      weight: data.weight,
+      bmi: data.bmi,
+      position: data.position,
+      subPosition: data.subPosition,
+      createdAt: new Date()
+    });
+  }
 
-  // aquí cierro sesión
-  logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    this.loggedIn$.next(false);
-  }
+  // ===========================
+  //          LOGIN
+  // ===========================
+  async login(email: string, password: string) {
+    return await signInWithEmailAndPassword(this.auth, email, password);
+  }
+  
+  // ===========================
+  //   RESTABLECER CONTRASEÑA (NUEVO)
+  // ===========================
+  async resetPassword(email: string): Promise<void> {
+    // Llama a la función de Firebase para enviar el correo
+    return sendPasswordResetEmail(this.auth, email);
+  }
+
+  // ===========================
+  //         LOGOUT
+  // ===========================
+  async logout() {
+    await signOut(this.auth);
+  }
 }

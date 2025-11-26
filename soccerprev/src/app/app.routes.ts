@@ -11,18 +11,19 @@ import { WarmupComponent } from './features/warmup/warmup.component';
 import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
-    // rutas públicas (sin sesión)
+  // rutas públicas
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegisterComponent },
   { path: 'recuperar-password', component: RecoverPasswordComponent },
 
-  // rutas protegidas (solo con sesión)
+  // rutas protegidas
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'perfil', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'condicion-actual', component: ConditionComponent, canActivate: [authGuard] },
   { path: 'historial', component: HistoryComponent, canActivate: [authGuard] },
-  {path:  'contenido', component: ContentComponent, canActivate: [authGuard]},
-  {path:  'calentamiento', component: WarmupComponent, canActivate: [authGuard]},
+  { path: 'contenido', component: ContentComponent, canActivate: [authGuard] },
+  { path: 'calentamiento', component: WarmupComponent, canActivate: [authGuard] },
+
   // redirect por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }

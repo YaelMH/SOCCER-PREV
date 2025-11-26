@@ -1,80 +1,81 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-text-main">
   <!-- capa de brillo sutil -->
   <div class="pointer-events-none fixed inset-0 opacity-40 mix-blend-screen"
-        style="background: radial-gradient(circle at 0% 0%, #22c55e10 0, transparent 55%), radial-gradient(circle at 100% 100%, #2563eb15 0, transparent 55%);">
+    style="background: radial-gradient(circle at 0% 0%, #22c55e10 0, transparent 55%), radial-gradient(circle at 100% 100%, #2563eb15 0, transparent 55%);">
   </div>
 
   <!-- layout principal -->
   <div class="relative z-10 flex min-h-screen flex-col">
-    <!-- Navbar -->
+    <!-- Navbar: Se mantiene siempre visible (ya no usa *ngIf="showNav") -->
     <header class="border-b border-app-border/70 bg-app-card/80 backdrop-blur flex items-center justify-between px-4 sm:px-6 py-3">
-  <div class="flex items-center gap-2">
-    <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-xs font-bold shadow-lg shadow-primary/40">
-      SP
-    </div>
-    <div>
-      <p class="text-sm font-semibold tracking-wide">
-        SOCCER-PREV
-      </p>
-      <p class="text-[11px] text-text-muted">
-        Prevención inteligente de lesiones · ESCOM
-      </p>
-    </div>
-  </div>
-
-  <!-- NAV solo si ya hay sesión -->
-  <nav
-  class="hidden sm:flex items-center gap-4 text-xs"
-  *ngIf="(isAuthenticated$ | async)"
->
-  <a routerLink="/dashboard" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Panel
-  </a>
-  <a routerLink="/perfil" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Perfil
-  </a>
-  <a routerLink="/condicion-actual" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Condición
-  </a>
-  <a routerLink="/historial" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Historial
-  </a>
-  <a routerLink="/contenido" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Contenido
-  </a>
-  <a routerLink="/calentamiento" routerLinkActive="text-primary"
-     class="text-text-muted hover:text-primary transition">
-    Calentamiento
-  </a>
-</nav>
-
-
-  <!-- Info usuario / sesión -->
-  <div class="flex items-center gap-2 text-[11px]">
-    <ng-container *ngIf="(isAuthenticated$ | async); else noSession">
-      <div class="hidden sm:flex flex-col items-end leading-tight">
-        <span class="font-medium">Usuario demo</span>
-        <span class="text-text-muted">Jugador · TT2</span>
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-xs font-bold shadow-lg shadow-primary/40">
+          SP
+        </div>
+        <div>
+          <p class="text-sm font-semibold tracking-wide">
+            SOCCER-PREV
+          </p>
+          <p class="text-[11px] text-text-muted">
+            Prevención inteligente de lesiones · ESCOM
+          </p>
+        </div>
       </div>
-      <button
-        type="button"
-        class="rounded-full border border-app-border px-2 py-1 text-[11px] text-text-muted hover:border-danger hover:text-danger transition"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </button>
-    </ng-container>
 
-    <ng-template #noSession>
-      <span class="text-text-muted">No he iniciado sesión</span>
-    </ng-template>
-  </div>
-</header>
+      <!-- NAV: Solo visible si ya hay sesión -->
+      <nav
+        class="hidden sm:flex items-center gap-4 text-xs"
+        *ngIf="(isAuthenticated$ | async)"
+      >
+        <a routerLink="/dashboard" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Panel
+        </a>
+        <a routerLink="/perfil" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Perfil
+        </a>
+        <a routerLink="/condicion-actual" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Condición
+        </a>
+        <a routerLink="/historial" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Historial
+        </a>
+        <a routerLink="/contenido" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Contenido
+        </a>
+        <a routerLink="/calentamiento" routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition">
+          Calentamiento
+        </a>
+      </nav>
+
+
+      <!-- Info usuario / sesión: La lógica ya estaba correcta, *ngIf dentro -->
+      <div class="flex items-center gap-2 text-[11px]">
+        <ng-container *ngIf="(isAuthenticated$ | async); else noSession">
+          <div class="hidden sm:flex flex-col items-end leading-tight">
+            <span class="font-medium">Usuario demo</span>
+            <span class="text-text-muted">Jugador · TT2</span>
+          </div>
+          <button
+            type="button"
+            class="rounded-full border border-app-border px-2 py-1 text-[11px] text-text-muted hover:border-danger hover:text-danger transition"
+            (click)="logout()"
+          >
+            Cerrar sesión
+          </button>
+        </ng-container>
+
+        <!-- Mensaje de no sesión: Solo visible si NO hay sesión -->
+        <ng-template #noSession>
+          <span class="text-text-muted">No he iniciado sesión</span>
+        </ng-template>
+      </div>
+    </header>
 
 
     <!-- Contenido -->
@@ -84,7 +85,7 @@
       </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer: Se mantiene siempre visible (ya no usa *ngIf="showNav") -->
     <footer class="border-t border-app-border/70 text-[11px] text-text-muted px-4 sm:px-6 py-2 text-center">
       SOCCER-PREV · Proyecto de prevención de lesiones en fútbol soccer · ESCOM - IPN
     </footer>

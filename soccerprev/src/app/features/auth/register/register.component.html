@@ -1,5 +1,6 @@
 <div class="w-full max-w-xl mx-auto">
   <div class="bg-app-card border border-app-border rounded-2xl shadow-xl p-6 sm:p-8">
+
     <!-- Encabezado -->
     <div class="mb-6 text-center">
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
@@ -9,141 +10,288 @@
         Registro de Soccer-Prev
       </h1>
       <p class="mt-2 text-sm text-text-muted">
-        Ingrese sus datos para acceder a las funcionalidades de prevención de lesiones.
+        Ingrese sus datos para acceder a las funcionalidades de recomendación para prevención de lesiones.
       </p>
     </div>
 
-    <!-- Formulario -->
-    <form
-      class="space-y-4"
-      (ngSubmit)="onSubmit()"
-      #registerForm="ngForm"
-    >
-      <!-- Nombre -->
-      <div class="space-y-1">
-        <label class="text-sm font-medium text-text-main">
-          Nombre completo
-        </label>
-        <input
-          type="text"
-          name="fullName"
-          [(ngModel)]="form.fullName"
-          required
-          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-          placeholder="Nombre y apellidos"
-        />
-      </div>
+    <form class="space-y-4" (ngSubmit)="onSubmit()" #registerForm="ngForm">
 
-      <!-- Correo -->
-      <div class="space-y-1">
-        <label class="text-sm font-medium text-text-main">
-          Correo institucional
-        </label>
-        <input
-          type="email"
-          name="email"
-          [(ngModel)]="form.email"
-          required
-          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-          placeholder="ejemplo@escom.ipn.mx"
-        />
-      </div>
+      <!-- Nombres -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-      <!-- Rol -->
-      <div class="space-y-1">
-        <label class="text-sm font-medium text-text-main">
-          Rol en el equipo
-        </label>
-        <select
-          name="role"
-          [(ngModel)]="form.role"
-          required
-          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-        >
-          <option value="" disabled selected>Seleccione una opción</option>
-          <option value="player">Jugador</option>
-          <option value="coach">Entrenador</option>
-          <option value="staff">Staff médico</option>
-        </select>
-      </div>
-
-      <!-- Contraseña -->
-      <div class="grid sm:grid-cols-2 gap-4">
         <div class="space-y-1">
-          <label class="text-sm font-medium text-text-main">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            name="password"
-            [(ngModel)]="form.password"
-            required
-            minlength="6"
+          <label class="text-sm font-medium text-text-main">Nombre(s)</label>
+          <input type="text" name="firstName" [(ngModel)]="form.firstName" required
             class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-            placeholder="********"
-          />
+            placeholder="Ej. Juan" />
         </div>
 
         <div class="space-y-1">
-          <label class="text-sm font-medium text-text-main">
-            Confirmar contraseña
-          </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            [(ngModel)]="form.confirmPassword"
-            required
-            minlength="6"
+          <label class="text-sm font-medium text-text-main">Apellido paterno</label>
+          <input type="text" name="lastNameP" [(ngModel)]="form.lastNameP" required
             class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-            placeholder="********"
-          />
+            placeholder="Ej. Pérez" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">Apellido materno</label>
+          <input type="text" name="lastNameM" [(ngModel)]="form.lastNameM"
+            class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+            placeholder="Ej. López" />
+        </div>
+
+      </div>
+
+      <!-- Correo (CON VALIDACIÓN DE FORMATO) -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Correo institucional</label>
+        <input type="email" name="email" [(ngModel)]="form.email" required
+          email
+          #emailField="ngModel"
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+          placeholder="ejemplo@escom.ipn.mx" />
+
+        <!-- Mensaje de Error Específico para el correo -->
+        <div *ngIf="emailField.errors && (emailField.dirty || emailField.touched)" 
+             class="text-xs text-danger mt-1">
+          <span *ngIf="emailField.errors['required']">El correo es obligatorio.</span>
+          <span *ngIf="emailField.errors['email']">Por favor, ingrese un formato de correo electrónico válido.</span>
+        </div>
+      </div>
+
+      <!-- Fecha de nacimiento (Validación de edad en el TS) -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Fecha de nacimiento</label>
+        <input type="date" name="birthDate" [(ngModel)]="form.birthDate" required
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition" />
+        
+        <!-- MENSAJE DE ERROR DE EDAD -->
+        <div *ngIf="birthDateError"
+             class="text-xs text-danger mt-1">
+          {{ birthDateError }}
+        </div>
+      </div>
+
+      <!-- Estatura -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Estatura (m)</label>
+        <input type="number" step="0.01" name="height" [(ngModel)]="form.height" required
+          (input)="calculateBMI()"
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+          placeholder="Ej. 1.75" />
+      </div>
+
+      <!-- Peso -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Peso (kg)</label>
+        <input type="number" step="0.1" name="weight" [(ngModel)]="form.weight" required
+          (input)="calculateBMI()"
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+          placeholder="Ej. 70.5" />
+      </div>
+
+      <!-- IMC -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Índice de Masa Corporal (IMC)</label>
+        <p class="text-sm text-primary font-semibold">
+          {{ form.bmi || '—' }}
+        </p>
+      </div>
+
+      <p class="text-xs text-text-muted">
+        Estos datos pueden ser modificados en cualquier momento desde su perfil.
+      </p>
+
+      <!-- Posición -->
+      <div class="space-y-1">
+        <label class="text-sm font-medium text-text-main">Posición</label>
+        <select name="position" [(ngModel)]="form.position" required (change)="updateSubpositions()"
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="Portero">Portero</option>
+          <option value="Defensa">Defensa</option>
+          <option value="Mediocentro">Mediocentro</option>
+          <option value="Delantero">Delantero</option>
+        </select>
+      </div>
+
+      <!-- Subposición -->
+      <div class="space-y-1" *ngIf="subPositions.length > 0">
+        <label class="text-sm font-medium text-text-main">Subposición</label>
+        <select name="subPosition" [(ngModel)]="form.subPosition" required
+          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
+          <option value="" disabled selected>Seleccione una subcategoría</option>
+          <option *ngFor="let sub of subPositions" [value]="sub">{{ sub }}</option>
+        </select>
+      </div>
+
+      <!-- Contraseñas (CON TOGGLE Y VALIDACIÓN REGEX) -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <!-- Contraseña Principal -->
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">Contraseña</label>
+          <div class="relative">
+            <input 
+              [type]="passwordType" 
+              name="password" 
+              [(ngModel)]="form.password" 
+              required 
+              minlength="8" 
+              pattern="(?=.*[0-9])(?=.*[A-Z]).{8,}"
+              #passwordField="ngModel"
+              
+              class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition pr-10"
+              placeholder="********" />
+            
+            <!-- Botón del Ojo: Icono simple para el toggle -->
+            <button type="button" (click)="togglePasswordVisibility('password')"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-primary transition h-full">
+              <svg *ngIf="passwordType === 'password'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98.88A.825.825 0 0 1 4.75 0h14.5a.825.825 0 0 1 .77.625L19.5 3h-15L3.98.88ZM15 5.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h6Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+              </svg>
+              <svg *ngIf="passwordType === 'text'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 12A8.25 8.25 0 0 0 10.25 1.5C5.875 1.5 2.25 5.125 2.25 9.5c0 4.375 3.625 8 7.992 8.5L12 17.5c4.375 0 8-3.625 8-8s-3.625-8-8-8z" />
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Mensaje de Error Específico (RegEx) -->
+          <div *ngIf="passwordField.errors && (passwordField.dirty || passwordField.touched)" 
+               class="text-xs text-danger mt-1">
+            <span *ngIf="passwordField.errors['required']">La contraseña es obligatoria.</span>
+            <span *ngIf="passwordField.errors['pattern']">
+              Debe tener al menos 8 caracteres, una mayúscula y un número.
+            </span>
+          </div>
+        </div>
+
+        <!-- Confirmar Contraseña -->
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">Confirmar contraseña</label>
+          <div class="relative">
+            <input 
+              [type]="confirmPasswordType" 
+              name="confirmPassword" 
+              [(ngModel)]="form.confirmPassword" 
+              required 
+              minlength="8"
+              class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition pr-10"
+              placeholder="********" />
+
+            <!-- Botón del Ojo -->
+            <button type="button" (click)="togglePasswordVisibility('confirm')"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-primary transition h-full">
+              <svg *ngIf="confirmPasswordType === 'password'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98.88A.825.825 0 0 1 4.75 0h14.5a.825.825 0 0 1 .77.625L19.5 3h-15L3.98.88ZM15 5.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h6Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+              </svg>
+              <svg *ngIf="confirmPasswordType === 'text'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 12A8.25 8.25 0 0 0 10.25 1.5C5.875 1.5 2.25 5.125 2.25 9.5c0 4.375 3.625 8 7.992 8.5L12 17.5c4.375 0 8-3.625 8-8s-3.625-8-8-8z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Términos -->
       <div class="flex items-start gap-2 text-xs text-text-muted">
-        <input
-          type="checkbox"
-          name="terms"
-          [(ngModel)]="form.acceptTerms"
-          required
-          class="mt-0.5 h-4 w-4 rounded border-app-border bg-slate-900 text-primary focus:ring-primary"
-        />
+        <input type="checkbox" name="terms" [(ngModel)]="form.acceptTerms" required
+          class="mt-0.5 h-4 w-4 rounded border-app-border bg-slate-900 text-primary focus:ring-primary" />
         <span>
-          Acepto el tratamiento de mis datos conforme a los lineamientos del proyecto de investigación
-          y únicamente para fines académicos.
+          Acepto los
+          <button type="button" class="underline underline-offset-4 hover:text-primary"
+            (click)="openTermsModal()">
+            términos y condiciones
+          </button>
         </span>
       </div>
 
-      <!-- Mensaje de error -->
-      <div
-        *ngIf="errorMessage"
-        class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-lg px-3 py-2"
-      >
+      <!-- Error -->
+      <div *ngIf="errorMessage"
+        class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-lg px-3 py-2">
         {{ errorMessage }}
       </div>
 
       <!-- Botón -->
-      <button
-        type="submit"
-        [disabled]="registerForm.invalid || loading"
-        class="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition"
-      >
+      <button type="submit" [disabled]="registerForm.invalid || loading"
+        class="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark disabled:opacity-60 transition">
         <span *ngIf="!loading">Crear cuenta</span>
         <span *ngIf="loading">Registrando usuario...</span>
       </button>
+
     </form>
 
-    <!-- Link a login -->
     <div class="mt-4 text-xs text-center text-text-muted">
       ¿Ya tiene una cuenta?
-      <button
-        type="button"
-        class="underline underline-offset-4 hover:text-primary"
-        (click)="goToLogin()"
-      >
+      <button type="button" class="underline underline-offset-4 hover:text-primary"
+        (click)="goToLogin()">
         Inicie sesión aquí
       </button>
     </div>
+
   </div>
+</div>
+
+<!-- Modal Términos y Condiciones -->
+<div *ngIf="showTermsModal"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+
+  <div class="bg-slate-900 border border-app-border rounded-2xl max-w-lg w-full p-6 shadow-xl">
+    <h2 class="text-lg font-bold mb-3">Términos y condiciones</h2>
+
+    <p class="text-sm text-text-muted mb-4">
+      Las recomendaciones proporcionadas dentro de esta plataforma están respaldadas
+      por fisioterapeutas y se basan en información general enfocada en la prevención
+      de lesiones deportivas. Aunque pueden tomar en cuenta ciertos datos personales
+      del usuario, no constituyen un diagnóstico médico ni sustituyen la valoración
+      profesional individualizada.
+    </p>
+    
+    <p class="text-sm text-text-muted mb-4 font-semibold text-white">
+      Requisito de Edad: Para crear una cuenta y aceptar estos términos, usted debe 
+      confirmar que es mayor de 18 años.
+    </p>
+
+    <p class="text-sm text-text-muted mb-4">
+      Si alguna molestia persiste, aumenta o aparece una nueva lesión, el usuario debe
+      acudir con un médico o especialista de la salud. La plataforma se deslinda de
+      cualquier responsabilidad derivada del uso, interpretación o aplicación de las
+      recomendaciones ofrecidas.
+    </p>
+
+    <div class="flex justify-end gap-3">
+      <button (click)="closeTermsModal()"
+        class="px-4 py-2 text-sm bg-primary text-white rounded-xl shadow">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- NUEVO MODAL DE ÉXITO DE REGISTRO -->
+<div *ngIf="showSuccessModal"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+
+  <div class="bg-slate-900 border border-app-border rounded-2xl max-w-lg w-full p-6 shadow-xl text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-primary mx-auto mb-4">
+      <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-1.22l-3.29 3.29-1.745-1.745a.75.75 0 0 0-1.06 1.06l2.295 2.295a.75.75 0 0 0 1.06 0l3.845-3.845Z" clip-rule="evenodd" />
+    </svg>
+
+    <h2 class="text-xl font-bold mb-3">¡Registro Exitoso!</h2>
+
+    <p class="text-sm text-text-muted mb-6">
+      Hemos creado tu cuenta. Por favor, revisa la bandeja de entrada de tu correo electrónico 
+      (incluyendo la carpeta de *spam*) para completar la verificación de tu dirección.
+    </p>
+
+    <div class="flex justify-center">
+      <button (click)="closeSuccessModal()"
+        class="px-6 py-2.5 text-sm bg-primary text-white rounded-xl shadow font-semibold hover:bg-primary-dark transition">
+        Entendido, Ir a Iniciar Sesión
+      </button>
+    </div>
+  </div>
+
 </div>
