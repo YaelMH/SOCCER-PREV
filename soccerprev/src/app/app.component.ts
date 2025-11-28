@@ -1,39 +1,44 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// Importamos NavigationEnd para detectar el final de la navegación
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router'; 
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+
 import { AuthService } from './auth/auth.service';
-import { Observable } from 'rxjs';
-// Filtramos solo el evento de navegación final
-import { map } from 'rxjs/operators'; 
+import { Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { User } from '@angular/fire/auth';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
 export class AppComponent {
 
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  
-  // Devuelve true si hay usuario logueado (Firebase)
-  isAuthenticated$: Observable<boolean> = this.authService.authChanges().pipe(
-    map(user => !!user)
-  );
-  
-  // Eliminamos la lógica de showNav y el constructor.
-  // El header siempre se muestra, pero el contenido interno se restringe con isAuthenticated$.
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
+  // Saber si hay sesión
+  isAuthenticated$: Observable<boolean> = this.authService.authChanges().pipe(
+    map(user => !!user)
+  );
+
+  // Datos del usuario en Firestore
+  userData$: Observable<any> = this.authService.authChanges().pipe(
+    switchMap((user: User | null) => {
+      if (!user) return of(null);
+      return this.authService.getUserData(user.uid); // trae nombre, apellidos, posición, etc.
+    })
+  );
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

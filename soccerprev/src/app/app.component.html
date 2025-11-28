@@ -58,8 +58,12 @@
       <div class="flex items-center gap-2 text-[11px]">
         <ng-container *ngIf="(isAuthenticated$ | async); else noSession">
           <div class="hidden sm:flex flex-col items-end leading-tight">
-            <span class="font-medium">Usuario demo</span>
-            <span class="text-text-muted">Jugador · TT2</span>
+            <span class="font-medium">
+              {{ (userData$ | async)?.nombre }} {{ (userData$ | async)?.apellidoPaterno }}
+            </span>
+            <span class="text-text-muted">
+              {{ (userData$ | async)?.position }} · {{ (userData$ | async)?.subPosition }}
+            </span>
           </div>
           <button
             type="button"
