@@ -94,5 +94,37 @@
       "dolor_zona": "rodilla derecha",
       "dolor_dias": 3
     }
+  },
+  {
+    "id": 1764369526357,
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fechaISO": "2025-11-28T22:38:46.324Z",
+    "fecha": "28/11/25, 4:38 p.m.",
+    "tipo_lesion": "Fractura",
+    "gravedad": "Alta",
+    "descripcion": "Rotura ósea (dolor intenso y posible incapacidad funcional). Reportas dolor en tobillo (intensidad 4/10, 3 día(s)).",
+    "fuente": "Condición diaria + modelo",
+    "entrada": {
+      "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+      "edad": 22,
+      "peso": 63,
+      "estatura_m": 1.63,
+      "duracion_partido_min": 90,
+      "frecuencia_juego_semana": 2,
+      "entrena": 1,
+      "calienta": 1,
+      "calentamiento_min": 15,
+      "horas_sueno": 7,
+      "hidratacion_ok": 1,
+      "lesiones_ultimo_anno": 1,
+      "recuperacion_sem": 1,
+      "posicion": "1",
+      "nivel": "intermedio",
+      "superficie": "pasto",
+      "clima": "templado",
+      "dolor_nivel": 4,
+      "dolor_zona": "tobillo izquierdo",
+      "dolor_dias": 3
+    }
   }
 ]

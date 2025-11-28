@@ -14,16 +14,13 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'soccerprev' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('soccerprev');
-  });
-
-  it('should render title', () => {
+  // Test sencillo acorde al nuevo layout:
+  it('should render the main header', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, soccerprev');
+
+    // verificamos que exista el header del navbar
+    expect(compiled.querySelector('header')).toBeTruthy();
   });
 });

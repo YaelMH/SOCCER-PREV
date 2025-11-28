@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-// 💥 IMPORTS DE AUTH (incluye reset de contraseña)
+// IMPORTS DE AUTH (incluye reset de contraseña)
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -11,8 +11,9 @@ import {
   sendPasswordResetEmail
 } from '@angular/fire/auth';
 
-// 👇 docData para leer el perfil desde Firestore
+// IMPORTS DE FIRESTORE (incluye docData para leer perfil)
 import { Firestore, doc, setDoc, docData } from '@angular/fire/firestore';
+
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -24,14 +25,14 @@ export class AuthService {
   private firestore = inject(Firestore);
 
   // ===========================
-  //   OBSERVABLE DE USUARIO
+  //  OBSERVABLE DE SESIÓN
   // ===========================
   authChanges(): Observable<User | null> {
     return authState(this.auth);
   }
 
   // ===========================
-  //   SABER SI HAY SESIÓN
+  //  SABER SI HAY USUARIO ACTIVO
   // ===========================
   isAuthenticated(): Promise<boolean> {
     return new Promise(resolve => {
@@ -43,7 +44,7 @@ export class AuthService {
   }
 
   // ===========================
-  //        PERFIL (LECTURA)
+  //      PERFIL (LECTURA)
   // ===========================
   /**
    * Lee el documento de Firestore en la colección "users" con id = uid
@@ -51,8 +52,16 @@ export class AuthService {
    */
   getUserProfile(uid: string): Observable<any> {
     const ref = doc(this.firestore, 'users', uid);
-    // idField añade el campo "id" al objeto resultante con el uid del documento
     return docData(ref, { idField: 'id' });
+  }
+
+  /**
+   * ✔ Compatibilidad con código existente:
+   *    app.component.ts sigue usando getUserData(),
+   *    así que lo dejamos como alias de getUserProfile().
+   */
+  getUserData(uid: string): Observable<any> {
+    return this.getUserProfile(uid);
   }
 
   // ===========================
@@ -62,12 +71,13 @@ export class AuthService {
 
     // 1. Crear el usuario en Firebase Authentication
     const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-    const user = credential.user; // Obtener el objeto User
+    const user = credential.user;
     const uid = user.uid;
 
+    // 2. Enviar verificación de correo
     await sendEmailVerification(user);
 
-    // 2. Guardar datos adicionales en Firestore
+    // 3. Guardar datos adicionales en Firestore
     await setDoc(doc(this.firestore, 'users', uid), {
       email: email,
 
@@ -81,6 +91,7 @@ export class AuthService {
       bmi: data.bmi,
       position: data.position,
       subPosition: data.subPosition,
+
       createdAt: new Date()
     });
   }
