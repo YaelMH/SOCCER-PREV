@@ -1,28 +1,40 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-text-main">
   <!-- capa de brillo sutil -->
-  <div class="pointer-events-none fixed inset-0 opacity-40 mix-blend-screen"
-    style="background: radial-gradient(circle at 0% 0%, #22c55e10 0, transparent 55%), radial-gradient(circle at 100% 100%, #2563eb15 0, transparent 55%);">
-  </div>
+  <div
+    class="pointer-events-none fixed inset-0 opacity-40 mix-blend-screen"
+    style="
+      background:
+        radial-gradient(circle at 0% 0%, #22c55e10 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, #2563eb15 0, transparent 55%);
+    "
+  ></div>
 
   <!-- layout principal -->
   <div class="relative z-10 flex min-h-screen flex-col">
-    <!-- Navbar: Se mantiene siempre visible (ya no usa *ngIf="showNav") -->
-    <header class="border-b border-app-border/70 bg-app-card/80 backdrop-blur flex items-center justify-between px-4 sm:px-6 py-3">
+    <!-- NAVBAR (siempre visible) -->
+    <header
+      class="border-b border-app-border/70 bg-app-card/80 backdrop-blur flex items-center justify-between px-4 sm:px-6 py-3"
+    >
       <div class="flex items-center gap-2">
-      <div class="h-16 w-16 flex items-center justify-center rounded-xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden">
-      <img 
-        src="assets/LogoSoccer.png" 
-        alt="SOCCER-PREV Logo"
-        class="h-14 w-14 object-contain"
-      />
-      </div>
-      <div>
-        <p class="text-sm font-semibold tracking-wide">
-          SOCCER-PREV
-        </p>
-        <p class="text-[11px] text-text-muted">
-          ESCOM
-        </p>
+        <!-- Logo nuevo -->
+        <div
+          class="h-16 w-16 flex items-center justify-center rounded-xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden"
+        >
+          <img
+            src="assets/LogoSoccer.png"
+            alt="SOCCER-PREV Logo"
+            class="h-14 w-14 object-contain"
+          />
+        </div>
+
+        <!-- Texto de marca -->
+        <div>
+          <p class="text-sm font-semibold tracking-wide">
+            SOCCER-PREV
+          </p>
+          <p class="text-[11px] text-text-muted">
+            ESCOM
+          </p>
         </div>
       </div>
 
@@ -31,42 +43,62 @@
         class="hidden sm:flex items-center gap-4 text-xs"
         *ngIf="(isAuthenticated$ | async)"
       >
-        <a routerLink="/dashboard" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
           Panel
         </a>
-        <a routerLink="/perfil" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
+        <a
+          routerLink="/perfil"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
           Perfil
         </a>
-        <a routerLink="/condicion-actual" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
-          Condición
+        <a
+          routerLink="/condicion-actual"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
+          Recomendación
         </a>
-        <a routerLink="/historial" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
+        <a
+          routerLink="/historial"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
           Historial
         </a>
-        <a routerLink="/contenido" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
+        <a
+          routerLink="/contenido"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
           Contenido
         </a>
-        <a routerLink="/calentamiento" routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition">
+        <a
+          routerLink="/calentamiento"
+          routerLinkActive="text-primary"
+          class="text-text-muted hover:text-primary transition"
+        >
           Calentamiento
         </a>
       </nav>
 
-
-      <!-- Info usuario / sesión: La lógica ya estaba correcta, *ngIf dentro -->
+      <!-- Info usuario / sesión -->
       <div class="flex items-center gap-2 text-[11px]">
         <ng-container *ngIf="(isAuthenticated$ | async); else noSession">
           <div class="hidden sm:flex flex-col items-end leading-tight">
             <span class="font-medium">
-              {{ (userData$ | async)?.nombre }} {{ (userData$ | async)?.apellidoPaterno }}
+              {{ (userData$ | async)?.nombre }}
+              {{ (userData$ | async)?.apellidoPaterno }}
             </span>
             <span class="text-text-muted">
-              {{ (userData$ | async)?.position }} · {{ (userData$ | async)?.subPosition }}
+              {{ (userData$ | async)?.position }}
+              ·
+              {{ (userData$ | async)?.subPosition }}
             </span>
           </div>
           <button
@@ -78,13 +110,12 @@
           </button>
         </ng-container>
 
-        <!-- Mensaje de no sesión: Solo visible si NO hay sesión -->
+        <!-- Mensaje de no sesión -->
         <ng-template #noSession>
           <span class="text-text-muted">No he iniciado sesión</span>
         </ng-template>
       </div>
     </header>
-
 
     <!-- Contenido -->
     <main class="flex-1 px-3 sm:px-6 py-5">
@@ -93,8 +124,10 @@
       </div>
     </main>
 
-    <!-- Footer: Se mantiene siempre visible (ya no usa *ngIf="showNav") -->
-    <footer class="border-t border-app-border/70 text-[11px] text-text-muted px-4 sm:px-6 py-2 text-center">
+    <!-- Footer -->
+    <footer
+      class="border-t border-app-border/70 text-[11px] text-text-muted px-4 sm:px-6 py-2 text-center"
+    >
       SOCCER-PREV · Proyecto de prevención de lesiones en fútbol soccer · ESCOM - IPN
     </footer>
   </div>

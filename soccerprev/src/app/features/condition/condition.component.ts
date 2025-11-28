@@ -2,8 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RecommendationService } from '../../services/recommendation.service';
+import { AuthService } from '../../auth/auth.service';  // 👈 ESTA ES LA RUTA
 
 interface ConditionForm {
+  usuario_id?: string | null;   // 👈 para ligar historial por usuario
+
   edad: number | null;
   peso: number | null;
   estatura_m: number | null;
@@ -36,6 +39,8 @@ export class ConditionComponent {
   today = new Date();
 
   conditionForm: ConditionForm = {
+    usuario_id: null,   // se llenará con el uid/email del usuario
+
     edad: 22,
     peso: 63,
     estatura_m: 1.63,
@@ -60,9 +65,19 @@ export class ConditionComponent {
   submitMessage = '';
   cargando = false;
   error = '';
-  recomendacion: any | null = null;   // aquí guardamos lo que devuelve el back
+  recomendacion: any | null = null;
 
-  constructor(private recommendationService: RecommendationService) {}
+  constructor(
+    private recommendationService: RecommendationService,
+    private authService: AuthService
+  ) {
+    // Escuchamos el usuario que está loggeado
+    this.authService.authChanges().subscribe((user) => {
+      const usuarioId = user?.uid || user?.email || null;
+      this.conditionForm.usuario_id = usuarioId;
+      console.log('usuario_id desde Firebase/Auth =>', usuarioId);
+    });
+  }
 
   onSubmit() {
     this.cargando = true;

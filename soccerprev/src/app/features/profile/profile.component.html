@@ -33,7 +33,9 @@
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Nombre completo</label>
           <ng-container *ngIf="!editing; else nombreEdit">
-            <p class="font-medium">{{ profile.fullName }}</p>
+            <p class="font-medium">
+              {{ profile.fullName || 'Sin nombre capturado' }}
+            </p>
           </ng-container>
           <ng-template #nombreEdit>
             <input
@@ -47,7 +49,7 @@
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Correo</label>
           <p class="font-medium text-text-muted">
-            {{ profile.email }}
+            {{ profile.email || 'Sin correo' }}
           </p>
         </div>
 
@@ -55,7 +57,9 @@
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Rol en el equipo</label>
           <ng-container *ngIf="!editing; else rolEdit">
-            <p class="font-medium">{{ getRoleLabel(profile.role) }}</p>
+            <p class="font-medium">
+              {{ getRoleLabel(profile.role) || 'Sin rol' }}
+            </p>
           </ng-container>
           <ng-template #rolEdit>
             <select
@@ -73,7 +77,9 @@
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Posición principal</label>
           <ng-container *ngIf="!editing; else posicionEdit">
-            <p class="font-medium">{{ profile.position }}</p>
+            <p class="font-medium">
+              {{ profile.position || 'Sin posición registrada' }}
+            </p>
           </ng-container>
           <ng-template #posicionEdit>
             <input
@@ -84,26 +90,32 @@
           </ng-template>
         </div>
 
-        <!-- Edad -->
+        <!-- Edad (solo lectura, viene de la fecha de nacimiento) -->
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Edad</label>
-          <ng-container *ngIf="!editing; else edadEdit">
-            <p class="font-medium">{{ profile.age }} años</p>
-          </ng-container>
-          <ng-template #edadEdit>
-            <input
-              type="number"
-              [(ngModel)]="profile.age"
-              class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
-            />
-          </ng-template>
+          <p class="font-medium">
+            {{ profile.age ? (profile.age + ' años') : 'Sin fecha de nacimiento' }}
+          </p>
+          <p class="text-[11px] text-text-muted">
+            (Calculada automáticamente a partir de tu fecha de nacimiento del registro)
+          </p>
         </div>
 
         <!-- Dominancia -->
         <div class="space-y-1">
           <label class="text-xs text-text-muted">Pierna dominante</label>
           <ng-container *ngIf="!editing; else piernaEdit">
-            <p class="font-medium">{{ profile.dominantLeg }}</p>
+            <p class="font-medium">
+              {{
+                profile.dominantLeg === 'derecha'
+                  ? 'Derecha'
+                  : profile.dominantLeg === 'izquierda'
+                  ? 'Izquierda'
+                  : profile.dominantLeg === 'ambas'
+                  ? 'Ambas'
+                  : 'No especificado'
+              }}
+            </p>
           </ng-container>
           <ng-template #piernaEdit>
             <select
@@ -126,15 +138,22 @@
       <div class="space-y-2 text-xs text-text-muted">
         <div class="flex justify-between">
           <span>Partidos por semana</span>
-          <span class="font-medium text-text-main">{{ profile.matchesPerWeek }}</span>
+          <span class="font-medium text-text-main">
+            {{ profile.matchesPerWeek }}
+          </span>
         </div>
         <div class="flex justify-between">
           <span>Entrenamientos por semana</span>
-          <span class="font-medium text-text-main">{{ profile.trainingsPerWeek }}</span>
+          <span class="font-medium text-text-main">
+            {{ profile.trainingsPerWeek }}
+          </span>
         </div>
         <div class="flex justify-between">
           <span>Historial de lesiones</span>
-          <span class="font-medium" [ngClass]="profile.injuryHistory ? 'text-warning' : 'text-accent'">
+          <span
+            class="font-medium"
+            [ngClass]="profile.injuryHistory ? 'text-warning' : 'text-accent'"
+          >
             {{ profile.injuryHistory ? 'Sí' : 'No reportado' }}
           </span>
         </div>

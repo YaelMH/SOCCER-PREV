@@ -1,0 +1,5 @@
+edad,peso,estatura_m,posicion,nivel,frecuencia_juego_semana,duracion_partido_min,superficie,clima,entrena,calienta,calentamiento_min,horas_sueno,hidratacion_ok,lesiones_ultimo_anno,recuperacion_sem,dolor_nivel,dolor_dias,dolor_zona,tipo_lesion
+
+22,65,1.63,3,avanzado,2,60,sintetico,frio,1,1,0,7,1,1,0,3,1,rodilla derecha,Esguince
+22,63,1.63,3,avanzado,2,90,pasto,templado,1,1,15,7,1,2,1,5,1,mano izquierda,Otra lesión
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,rodilla derecha,Fractura
