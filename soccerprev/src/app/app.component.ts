@@ -24,6 +24,10 @@ export class AppComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  // Ruta CORRECTA - el archivo está en src/assets/
+  logoPath = 'assets/LogoSoccer.png';
+  imageLoaded = true;
+
   // Saber si hay sesión
   isAuthenticated$: Observable<boolean> = this.authService.authChanges().pipe(
     map(user => !!user)
@@ -33,7 +37,7 @@ export class AppComponent {
   userData$: Observable<any> = this.authService.authChanges().pipe(
     switchMap((user: User | null) => {
       if (!user) return of(null);
-      return this.authService.getUserData(user.uid); // trae nombre, apellidos, posición, etc.
+      return this.authService.getUserData(user.uid);
     })
   );
 
