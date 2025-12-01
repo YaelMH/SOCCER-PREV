@@ -4,3 +4,14 @@ edad,peso,estatura_m,posicion,nivel,frecuencia_juego_semana,duracion_partido_min
 22,63,1.63,3,avanzado,2,90,pasto,templado,1,1,15,7,1,2,1,5,1,mano izquierda,Otra lesión
 22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,rodilla derecha,Fractura
 22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Fractura
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,10,3,tobillo izquierdo,Fractura
+22,63,1.63,3,avanzado,2,90,pasto,templado,1,1,15,7,1,1,1,2,3,tobillo derecho,Fractura
+22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,1,1,tobillo izquierdo,Fractura
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Fractura
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,3,2,tobillo izquierdo,Esguince
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
+22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,rodilla,Esguince
+22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,8,3,rodilla,Fractura
+22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
+22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
+22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,3,1,6,7,mano,Luxación

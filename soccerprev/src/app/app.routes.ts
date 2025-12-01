@@ -23,8 +23,12 @@ export const routes: Routes = [
   { path: 'historial', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'contenido', component: ContentComponent, canActivate: [authGuard] },
   { path: 'calentamiento', component: WarmupComponent, canActivate: [authGuard] },
-
+  { path: 'feedback',
+  loadComponent: () =>
+    import('./features/feedback/feedback.component').then(m => m.FeedbackComponent)
+  },
   // redirect por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'login' },
+  
 ];

@@ -6,11 +6,33 @@ import { AuthService } from '../../auth/auth.service';
 type RiskLevel = 'bajo' | 'medio' | 'alto';
 
 interface RecommendationHistoryItem {
-  date: string;
-  type: string;
-  description: string;
+  // identificador para el modal / tracking
+  id: number | string;
+
+  // fechas
+  date: string;        // normalmente fechaISO
+  fechaTexto: string;  // fecha legible (local)
+
+  // datos principales
+  type: string;        // tipo_lesion
+  description: string; // descripcion
   riskLevel: RiskLevel;
-  source: string; // de dónde salió la recomendación (condición, IA, etc.)
+  gravedadRaw: string; // "Baja" | "Media" | "Alta" (texto original backend)
+  source: string;      // fuente
+
+  // info extra de la recomendación
+  recomendaciones: string[]; // array de strings
+  dolor?: {
+    nivel: number;
+    dias: number;
+    zona: string;
+  } | null;
+  especialista?: {
+    necesario: boolean;
+    urgente: boolean;
+    motivo: string;
+  } | null;
+  aviso?: string;
 }
 
 interface InjuryHistoryItem {
@@ -37,7 +59,7 @@ export class HistoryComponent implements OnInit {
   recommendations: RecommendationHistoryItem[] = [];
   filteredRecommendations: RecommendationHistoryItem[] = [];
 
-  // Por ahora las lesiones siguen mockeadas
+  // Lesiones mock (por ahora)
   injuries: InjuryHistoryItem[] = [
     {
       date: '2024-08-15',
@@ -61,6 +83,10 @@ export class HistoryComponent implements OnInit {
   // estado de carga / error
   loading = false;
   error = '';
+
+  // estado del modal de detalle
+  showDetailModal = false;
+  selectedRecommendation: RecommendationHistoryItem | null = null;
 
   constructor(
     private recommendationService: RecommendationService,
@@ -86,35 +112,41 @@ export class HistoryComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-      this.recommendationService.obtenerHistorial(usuarioId, 20).subscribe({
+    this.recommendationService.obtenerHistorial(usuarioId, 20).subscribe({
       next: (items: any[]) => {
-        // aquí transformas items en this.recommendations
-        this.recommendations = items.map((item: any) => ({
-          date: item.fechaISO ?? item.fecha ?? '',
-          type: item.tipo_lesion ?? 'Recomendación',
-          description: item.descripcion ?? '',
-          // aquí podrías mapear gravedad -> bajo/medio/alto
-          riskLevel:
-            item.gravedad === 'Alta'
-              ? 'alto'
-              : item.gravedad === 'Media'
-              ? 'medio'
-              : 'bajo',
-          source: item.fuente ?? 'Condición diaria + modelo'
-        }));
+        this.recommendations = items.map((item: any): RecommendationHistoryItem => {
+          const riskLevel = this.gravedadToRiskLevel(item.gravedad);
+
+          return {
+            id: item.id ?? item.fechaISO ?? item.fecha ?? Date.now().toString(),
+            date: item.fechaISO ?? item.fecha ?? '',
+            fechaTexto: item.fecha ?? item.fechaISO ?? '',
+            type: item.tipo_lesion ?? 'Recomendación',
+            description: item.descripcion ?? '',
+            riskLevel,
+            gravedadRaw: item.gravedad ?? '',
+            source: item.fuente ?? 'Condición diaria + modelo',
+            recomendaciones: Array.isArray(item.recomendaciones)
+              ? item.recomendaciones
+              : [],
+            dolor: item.dolor ?? null,
+            especialista: item.especialista ?? null,
+            aviso: item.aviso ?? '',
+          };
+        });
 
         this.filteredRecommendations = [...this.recommendations];
         this.loading = false;
       },
-      error: (err: any) => {           // 👈 aquí tipamos err para que no marque ts(7006)
+      error: (err: any) => {
         console.error('Error cargando historial:', err);
         this.error = 'No se pudo cargar el historial de recomendaciones.';
         this.loading = false;
-      }
+      },
     });
   }
 
-  //      FILTRO DE RIESGO
+  // ===== FILTRO DE RIESGO =====
 
   filterRisk(level: RiskLevel | 'todos') {
     if (level === 'todos') {
@@ -135,8 +167,19 @@ export class HistoryComponent implements OnInit {
     return 'bajo';
   }
 
+  // ===== MODAL DETALLE =====
 
-  //   ESTILOS DE RECOMENDACIÓN
+  openDetail(rec: RecommendationHistoryItem) {
+    this.selectedRecommendation = rec;
+    this.showDetailModal = true;
+  }
+
+  closeDetail() {
+    this.showDetailModal = false;
+    this.selectedRecommendation = null;
+  }
+
+  // ===== ESTILOS RECOMENDACIÓN =====
 
   getRiskPillClasses(risk: RiskLevel): string {
     switch (risk) {
@@ -164,7 +207,7 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-  //   ESTILOS DE LESIONES MOCK
+  // ===== ESTILOS LESIONES MOCK =====
 
   getSeverityPillClasses(severity: InjuryHistoryItem['severity']): string {
     switch (severity) {

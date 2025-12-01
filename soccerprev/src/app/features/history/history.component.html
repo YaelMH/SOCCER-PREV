@@ -96,7 +96,8 @@
             <th class="pb-2 pr-3 font-medium">Tipo</th>
             <th class="pb-2 pr-3 font-medium">Descripción</th>
             <th class="pb-2 pr-3 font-medium">Riesgo</th>
-            <th class="pb-2 font-medium">Fuente</th>
+            <th class="pb-2 pr-3 font-medium">Fuente</th>
+            <th class="pb-2 font-medium text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-app-border/70">
@@ -107,7 +108,7 @@
             <td class="py-2 pr-3 whitespace-nowrap">
               {{ rec.type }}
             </td>
-            <td class="py-2 pr-3 text-text-muted">
+            <td class="py-2 pr-3 text-text-muted max-w-xs truncate">
               {{ rec.description }}
             </td>
             <td class="py-2 pr-3">
@@ -121,6 +122,15 @@
             </td>
             <td class="py-2 whitespace-nowrap text-text-muted">
               {{ rec.source }}
+            </td>
+            <td class="py-2 pl-3 whitespace-nowrap text-right">
+              <button
+                type="button"
+                class="px-3 py-1 rounded-full border border-app-border text-[11px] hover:border-primary hover:text-primary transition"
+                (click)="openDetail(rec)"
+              >
+                Ver detalle
+              </button>
             </td>
           </tr>
         </tbody>
@@ -187,6 +197,77 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE RECOMENDACIÓN -->
+  <div
+    *ngIf="showDetailModal && selectedRecommendation as rec"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+  >
+    <div
+      class="relative max-w-xl w-full bg-app-card border border-app-border rounded-2xl p-5 sm:p-6 shadow-2xl"
+    >
+      <button
+        type="button"
+        class="absolute top-3 right-3 h-7 w-7 rounded-full border border-app-border flex items-center justify-center text-xs text-text-muted hover:border-danger hover:text-danger transition"
+        (click)="closeDetail()"
+      >
+        ✕
+      </button>
+
+      <p class="text-[11px] text-text-muted mb-1">
+        Fecha: <span class="font-medium text-text-main">{{ rec.fechaTexto || rec.date }}</span>
+      </p>
+      <h2 class="text-lg font-semibold mb-1">
+        Resultado de la recomendación
+      </h2>
+      <p class="text-xs text-text-muted mb-4">
+        Tipo de lesión estimada:
+        <span class="font-semibold text-text-main">{{ rec.type }}</span> ·
+        Gravedad:
+        <span class="font-semibold text-text-main">{{ rec.gravedadRaw || (rec.riskLevel | titlecase) }}</span>
+      </p>
+
+      <p class="text-sm text-text-main mb-3">
+        {{ rec.description }}
+      </p>
+
+      <div class="mb-3" *ngIf="rec.recomendaciones && rec.recomendaciones.length">
+        <p class="text-xs font-semibold mb-1">Recomendaciones principales:</p>
+        <ul class="list-disc list-inside text-xs text-text-muted space-y-0.5">
+          <li *ngFor="let r of rec.recomendaciones">
+            {{ r }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="mb-3" *ngIf="rec.dolor">
+        <p class="text-xs font-semibold mb-1">Resumen del dolor reportado:</p>
+        <p class="text-xs text-text-muted">
+          Intensidad:
+          <span class="font-medium text-text-main">{{ rec.dolor.nivel }}/10</span>,
+          duración:
+          <span class="font-medium text-text-main">{{ rec.dolor.dias }} día(s)</span>,
+          zona:
+          <span class="font-medium text-text-main">{{ rec.dolor.zona }}</span>.
+        </p>
+      </div>
+
+      <div class="mb-3" *ngIf="rec.especialista">
+        <p class="text-xs font-semibold mb-1">¿Debes acudir con especialista?</p>
+        <p class="text-xs text-text-muted">
+          <span class="font-medium text-text-main">
+            {{ rec.especialista.necesario ? 'Sí' : 'Por ahora no es imprescindible' }}
+            <ng-container *ngIf="rec.especialista.urgente"> (urgente)</ng-container>
+          </span>
+          · {{ rec.especialista.motivo }}
+        </p>
+      </div>
+
+      <p *ngIf="rec.aviso" class="text-[11px] text-text-muted mt-2">
+        {{ rec.aviso }}
+      </p>
     </div>
   </div>
 </div>

@@ -5,7 +5,9 @@
  *   - dolor_zona  (texto libre y lo normalizamos a zonas típicas)
  *   - dolor_dias  (duración en días)
  *
- * Si el modelo falla o tarda, igual se busca que devuelva una respuesta basada en dolor.
+ * El modelo de ML sugiere un tipo de lesión, pero aquí aplicamos reglas
+ * clínicas básicas para evitar que todo salga como "Fractura".
+ * Esto es ORIENTATIVO y NO sustituye una valoración médica profesional.
  */
 
 const express = require('express');
@@ -16,13 +18,15 @@ const fs = require('fs');
 const router = express.Router();
 
 /* ==========
- * ARCHIVOS LOCALES (historial + CSV para reentrenar)
+ * ARCHIVOS LOCALES (historial + feedback + CSV para reentrenar)
  * ========== */
 
 // Carpeta para datos locales del microservicio de recomendación
 const dataDir = path.resolve(__dirname, '../data');
 // JSON con historial de recomendaciones
 const historialPath = path.join(dataDir, 'historial_recomendaciones.json');
+// JSON con feedback de recomendaciones
+const feedbackPath = path.join(dataDir, 'feedback_recomendaciones.json');
 // CSV con nuevos casos para reentrenar el modelo
 const nuevosCsvPath = path.resolve(
   __dirname,
@@ -37,6 +41,10 @@ function asegurarArchivosLocales() {
 
     if (!fs.existsSync(historialPath)) {
       fs.writeFileSync(historialPath, '[]', 'utf8');
+    }
+
+    if (!fs.existsSync(feedbackPath)) {
+      fs.writeFileSync(feedbackPath, '[]', 'utf8');
     }
 
     if (!fs.existsSync(nuevosCsvPath)) {
@@ -81,13 +89,18 @@ function guardarRecomendacionLocal(datos, payload) {
 
     historial.push({
       id: Date.now(),
-      usuario_id: datos.usuario_id ?? null, // 👈 MUY IMPORTANTE
+      usuario_id: datos.usuario_id ?? null,
       fechaISO: payload.fechaISO,
       fecha: payload.fecha,
       tipo_lesion: payload.tipo_lesion,
       gravedad: payload.gravedad,
       descripcion: payload.descripcion,
       fuente: 'Condición diaria + modelo',
+      recomendaciones: payload.recomendaciones ?? [],
+      especialista: payload.especialista ?? null, // para el modal / detalle
+      dolor: payload.dolor ?? null,               // para el modal / detalle
+      estado_fisico: payload.estado_fisico ?? null, // 👈 NUEVO: guardamos estado físico
+      aviso: payload.aviso ?? '',
       entrada: datos
     });
 
@@ -129,8 +142,36 @@ function guardarRecomendacionLocal(datos, payload) {
   }
 }
 
+/** Guarda feedback de una recomendación en JSON plano. */
+function guardarFeedbackLocal(payload) {
+  try {
+    if (!fs.existsSync(feedbackPath)) {
+      fs.writeFileSync(feedbackPath, '[]', 'utf8');
+    }
+
+    const contenido = fs.readFileSync(feedbackPath, 'utf8');
+    const lista = JSON.parse(contenido);
+
+    const ahora = new Date();
+    const item = {
+      id: Date.now(),
+      fechaISO: ahora.toISOString(),
+      fecha: ahora.toLocaleString('es-MX', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }),
+      ...payload
+    };
+
+    lista.push(item);
+    fs.writeFileSync(feedbackPath, JSON.stringify(lista, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error guardando feedback_recomendaciones:', err);
+  }
+}
+
 /* ==========
- * LÓGICA DE NEGOCIO ORIGINAL
+ * LÓGICA DE NEGOCIO
  * ========== */
 
 /** Normalizar: se quitan nulos, se recorta y paso a minúsculas. */
@@ -138,7 +179,7 @@ function normStr(v) {
   return (v ?? '').toString().trim().toLowerCase();
 }
 
-/** Devuelve fecha local para mostrar ya cuando tengamos el front y también ISO por si la guardo en BD. */
+/** Devuelve fecha local + ISO. */
 function fechaAhora() {
   const d = new Date();
   return {
@@ -150,11 +191,10 @@ function fechaAhora() {
   };
 }
 
-/* Zonas tipo
- * Esta parte NO sustituye al modelo; solo me ayuda a orientar si el modelo responde "Otra lesión".
+/* Zonas tipo:
+ * No sustituyen al modelo; solo ayudan cuando el modelo es muy genérico
+ * o cuando corregimos falsos positivos de "Fractura".
  */
-
-/** Mapeo entradas libres de zona a etiquetas controladas. */
 function normalizaZona(z) {
   z = normStr(z);
   if (!z) return 'desconocida';
@@ -172,21 +212,20 @@ function normalizaZona(z) {
   if (z.includes('muñec') || z.includes('man') || z.includes('dedo'))
     return 'mano_muñeca';
   if (z.includes('pie')) return 'pie';
-  return z; // si no la reconoce, se deja tal cual se ingresó
+  return z;
 }
 
-/** Por zona (ya normalizada) sugiero un tipo genérico. */
 function tipoSugeridoPorZona(zonaNorm) {
   const mapa = {
     tobillo: 'Esguince',
-    rodilla: 'Esguince', // podría ser menisco/ligamento, lo dejo genérico
+    rodilla: 'Esguince',
     isquiotibiales: 'Desgarre',
     cuadriceps: 'Desgarre',
     muslo: 'Desgarre',
     pantorrilla: 'Desgarre',
     ingle: 'Desgarre',
-    hombro: 'Luxación', // típico si “se zafó” o hubo impacto
-    mano_muñeca: 'Otra lesión', // contusión/tendinopatía (o fractura si trauma fuerte)
+    hombro: 'Luxación',
+    mano_muñeca: 'Otra lesión',
     pie: 'Otra lesión',
     cadera: 'Otra lesión',
     espalda: 'Otra lesión'
@@ -195,11 +234,9 @@ function tipoSugeridoPorZona(zonaNorm) {
 }
 
 /*
- * La GRAVEDAD la definimos principalmente con nivel/duración del dolor o si es una fuerte lesión que tenga urgencia médica.
- *   - nivel ≥ 8  o días ≥ 14  -> Alta
- *   - nivel 5–7 o días 7–13   -> Media
- *   - resto                   -> Baja
- * Si el tipo final es “Fractura” o “Luxación”, fuerzo “Alta”.
+ * GRAVEDAD basada en dolor y duración.
+ * Tomamos como referencia que dolor muy intenso (≥8/10)
+ * o dolor que lleva ≥21 días sin mejorar se trata como "Alta" por seguridad.
  */
 function gravedadPorDolor(nivel, dias, tipoFinal) {
   const n = Number(nivel) || 0;
@@ -208,100 +245,169 @@ function gravedadPorDolor(nivel, dias, tipoFinal) {
   // Si el tipo implica urgencia por definición, priorizo Alta.
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') return 'Alta';
 
-  if (n >= 8 || d >= 14) return 'Alta';
+  if (n >= 8 || d >= 21) return 'Alta';
   if (n >= 5 || d >= 7) return 'Media';
   return 'Baja';
 }
 
-// NIVEL DE URGENCIA
+/*
+ * Reglas de corrección clínica para el tipo de lesión:
+ * - Si el modelo dice "Fractura" pero el dolor es bajo y reciente,
+ *   bajamos a Esguince/Desgarre/Otra lesión.
+ * - Si dice "Luxación" pero el dolor es bajo, la tratamos como algo menos grave.
+ * - Si el modelo es muy genérico ("Otra lesión"), usamos la zona.
+ */
+function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolor) {
+  const n = Number(nivelDolor) || 0;
+  const d = Number(diasDolor) || 0;
+  const sugeridoZona = tipoSugeridoPorZona(zonaNorm);
+
+  // 1) Si el modelo está vacío o es muy genérico
+  if (!tipoModelo || tipoModelo === 'Otra lesión') {
+    return sugeridoZona || 'Otra lesión';
+  }
+
+  // 2) Ajuste específico para "Fractura"
+  if (tipoModelo === 'Fractura') {
+    // Sospecha fuerte de fractura:
+    // - Dolor muy intenso (≥8)
+    // - O dolor intenso (≥7) y pocos días (≤3)
+    // - O dolor moderado/alto (≥6) que lleva ≥10 días
+    const sospechaFuerte =
+      n >= 8 ||
+      (n >= 7 && d <= 3) ||
+      (n >= 6 && d >= 10);
+
+    if (!sospechaFuerte) {
+      if (sugeridoZona && sugeridoZona !== 'Otra lesión') {
+        return sugeridoZona;
+      }
+      return 'Otra lesión';
+    }
+  }
+
+  // 3) Ajuste para "Luxación": suele ser muy dolorosa.
+  if (tipoModelo === 'Luxación' && n <= 5) {
+    if (sugeridoZona && sugeridoZona !== 'Otra lesión') {
+      return sugeridoZona;
+    }
+    return 'Otra lesión';
+  }
+
+  // 4) Esguince/Desgarre normalmente se respetan.
+  return tipoModelo;
+}
+
+// NIVEL DE URGENCIA / ESPECIALISTA
 function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona) {
-  // Urgencia inmediata si sospecho fractura o luxación.
+  const n = Number(nivelDolor) || 0;
+  const d = Number(diasDolor) || 0;
+
+  // Siempre urgencia si fractura/luxación
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') {
     return {
       necesario: true,
       urgente: true,
-      motivo: 'Sospecha de daño óseo/articular. Requiere valoración inmediata.'
+      motivo:
+        'Sospecha de daño óseo/articular importante. Es recomendable acudir a urgencias o valoración médica inmediata, sobre todo si hay deformidad, imposibilidad para apoyar o hinchazón marcada.'
     };
   }
-  // Dolor muy intenso o gravedad alta → sugerir valoración (no urgente).
-  if (gravedad === 'Alta' || Number(nivelDolor) >= 8) {
+
+  // Dolor muy intenso o gravedad alta → valoración prioritaria
+  if (gravedad === 'Alta' || n >= 8) {
     return {
       necesario: true,
       urgente: false,
       motivo:
-        'Dolor intenso o persistente. Recomendada valoración clínica/fisioterapia.'
+        'Dolor muy intenso o persistente. Se recomienda valoración médica o fisioterapia en los próximos días.'
     };
   }
-  // Articulaciones clave con dolor que no cede en 10 días → sugerir valoración.
+
+  // Articulaciones clave con dolor que no cede en ≥10 días
   const zonasCríticas = ['rodilla', 'hombro', 'tobillo'];
-  if (zonasCríticas.includes(zona) && Number(diasDolor) >= 10) {
+  if (zonasCríticas.includes(zona) && d >= 10) {
     return {
       necesario: true,
       urgente: false,
       motivo:
-        'Dolor persistente en articulación clave. Sugerida valoración.'
+        'Dolor persistente en una articulación importante. Es recomendable una valoración para descartar lesiones estructurales.'
     };
   }
-  // Caso leve/reciente → autocuidado y vigilancia 48–72 h.
+
+  // Caso leve/reciente → autocuidado con vigilancia
   return {
     necesario: false,
     urgente: false,
-    motivo: 'Si no mejora en 48–72 h o empeora, buscar valoración.'
+    motivo:
+      'Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad o no puedes apoyar, acude a valoración.'
   };
 }
 
-/** Generamos un texto corto que combine tipo + zona + intensidad/tiempo. */
+/** Descripción corta combinando tipo + zona + intensidad/tiempo. */
 function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
   const base = {
-    Esguince: 'Lesión de ligamentos por torsión/inestabilidad articular.',
-    Desgarre: 'Ruptura parcial de fibras musculares por sobrecarga o arranque.',
-    Fractura: 'Rotura ósea (dolor intenso y posible incapacidad funcional).',
-    Luxación: 'Pérdida de congruencia articular (se “zafa” la articulación).',
-    'Otra lesión': 'Molestia inespecífica (contusión, tendinopatía u otra).'
+    Esguince:
+      'Lesión de ligamentos por torsión/inestabilidad articular, frecuente en tobillo y rodilla.',
+    Desgarre:
+      'Lesión de fibras musculares (desde sobrecarga leve hasta ruptura parcial) típica en muslo, pantorrilla o ingle.',
+    Fractura:
+      'Posible rotura ósea. Suele acompañarse de dolor muy intenso, dificultad para apoyar y, a veces, deformidad visible.',
+    Luxación:
+      'Pérdida de congruencia de la articulación (se “zafa”), habitualmente muy dolorosa y con limitación importante del movimiento.',
+    'Otra lesión':
+      'Molestia inespecífica (contusión, sobrecarga, tendinopatía u otra alteración de tejidos blandos).'
   };
   const ztxt =
     zona !== 'desconocida'
       ? ` Reportas dolor en ${zona} (intensidad ${nivel}/10, ${dias} día(s)).`
       : ` Intensidad ${nivel}/10, ${dias} día(s).`;
+
   return (base[tipoFinal] || base['Otra lesión']) + ztxt;
 }
 
-/** Armo recomendaciones tipo PRICE y ajusto según gravedad/tipo. */
+/** Recomendaciones tipo PRICE/POLICE ajustadas por tipo y gravedad. */
 function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
   const PRICE = [
-    'Proteger e inmovilizar la zona lesionada.',
-    'Reposo relativo: evita movimientos/impactos dolorosos.',
-    'Hielo 15–20 min cada 2–3 h por 48 h (envolver, no directo).',
-    'Compresión ligera con venda elástica.',
-    'Elevación para disminuir inflamación.'
+    'Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.',
+    'Reposo relativo: mantente activo, pero sin forzar la zona dolorida.',
+    'Hielo 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).',
+    'Compresión ligera con venda elástica si es posible, sin cortar la circulación.',
+    'Elevación del segmento afectado para ayudar a disminuir la inflamación.'
   ];
 
   const porTipo = {
     Esguince: [
       ...PRICE,
-      'No calor/masajes 48–72 h.',
-      'Movilidad suave 48–72 h si cede dolor.',
-      'Fisioterapia: fuerza y propiocepción.'
+      'Evita calor local y masajes intensos durante las primeras 48–72 horas.',
+      'Introduce movilidad suave y progresiva cuando el dolor lo permita.',
+      'Valora entrenamiento de fuerza y propiocepción para prevenir recaídas.'
     ],
     Desgarre: [
       ...PRICE,
-      'Evita estirar fuerte 3–5 días.',
-      'Progresión de fuerza guiada.'
+      'Evita estiramientos fuertes sobre el músculo lesionado en los primeros 3–5 días.',
+      'Reincorpora la carga de forma progresiva (caminar, trote suave, sprints) según tolere el dolor.',
+      'Considera fisioterapia guiada si el dolor limita tus entrenamientos.'
     ],
     Fractura: [
-      'Inmoviliza. No intentes recolocar.',
-      'Frío envuelto. No apoyar.',
-      'Acude a urgencias de inmediato.'
+      'Inmoviliza la zona en la posición más cómoda posible.',
+      'No intentes recolocar la articulación ni “acomodar” el hueso.',
+      'Aplica frío envuelto si hay inflamación, evitando presionar directamente sobre posible deformidad.',
+      'No apoyes peso si hay sospecha en miembros inferiores.',
+      'Acude a urgencias o valoración médica inmediata.'
     ],
     Luxación: [
-      'Inmoviliza tal cual.',
-      'No recolocar.',
-      'Acude a urgencias de inmediato.'
+      'Inmoviliza la articulación tal y como quedó tras la lesión.',
+      'No intentes recolocarla por tu cuenta.',
+      'Aplica frío envuelto alrededor de la articulación.',
+      'Acude a urgencias de inmediato para reducción y valoración de tejidos asociados.'
     ],
-    'Otra lesión': [...PRICE, 'Si no mejora en 48–72 h, solicitar valoración.']
+    'Otra lesión': [
+      ...PRICE,
+      'Si el dolor o la inflamación no mejoran en 48–72 horas, o te limitan para entrenar, busca valoración médica o fisioterapia.'
+    ]
   };
 
-  // Si es alta y no es una urgencia “pura”, destaco el buscar valoración.
+  // Si es alta y no es fractura/luxación, enfatizamos la valoración.
   if (
     gravedad === 'Alta' &&
     (tipoFinal === 'Esguince' ||
@@ -309,24 +415,83 @@ function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
       tipoFinal === 'Otra lesión')
   ) {
     porTipo[tipoFinal].push(
-      'Dolor muy intenso o limitación fuerte → acudir a valoración médica.'
+      'El nivel de dolor o la duración sugieren una lesión relevante. Es recomendable una valoración médica para descartar daños estructurales.'
     );
   }
 
   return porTipo[tipoFinal] || porTipo['Otra lesión'];
 }
 
-/** Si el modelo da "Otra" y la zona es muy típica, me quedo con la de zona. */
-function decidirTipoFinal(tipoModelo, zonaNorm) {
-  const sugerido = tipoSugeridoPorZona(zonaNorm);
-  if (tipoModelo === 'Otra lesión' && sugerido) return sugerido;
-  return tipoModelo || sugerido || 'Otra lesión';
+/** Calcula un índice simple de carga semanal (0–100) y recomendación breve. */
+function calcularEstadoFisico(datos) {
+  const freq = Number(datos.frecuencia_juego_semana) || 0;   // sesiones/semana
+  const dur = Number(datos.duracion_partido_min) || 0;       // minutos por sesión
+  const extraEntrena = Number(datos.entrena) || 0;           // 0/1 si entrena extra
+  const horasSueno = Number(datos.horas_sueno) || 0;
+  const hidratacionOk =
+    datos.hidratacion_ok !== undefined ? Number(datos.hidratacion_ok) : NaN;
+  const lesionesUlt = Number(datos.lesiones_ultimo_anno) || 0;
+
+  // Carga base en minutos/semana
+  let cargaMin = freq * dur + extraEntrena * 30; // bonus de 30 min por entrenamiento adicional
+
+  // Escalamos a 0–100 tomando como referencia ~480 min (8 h/semana)
+  const cargaRefMin = 480;
+  let indice = (cargaMin / cargaRefMin) * 100;
+
+  if (!Number.isFinite(indice)) indice = 0;
+
+  // Ajustes por recuperación
+  if (horasSueno >= 7) {
+    indice += 5;
+  } else if (horasSueno > 0 && horasSueno < 6) {
+    indice -= 10;
+  }
+
+  if (!Number.isNaN(hidratacionOk)) {
+    if (hidratacionOk === 1) indice += 3;
+    if (hidratacionOk === 0) indice -= 5;
+  }
+
+  if (lesionesUlt >= 2) indice -= 5;
+
+  // Clamp 0–100
+  if (indice > 100) indice = 100;
+  if (indice < 0) indice = 0;
+
+  let categoria;
+  let recomendacion;
+
+  if (indice < 50) {
+    categoria = 'baja';
+    recomendacion =
+      'Tu carga semanal parece baja o tu recuperación no es óptima. Aumenta volumen e intensidad de forma progresiva y cuida sueño y calentamiento.';
+  } else if (indice < 75) {
+    categoria = 'moderada';
+    recomendacion =
+      'Tu carga semanal es moderada. Mantén la progresión gradual, respeta los días de descanso y escucha signos tempranos de fatiga.';
+  } else {
+    categoria = 'alta';
+    recomendacion =
+      'Tu carga semanal es alta. Vigila molestias persistentes, ajusta intensidad si notas sobrecarga y refuerza recuperación (sueño, hidratación, estiramientos).';
+  }
+
+  return {
+    indice: Math.round(indice),
+    categoria,      // 'baja' | 'moderada' | 'alta'
+    recomendacion
+  };
 }
 
 /** Construyo el payload final que consume el frontend. */
 function construirRespuesta({ tipoModelo, datos }) {
   const zonaNorm = normalizaZona(datos.dolor_zona);
-  const tipoFinal = decidirTipoFinal(tipoModelo, zonaNorm);
+  const tipoFinal = decidirTipoFinalSegunClinica(
+    tipoModelo,
+    zonaNorm,
+    datos.dolor_nivel,
+    datos.dolor_dias
+  );
   const gravedad = gravedadPorDolor(
     datos.dolor_nivel,
     datos.dolor_dias,
@@ -341,13 +506,16 @@ function construirRespuesta({ tipoModelo, datos }) {
   );
   const fecha = fechaAhora();
 
+  // 👇 NUEVO: cálculo de estado físico / carga semanal
+  const estadoFisico = calcularEstadoFisico(datos);
+
   return {
     fecha: fecha.local,
     fechaISO: fecha.iso,
     tipo_lesion: tipoFinal,
     nombre: `Lesión compatible con ${normStr(tipoFinal)}`,
-    gravedad, // Baja / Media / Alta (definida por dolor)
-    especialista, // necesario/urgente y motivo
+    gravedad, // Baja / Media / Alta
+    especialista,
     descripcion: descripcionPorTipo(
       tipoFinal,
       zonaNorm,
@@ -356,17 +524,18 @@ function construirRespuesta({ tipoModelo, datos }) {
     ),
     recomendaciones: recomendacionesPorTipoYDolor(tipoFinal, gravedad),
     dolor: {
-      // eco que uso en UI o para auditoría
       nivel: Number(datos.dolor_nivel) || 0,
       dias: Number(datos.dolor_dias) || 0,
       zona: zonaNorm
     },
-    aviso: 'Orientación informativa; no reemplaza una valoración médica.'
+    estado_fisico: estadoFisico, // 👈 NUEVO: se manda al frontend
+    aviso:
+      'Orientación informativa basada en síntomas reportados. No sustituye una valoración médica ni un diagnóstico profesional.'
   };
 }
 
 /* ==========
- * POST /api/recomendacion  (genera recomendación + guarda historial)
+ * POST /api/recomendacion  (genera recomendación)
  * ========== */
 
 router.post('/', (req, res) => {
@@ -375,7 +544,6 @@ router.post('/', (req, res) => {
   console.log('==== NUEVA PETICIÓN /api/recomendacion ====');
   console.log('/api/recomendacion body:', datos);
 
-  // 1) Valido lo esencial: sin dolor_* no puedo priorizar gravedad.
   if (
     datos.dolor_nivel === undefined ||
     datos.dolor_zona === undefined ||
@@ -386,12 +554,10 @@ router.post('/', (req, res) => {
     });
   }
 
-  // 2) Normalizo/casteo lo principal de las entradas obligatorias.
   datos.dolor_nivel = Number(datos.dolor_nivel);
   datos.dolor_dias = Number(datos.dolor_dias);
   datos.dolor_zona = normStr(datos.dolor_zona);
 
-  // 3) (Opcional) Casteo el resto si llegan; el pipeline de Python quitará faltantes.
   const nums = [
     'edad',
     'peso',
@@ -418,14 +584,12 @@ router.post('/', (req, res) => {
     if (datos[k] !== undefined) datos[k] = normStr(datos[k]);
   });
 
-  // Carpeta del microservicio de ML
   const mlDir = path.resolve(__dirname, '../../ml-inference-service');
   const scriptPath = path.resolve(mlDir, 'predict.py');
 
   console.log('mlDir      =>', mlDir);
   console.log('scriptPath =>', scriptPath);
 
-  // Lanzamos python3 (del sistema). Si falla, caemos a fallback.
   const py = spawn('python3', [scriptPath, JSON.stringify(datos)], {
     cwd: mlDir
   });
@@ -433,7 +597,6 @@ router.post('/', (req, res) => {
   let out = '';
   let err = '';
 
-  // Timeout DEFENSIVO (5 s)
   const killer = setTimeout(() => {
     console.error('*** Timeout ejecutando Python (5s) ***');
 
@@ -443,7 +606,6 @@ router.post('/', (req, res) => {
         datos
       });
 
-      // Guardar también cuando usamos fallback por timeout
       guardarRecomendacionLocal(datos, payload);
 
       console.log('→ Respondiendo por TIMEOUT con fallback JS');
@@ -472,7 +634,6 @@ router.post('/', (req, res) => {
         datos
       });
 
-      // Guardar también en caso de error al lanzar Python
       guardarRecomendacionLocal(datos, payload);
 
       console.log('→ Respondiendo por ERROR al lanzar Python con fallback JS');
@@ -485,9 +646,7 @@ router.post('/', (req, res) => {
     console.log('Python terminó con código:', code);
 
     if (res.headersSent) {
-      console.log(
-        'Respuesta ya enviada (timeout/error), no se envía de nuevo.'
-      );
+      console.log('Respuesta ya enviada (timeout/error), no se envía de nuevo.');
       return;
     }
 
@@ -503,12 +662,59 @@ router.post('/', (req, res) => {
 
     const payload = construirRespuesta({ tipoModelo, datos });
 
-    // Guardar cuando todo sale bien con el modelo
     guardarRecomendacionLocal(datos, payload);
 
     console.log('→ Respondiendo con payload basado en modelo');
     return res.status(200).json(payload);
   });
+});
+
+/* ==========
+ * POST /api/recomendacion/feedback
+ *  - Guarda evaluación de una recomendación
+ * ========== */
+
+router.post('/feedback', (req, res) => {
+  const body = req.body || {};
+  console.log('==== NUEVO FEEDBACK /api/recomendacion/feedback ====');
+  console.log('payload:', body);
+
+  const {
+    usuario_id,
+    recomendacion_id,
+    aplicada,
+    util_prevenir,
+    claridad,
+    estrellas,
+    comentario
+  } = body;
+
+  if (
+    !usuario_id ||
+    recomendacion_id === undefined ||
+    util_prevenir === undefined ||
+    claridad === undefined ||
+    estrellas === undefined
+  ) {
+    return res.status(400).json({
+      error:
+        'Campos requeridos: usuario_id, recomendacion_id, util_prevenir, claridad, estrellas'
+    });
+  }
+
+  const feedbackItem = {
+    usuario_id: String(usuario_id),
+    recomendacion_id: Number(recomendacion_id),
+    aplicada: Boolean(aplicada),
+    util_prevenir: Number(util_prevenir),
+    claridad: Number(claridad),
+    estrellas: Number(estrellas),
+    comentario: comentario ? String(comentario) : ''
+  };
+
+  guardarFeedbackLocal(feedbackItem);
+
+  return res.status(201).json({ ok: true });
 });
 
 /* ==========
@@ -528,14 +734,10 @@ router.get('/historial', (req, res) => {
     const contenido = fs.readFileSync(historialPath, 'utf8');
     let historial = JSON.parse(contenido);
 
-    // Filtrar por usuario si lo mandan
     if (usuario_id) {
-      historial = historial.filter(
-        (item) => item.usuario_id === usuario_id
-      );
+      historial = historial.filter((item) => item.usuario_id === usuario_id);
     }
 
-    // Ordenar por fecha más reciente primero
     historial.sort((a, b) => {
       const fa = a.fechaISO || a.fecha || '';
       const fb = b.fechaISO || b.fecha || '';
