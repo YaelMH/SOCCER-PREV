@@ -1,7 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core'; // 💡 Agregamos OnInit
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+// 💡 NOTA DE RUTA: Dependiendo de tu estructura, si 'login' está en 'auth/login', 
+// la ruta a 'auth.service' podría ser '../auth.service' o './auth.service' si 
+// el servicio fue movido. Dejaremos '../../../auth/auth.service' si funciona.
 import { AuthService } from '../../../auth/auth.service';
 
 @Component({
@@ -11,7 +14,7 @@ import { AuthService } from '../../../auth/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit { // 💡 Implementamos OnInit
 
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -26,6 +29,24 @@ export class LoginComponent {
 
   // 👁️ Control de visibilidad del password
   public passwordType: 'password' | 'text' = 'password';
+
+  /**
+   * 💡 LÓGICA CLAVE: Redirigir si el usuario ya está autenticado.
+   * Esto se ejecuta inmediatamente cuando el componente se carga.
+   */
+  ngOnInit() {
+    this.authService.authChanges().subscribe(user => {
+      // 1. Si hay un objeto de usuario (sesión válida según Firebase y la persistencia)...
+      if (user) {
+        console.log('LoginComponent: Sesión existente detectada. Redirigiendo a /dashboard.');
+        
+        // 2. Redirigimos inmediatamente al dashboard.
+        // Usamos la ruta '/dashboard' que usas en el método onSubmit().
+        this.router.navigateByUrl('/dashboard'); 
+      }
+      // 3. Si user es null, el observable termina y se queda en la pantalla de login.
+    });
+  }
 
   togglePasswordVisibility(): void {
     this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
@@ -46,7 +67,8 @@ export class LoginComponent {
       const user = userCredential.user;
 
       if (user.emailVerified) {
-        this.router.navigate(['/dashboard']);
+        // Redirección después de iniciar sesión con éxito
+        this.router.navigate(['/dashboard']); 
       } else {
         await this.authService.logout();
         this.errorMessage = 'Su correo no ha sido verificado. Revise su bandeja de entrada (incluyendo spam).';
