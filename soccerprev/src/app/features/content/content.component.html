@@ -9,16 +9,18 @@
         Contenido multimedia de prevención
       </h1>
       <p class="mt-2 text-sm text-text-muted max-w-xl">
-        Aquí consulto videos, infografías y artículos enfocados en prevenir lesiones de fútbol
-        soccer, alineados con los riesgos identificados en el TT-1.
+        Aquí podrás consultar videos, infografías y artículos enfocados en prevenir lesiones de fútbol
+        soccer.
       </p>
     </div>
 
-    <div class="text-[11px] text-text-muted rounded-2xl border border-app-border bg-app-card/80 px-4 py-3 max-w-xs">
+    <div
+      class="text-[11px] text-text-muted rounded-2xl border border-app-border bg-app-card/80 px-4 py-3 max-w-xs"
+    >
       <p class="font-semibold text-xs mb-1">Objetivo de este módulo</p>
       <p>
-        Este módulo atiende el caso de uso <strong>CU5 – Visualizar Contenido Multimedia Preventivas</strong>
-        descrito en el documento TT-1.
+        Este módulo atiende:
+        <strong>Informar a jugadores sobre lesiones.</strong>
       </p>
     </div>
   </section>
@@ -72,26 +74,23 @@
             Artículos
           </button>
         </div>
-
-        <!-- Nivel -->
-        <div class="flex items-center gap-2">
-          <span class="text-text-muted">Nivel:</span>
-          <select
-            [(ngModel)]="selectedLevel"
-            class="rounded-full border border-app-border bg-slate-950 px-3 py-1 text-[11px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/40"
-          >
-            <option value="todos">Todos</option>
-            <option value="básico">Básico</option>
-            <option value="intermedio">Intermedio</option>
-            <option value="avanzado">Avanzado</option>
-          </select>
-        </div>
       </div>
     </div>
   </section>
 
+  <!-- Estado de carga / error -->
+  <div *ngIf="loading" class="text-xs text-text-muted">
+    Cargando contenido preventivo...
+  </div>
+  <div *ngIf="!loading && errorMessage" class="text-xs text-red-400">
+    {{ errorMessage }}
+  </div>
+
   <!-- Grid de contenido -->
-  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+  <section
+    *ngIf="!loading && !errorMessage"
+    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+  >
     <article
       *ngFor="let item of filteredContents"
       class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-lg shadow-slate-950/50"
@@ -124,22 +123,21 @@
           <span class="rounded-full border border-app-border px-2 py-0.5">
             Zona: {{ item.focusZone }}
           </span>
-          <span class="rounded-full border border-app-border px-2 py-0.5">
-            Nivel: {{ item.level | titlecase }}
-          </span>
         </div>
       </div>
 
-      <div class="mt-4 flex justify-between items-center text-[11px] text-text-muted">
+      <div class="mt-4 flex flex-col gap-2 text-[11px] text-text-muted">
         <span>
-          *En TT-2 esta card se conecta a la fuente real (video/enlace).
+          Fuente: <strong>{{ item.sourceName }}</strong>
         </span>
-        <button
-          type="button"
-          class="rounded-full border border-primary/60 bg-primary/10 px-3 py-1 text-[11px] text-primary hover:bg-primary/20 transition"
+        <a
+          class="self-end rounded-full border border-primary/60 bg-primary/10 px-3 py-1 text-[11px] text-primary hover:bg-primary/20 transition"
+          [href]="item.sourceUrl"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Ver detalle
-        </button>
+          Ver contenido original
+        </a>
       </div>
     </article>
   </section>

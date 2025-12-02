@@ -1,3 +1,4 @@
+// src/environments/environment.ts
 export const environment = {
   production: false,
 
@@ -11,7 +12,7 @@ export const environment = {
     projectId: "soccerprev-96e6a",
     storageBucket: "soccerprev-96e6a.appspot.com",
     messagingSenderId: "513293705227",
-    appId: "1:513293705227:web:d595c649ad edc55458a70e", // deja tal cual como lo tengas
+    appId: "1:513293705227:web:d595c649adedc55458a70e", // deja tal cual como lo tengas
     measurementId: "G-4D46C0NBQ2"
   }
 };
