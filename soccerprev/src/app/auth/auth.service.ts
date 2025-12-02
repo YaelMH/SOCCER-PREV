@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-// IMPORTS DE AUTH DE ANGULARFIRE (para User, authState, y funciones envueltas)
+// IMPORTS DE AUTH (incluye reset de contraseña)
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -12,11 +12,10 @@ import {
   sendPasswordResetEmail
 } from '@angular/fire/auth';
 
-// 💡 IMPORTS CORREGIDOS: setPersistence y browserLocalPersistence NO están en @angular/fire/auth.
-// Deben importarse directamente del SDK de Firebase ('firebase/auth').
-import { setPersistence, browserLocalPersistence } from 'firebase/auth';
+// 👇 Importamos la persistencia de Firebase (SDK base)
+import { browserSessionPersistence, setPersistence } from 'firebase/auth';
 
-// IMPORTS DE FIRESTORE
+// IMPORTS DE FIRESTORE (incluye docData para leer perfil)
 import { Firestore, doc, setDoc, docData } from '@angular/fire/firestore';
 
 import { Observable } from 'rxjs';
@@ -29,21 +28,40 @@ export class AuthService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
 
+  constructor() {
+    // 🔥 Persistencia por sesión de pestaña:
+    // - Cierra sesión al CERRAR la pestaña.
+    // - Si solo recargas la misma pestaña, la sesión sigue (comportamiento normal).
+    setPersistence(this.auth, browserSessionPersistence)
+      .then(() => {
+        console.log('[AuthService] Persistencia configurada a browserSessionPersistence');
+      })
+      .catch((err) => {
+        console.error('[AuthService] Error configurando persistencia:', err);
+      });
+  }
+
   // ===========================
-  //  OBSERVABLE DE SESIÓN
+  //  OBSERVABLE DE SESIÓN
   // ===========================
   authChanges(): Observable<User | null> {
     return authState(this.auth);
   }
 
   // ===========================
-  //   ESPERAR A LA CARGA INICIAL DE FIREBASE (Mantenido para el guard)
+  //  SABER SI HAY USUARIO ACTIVO
   // ===========================
-  // (No se usa directamente en este archivo, pero es útil)
-  // ... [waitForAuthLoad() method goes here, removed for brevity]
+  isAuthenticated(): Promise<boolean> {
+    return new Promise(resolve => {
+      const sub = this.authChanges().subscribe(user => {
+        resolve(!!user);
+        sub.unsubscribe();
+      });
+    });
+  }
 
   // ===========================
-  //      PERFIL (LECTURA)
+  //      PERFIL (LECTURA)
   // ===========================
   getUserProfile(uid: string): Observable<any> {
     const ref = doc(this.firestore, 'users', uid);
@@ -55,7 +73,7 @@ export class AuthService {
   }
 
   // ===========================
-  //          REGISTRO
+  //          REGISTRO
   // ===========================
   async registerUser(email: string, password: string, data: any): Promise<void> {
 
@@ -64,49 +82,50 @@ export class AuthService {
     const user = credential.user;
     const uid = user.uid;
 
-    // 2. Enviar verificación de correo
-    await sendEmailVerification(user);
+    try {
+      // 2. Enviar verificación de correo
+      await sendEmailVerification(user);
 
-    // 3. Guardar datos adicionales en Firestore
-    await setDoc(doc(this.firestore, 'users', uid), {
-      email: email,
+      // 3. Guardar datos adicionales en Firestore
+      await setDoc(doc(this.firestore, 'users', uid), {
+        email: email,
 
-      nombre: data.firstName,
-      apellidoPaterno: data.lastNameP,
-      apellidoMaterno: data.lastNameM,
+        nombre: data.firstName,
+        apellidoPaterno: data.lastNameP,
+        apellidoMaterno: data.lastNameM,
 
-      birthDate: data.birthDate,
-      height: data.height,
-      weight: data.weight,
-      bmi: data.bmi,
-      position: data.position,
-      subPosition: data.subPosition,
+        birthDate: data.birthDate,
+        height: data.height,
+        weight: data.weight,
+        bmi: data.bmi,
+        position: data.position,
+        subPosition: data.subPosition,
 
-      createdAt: new Date()
-    });
+        createdAt: new Date()
+      });
+
+    } finally {
+      // Siempre cerramos sesión tras el registro
+      await signOut(this.auth);
+    }
   }
 
   // ===========================
-  //           LOGIN
+  //           LOGIN
   // ===========================
   async login(email: string, password: string) {
-    // 💡 Paso crucial: Configurar la persistencia para que sobreviva al cierre de la pestaña.
-    // setPersistence y browserLocalPersistence ya están importados correctamente.
-    await setPersistence(this.auth, browserLocalPersistence);
-    
-    // Luego, realiza el inicio de sesión
     return await signInWithEmailAndPassword(this.auth, email, password);
   }
 
   // ===========================
-  //   RESTABLECER CONTRASEÑA
+  //   RESTABLECER CONTRASEÑA
   // ===========================
   async resetPassword(email: string): Promise<void> {
     return sendPasswordResetEmail(this.auth, email);
   }
 
   // ===========================
-  //           LOGOUT
+  //           LOGOUT
   // ===========================
   async logout() {
     await signOut(this.auth);

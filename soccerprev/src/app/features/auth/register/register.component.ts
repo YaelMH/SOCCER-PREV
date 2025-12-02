@@ -59,7 +59,7 @@ export class RegisterComponent {
   }
 
   // =====================
-  //       MODALES
+  //       MODALES
   // =====================
   openTermsModal() {
     this.showTermsModal = true;
@@ -75,8 +75,13 @@ export class RegisterComponent {
     this.router.navigate(['/login']);
   }
 
+  // Botón "Ir al login" (si lo usas en el template)
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+
   // =====================
-  // SUBPOSICIONES
+  //   SUBPOSICIONES
   // =====================
   updateSubpositions() {
     const pos = this.form.position;
@@ -95,7 +100,7 @@ export class RegisterComponent {
   }
 
   // =====================
-  //      BMI
+  //        BMI
   // =====================
   calculateBMI() {
     const h = Number(this.form.height);
@@ -110,7 +115,7 @@ export class RegisterComponent {
   }
 
   // =====================
-  //     REGISTRO
+  //       REGISTRO
   // =====================
   async onSubmit() {
     // 1. Limpiamos errores al inicio
@@ -132,26 +137,23 @@ export class RegisterComponent {
     const MINIMUM_AGE = 18;
     
     if (!this.form.birthDate) {
-        this.errorMessage = 'La fecha de nacimiento es obligatoria.';
-        return;
+      this.errorMessage = 'La fecha de nacimiento es obligatoria.';
+      return;
     } else {
-        const birthDate = new Date(this.form.birthDate);
-        const today = new Date();
-        
-        // Calcula la fecha límite (la fecha de hoy, menos 18 años)
-        const requiredDate = new Date(
-          today.getFullYear() - MINIMUM_AGE,
-          today.getMonth(),
-          today.getDate()
-        );
+      const birthDate = new Date(this.form.birthDate);
+      const today = new Date();
+      
+      const requiredDate = new Date(
+        today.getFullYear() - MINIMUM_AGE,
+        today.getMonth(),
+        today.getDate()
+      );
 
-        // Si la fecha de nacimiento es posterior (más reciente) a la fecha límite, es menor de edad.
-        if (birthDate >= requiredDate) {
-          this.birthDateError = `Debe ser mayor de ${MINIMUM_AGE} años para registrarse.`;
-          return;
-        }
+      if (birthDate >= requiredDate) {
+        this.birthDateError = `Debe ser mayor de ${MINIMUM_AGE} años para registrarse.`;
+        return;
+      }
     }
-
 
     if (this.form.password !== this.form.confirmPassword) {
       this.errorMessage = 'Las contraseñas no coinciden.';
@@ -164,6 +166,7 @@ export class RegisterComponent {
     }
 
     this.loading = true;
+    console.log('[REGISTER] Enviando formulario a registerUser:', this.form);
 
     try {
       const {
@@ -171,31 +174,44 @@ export class RegisterComponent {
         height, weight, bmi, position, subPosition
       } = this.form;
       
-      // 2. Llamada al servicio (incluye sendEmailVerification)
+      // 2. Llamada al servicio (incluye sendEmailVerification + Firestore + signOut)
       await this.authService.registerUser(email, password, {
-        firstName, lastNameP, lastNameM, birthDate, height, 
-        weight, bmi, position, subPosition,
+        firstName,
+        lastNameP,
+        lastNameM,
+        birthDate,
+        height,
+        weight,
+        bmi,
+        position,
+        subPosition,
       });
 
-      // Mostramos el modal de éxito en lugar de alert()
+      console.log('[REGISTER] registerUser terminó SIN error (usuario ya deslogueado)');
+
+      // 3. Mostrar modal de éxito
       this.showSuccessModal = true;
 
+      // 4. Navegación automática por si no le da clic al botón del modal
+      setTimeout(() => {
+        if (this.showSuccessModal) {
+          this.closeSuccessModal(); // esto ya hace navigate(['/login'])
+        }
+      }, 3000);
+
     } catch (err: any) {
-      console.error(err);
+      console.error('[REGISTER] Error durante registerUser:', err);
       
       if (err.code === 'auth/email-already-in-use') {
-        this.errorMessage = 'Este correo electrónico ya está registrado. Por favor, inicie sesión o use otro correo.';
+        this.errorMessage =
+          'Este correo electrónico ya está registrado. Por favor, inicia sesión o usa otro correo.';
       } else if (err.message) {
         this.errorMessage = err.message;
       } else {
         this.errorMessage = 'Error durante el registro. Inténtelo de nuevo.';
       }
+    } finally {
+      this.loading = false;
     }
-
-    this.loading = false;
-  }
-
-  goToLogin() {
-    this.router.navigate(['/login']);
   }
 }
