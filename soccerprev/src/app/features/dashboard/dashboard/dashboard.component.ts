@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; // 
+import { RouterModule } from '@angular/router';
 import { RecommendationService } from '../../../services/recommendation.service';
 import { AuthService } from '../../../auth/auth.service';
 import { User } from '@angular/fire/auth';
@@ -25,13 +25,13 @@ interface HistorialItem {
   fuente: string;
   riesgo: RiskLevel;
   recomendaciones: string[];
-  estado_fisico?: EstadoFisico | null; // NUEVO
+  estado_fisico?: EstadoFisico | null;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -46,16 +46,18 @@ export class DashboardComponent implements OnInit {
   historial: HistorialItem[] = [];
   ultimaRecomendacion: HistorialItem | null = null;
 
-  // Riesgo actual (para el pill verde/amarillo/rojo)
+  // Riesgo actual (pill verde/amarillo/rojo)
   riesgoActualNivel: RiskLevel = 'bajo';
   riesgoActualTexto = 'Bajo';
 
   // ====== Estado físico / índice de carga semanal ======
   estadoFisicoActual: EstadoFisico | null = null;
-  // texto de tendencia entre la última y la penúltima recomendación
   tendenciaTexto = 'Sin datos';
-  // clase que podrás usar en el template para el color (verde/amarillo/rojo/gris)
   tendenciaColorClass = 'text-text-muted';
+
+  // ====== ALERTA DE CAMBIO DE RIESGO (NUEVO) ======
+  riskAlertMessage: string | null = null;              // texto de la alerta
+  riskAlertType: 'up' | 'down' | 'first' | 'none' = 'none'; // para estilos
 
   constructor(
     private recommendationService: RecommendationService,
@@ -63,7 +65,6 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Nos suscribimos al usuario logueado
     this.authService.authChanges().subscribe(user => {
       this.user = user;
       this.usuarioId = user?.uid ?? null;
@@ -78,6 +79,8 @@ export class DashboardComponent implements OnInit {
         this.estadoFisicoActual = null;
         this.tendenciaTexto = 'Sin datos';
         this.tendenciaColorClass = 'text-text-muted';
+        this.riskAlertMessage = null;
+        this.riskAlertType = 'none';
       }
     });
   }
@@ -99,6 +102,8 @@ export class DashboardComponent implements OnInit {
           this.estadoFisicoActual = null;
           this.tendenciaTexto = 'Sin datos';
           this.tendenciaColorClass = 'text-text-muted';
+          this.riskAlertMessage = null;
+          this.riskAlertType = 'none';
           return;
         }
 
@@ -108,7 +113,8 @@ export class DashboardComponent implements OnInit {
         // Tomamos la más reciente (la API ya viene ordenada desc)
         this.ultimaRecomendacion = this.historial[0];
 
-        this.actualizarRiesgoActual();
+        // 👇 ahora actualizamos riesgo + alerta y estado físico
+        this.actualizarRiesgoActualYAlertas();
         this.actualizarEstadoFisico();
       },
       error: (err) => {
@@ -120,6 +126,8 @@ export class DashboardComponent implements OnInit {
         this.estadoFisicoActual = null;
         this.tendenciaTexto = 'Sin datos';
         this.tendenciaColorClass = 'text-text-muted';
+        this.riskAlertMessage = null;
+        this.riskAlertType = 'none';
       }
     });
   }
@@ -134,18 +142,15 @@ export class DashboardComponent implements OnInit {
         ? 'medio'
         : 'bajo';
 
-    // ---- Estado físico devuelto por el backend (si existe) ----
     let estado_fisico: EstadoFisico | null = null;
 
     if (apiItem.estado_fisico) {
-      // Formato esperado desde Node: { indice, categoria, recomendacion }
       estado_fisico = {
         indice: Number(apiItem.estado_fisico.indice) || 0,
         categoria: (apiItem.estado_fisico.categoria || 'baja') as EstadoCategoria,
         recomendacion: String(apiItem.estado_fisico.recomendacion || '')
       };
     } else {
-      // Fallback simple basado en la gravedad, para registros viejos
       const indiceFallback =
         gravedadApi === 'Alta' ? 85 : gravedadApi === 'Media' ? 70 : 55;
       const categoriaFallback: EstadoCategoria =
@@ -176,17 +181,51 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  private actualizarRiesgoActual(): void {
+  // 🔥 AQUÍ METEMOS LA DETECCIÓN DE CAMBIO DE RIESGO
+  private actualizarRiesgoActualYAlertas(): void {
     if (!this.ultimaRecomendacion) {
       this.riesgoActualNivel = 'bajo';
       this.riesgoActualTexto = 'Sin registros';
+      this.riskAlertMessage = null;
+      this.riskAlertType = 'none';
       return;
     }
 
-    const r = this.ultimaRecomendacion.riesgo;
-    this.riesgoActualNivel = r;
+    const actual = this.ultimaRecomendacion.riesgo;
+    const previo = this.historial.length > 1 ? this.historial[1].riesgo : null;
+
+    // Actualizamos el pill
+    this.riesgoActualNivel = actual;
     this.riesgoActualTexto =
-      r === 'alto' ? 'Alto' : r === 'medio' ? 'Medio' : 'Bajo';
+      actual === 'alto' ? 'Alto' : actual === 'medio' ? 'Medio' : 'Bajo';
+
+    // No hay registro previo → primera vez
+    if (!previo) {
+      this.riskAlertMessage = `Se ha calculado tu primer nivel de riesgo: ${this.riesgoActualTexto}.`;
+      this.riskAlertType = 'first';
+      return;
+    }
+
+    // Si no cambió el nivel, no mostramos alerta
+    if (previo === actual) {
+      this.riskAlertMessage = null;
+      this.riskAlertType = 'none';
+      return;
+    }
+
+    // Definimos si subió o bajó
+    const nivelToNum = (r: RiskLevel) => (r === 'bajo' ? 1 : r === 'medio' ? 2 : 3);
+    const diff = nivelToNum(actual) - nivelToNum(previo);
+
+    if (diff > 0) {
+      // Riesgo aumentó
+      this.riskAlertMessage = `⚠️ Tu riesgo de lesión ha aumentado de ${previo.toUpperCase()} a ${actual.toUpperCase()}. Revisa tus recomendaciones y considera ajustar la carga.`;
+      this.riskAlertType = 'up';
+    } else {
+      // Riesgo disminuyó
+      this.riskAlertMessage = `✅ Tu riesgo de lesión ha disminuido de ${previo.toUpperCase()} a ${actual.toUpperCase()}. Mantén tus hábitos de prevención.`;
+      this.riskAlertType = 'down';
+    }
   }
 
   /** Calcula estado físico actual + tendencia respecto al registro anterior. */
@@ -200,7 +239,6 @@ export class DashboardComponent implements OnInit {
 
     this.estadoFisicoActual = this.ultimaRecomendacion.estado_fisico;
 
-    // Tendencia (comparando índice con la recomendación inmediatamente anterior)
     if (this.historial.length < 2 || !this.historial[1].estado_fisico) {
       this.tendenciaTexto = 'Estable';
       this.tendenciaColorClass = 'text-text-muted';
@@ -211,13 +249,12 @@ export class DashboardComponent implements OnInit {
     const previo = this.historial[1].estado_fisico!.indice;
     const diff = actual - previo;
 
-    // Umbrales simples para no ser tan sensibles
     if (diff >= 5) {
       this.tendenciaTexto = 'Aumento de carga';
-      this.tendenciaColorClass = 'text-warning'; // amarillo
+      this.tendenciaColorClass = 'text-warning';
     } else if (diff <= -5) {
       this.tendenciaTexto = 'Ligera reducción';
-      this.tendenciaColorClass = 'text-accent'; // verde
+      this.tendenciaColorClass = 'text-accent';
     } else {
       this.tendenciaTexto = 'Carga estable';
       this.tendenciaColorClass = 'text-text-muted';
@@ -256,9 +293,7 @@ export class DashboardComponent implements OnInit {
   // =========================
   //  Cuidados y resumen última sesión
   // =========================
-  // Cuidados que se mostrarán en la card "Cuidados para tu última sesión"
   get cuidadosProximaSesion(): string[] {
-    // Si no hay última recomendación o no trae recomendaciones, usamos un fallback genérico
     if (!this.ultimaRecomendacion || !this.ultimaRecomendacion.recomendaciones?.length) {
       return [
         'Hidratarse adecuadamente antes, durante y después del entrenamiento.',
@@ -266,8 +301,6 @@ export class DashboardComponent implements OnInit {
         'Detener el esfuerzo si el dolor aumenta o aparece inflamación.'
       ];
     }
-
-    // Tomamos las primeras 2–3 recomendaciones del modelo
     return this.ultimaRecomendacion.recomendaciones.slice(0, 3);
   }
 
@@ -277,7 +310,7 @@ export class DashboardComponent implements OnInit {
   }
 
   // =========================
-  //  Getters para el template del card "Estado físico"
+  //  Getters para el card "Estado físico"
   // =========================
   get indiceCargaSemanal(): number | null {
     return this.estadoFisicoActual ? this.estadoFisicoActual.indice : null;
