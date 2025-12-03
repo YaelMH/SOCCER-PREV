@@ -16,3 +16,5 @@ edad,peso,estatura_m,posicion,nivel,frecuencia_juego_semana,duracion_partido_min
 22,63,1.63,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
 22,63,1.63,3,intermedio,2,90,pasto,templado,1,1,15,7,1,3,1,6,7,mano,Luxación
 23,63,1.63,1,intermedio,4,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
+23,75,1.74,1,intermedio,3,90,pasto,templado,1,1,15,7,1,1,1,4,3,tobillo izquierdo,Esguince
+23,75,1.74,1,intermedio,2,90,pasto,templado,1,1,15,7,1,1,1,6,5,rodilla izquierda,Esguince

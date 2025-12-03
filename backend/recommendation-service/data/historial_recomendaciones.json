@@ -679,5 +679,121 @@
       "dolor_zona": "tobillo izquierdo",
       "dolor_dias": 3
     }
+  },
+  {
+    "id": 1764789106759,
+    "usuario_id": "aa5tniw9HzLnHag6tjPDN3nXc9z2",
+    "fechaISO": "2025-12-03T19:11:46.714Z",
+    "fecha": "03/12/25, 1:11 p.m.",
+    "tipo_lesion": "Esguince",
+    "gravedad": "Baja",
+    "descripcion": "Lesión de ligamentos por torsión/inestabilidad articular, frecuente en tobillo y rodilla. Reportas dolor en tobillo (intensidad 4/10, 3 día(s)).",
+    "fuente": "Condición diaria + modelo",
+    "recomendaciones": [
+      "Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.",
+      "Reposo relativo: mantente activo, pero sin forzar la zona dolorida.",
+      "Hielo 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).",
+      "Compresión ligera con venda elástica si es posible, sin cortar la circulación.",
+      "Elevación del segmento afectado para ayudar a disminuir la inflamación.",
+      "Evita calor local y masajes intensos durante las primeras 48–72 horas.",
+      "Introduce movilidad suave y progresiva cuando el dolor lo permita.",
+      "Valora entrenamiento de fuerza y propiocepción para prevenir recaídas."
+    ],
+    "especialista": {
+      "necesario": false,
+      "urgente": false,
+      "motivo": "Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad o no puedes apoyar, acude a valoración."
+    },
+    "dolor": {
+      "nivel": 4,
+      "dias": 3,
+      "zona": "tobillo"
+    },
+    "estado_fisico": {
+      "indice": 71,
+      "categoria": "moderada",
+      "recomendacion": "Tu carga semanal es moderada. Mantén la progresión gradual, respeta los días de descanso y escucha signos tempranos de fatiga."
+    },
+    "aviso": "Orientación informativa basada en síntomas reportados. No sustituye una valoración médica ni un diagnóstico profesional.",
+    "entrada": {
+      "usuario_id": "aa5tniw9HzLnHag6tjPDN3nXc9z2",
+      "edad": 23,
+      "peso": 75,
+      "estatura_m": 1.74,
+      "duracion_partido_min": 90,
+      "frecuencia_juego_semana": 3,
+      "entrena": 1,
+      "calienta": 1,
+      "calentamiento_min": 15,
+      "horas_sueno": 7,
+      "hidratacion_ok": 1,
+      "lesiones_ultimo_anno": 1,
+      "recuperacion_sem": 1,
+      "posicion": "1",
+      "nivel": "intermedio",
+      "superficie": "pasto",
+      "clima": "templado",
+      "dolor_nivel": 4,
+      "dolor_zona": "tobillo izquierdo",
+      "dolor_dias": 3
+    }
+  },
+  {
+    "id": 1764789141878,
+    "usuario_id": "aa5tniw9HzLnHag6tjPDN3nXc9z2",
+    "fechaISO": "2025-12-03T19:12:21.877Z",
+    "fecha": "03/12/25, 1:12 p.m.",
+    "tipo_lesion": "Esguince",
+    "gravedad": "Media",
+    "descripcion": "Lesión de ligamentos por torsión/inestabilidad articular, frecuente en tobillo y rodilla. Reportas dolor en rodilla (intensidad 6/10, 5 día(s)).",
+    "fuente": "Condición diaria + modelo",
+    "recomendaciones": [
+      "Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.",
+      "Reposo relativo: mantente activo, pero sin forzar la zona dolorida.",
+      "Hielo 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).",
+      "Compresión ligera con venda elástica si es posible, sin cortar la circulación.",
+      "Elevación del segmento afectado para ayudar a disminuir la inflamación.",
+      "Evita calor local y masajes intensos durante las primeras 48–72 horas.",
+      "Introduce movilidad suave y progresiva cuando el dolor lo permita.",
+      "Valora entrenamiento de fuerza y propiocepción para prevenir recaídas."
+    ],
+    "especialista": {
+      "necesario": false,
+      "urgente": false,
+      "motivo": "Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad o no puedes apoyar, acude a valoración."
+    },
+    "dolor": {
+      "nivel": 6,
+      "dias": 5,
+      "zona": "rodilla"
+    },
+    "estado_fisico": {
+      "indice": 52,
+      "categoria": "moderada",
+      "recomendacion": "Tu carga semanal es moderada. Mantén la progresión gradual, respeta los días de descanso y escucha signos tempranos de fatiga."
+    },
+    "aviso": "Orientación informativa basada en síntomas reportados. No sustituye una valoración médica ni un diagnóstico profesional.",
+    "entrada": {
+      "usuario_id": "aa5tniw9HzLnHag6tjPDN3nXc9z2",
+      "edad": 23,
+      "peso": 75,
+      "estatura_m": 1.74,
+      "duracion_partido_min": 90,
+      "frecuencia_juego_semana": 2,
+      "entrena": 1,
+      "calienta": 1,
+      "calentamiento_min": 15,
+      "horas_sueno": 7,
+      "hidratacion_ok": 1,
+      "lesiones_ultimo_anno": 1,
+      "recuperacion_sem": 1,
+      "posicion": "1",
+      "nivel": "intermedio",
+      "superficie": "pasto",
+      "clima": "templado",
+      "dolor_nivel": 6,
+      "dolor_zona": "rodilla izquierda",
+      "dolor_dias": 5
+    }
   }
 ]
