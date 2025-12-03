@@ -1,8 +1,7 @@
-// src/app/content/content.service.ts
+// src/app/features/content/content.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 export type ContentType = 'video' | 'infografia' | 'articulo';
 
@@ -15,16 +14,23 @@ export interface PreventiveContent {
   focusZone: string;
   sourceName: string;
   sourceUrl: string;
+
+  // campos para mostrar dentro de la app
+  embedUrl?: string;      // para videos
+  imageUrl?: string;      // para infografías
+  keyPoints?: string[];   // para artículos / resúmenes
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ContentService {
-  // Usamos backendUrl del environment
-  private readonly baseUrl = `${environment.backendUrl}/contenido-preventivo`;
+  // ajusta el endpoint a como tengas montado tu backend
+  private apiUrl = 'http://localhost:3000/api/contenido-preventivo';
 
   constructor(private http: HttpClient) {}
 
   getPreventiveContent(): Observable<PreventiveContent[]> {
-    return this.http.get<PreventiveContent[]>(this.baseUrl);
+    return this.http.get<PreventiveContent[]>(this.apiUrl);
   }
 }

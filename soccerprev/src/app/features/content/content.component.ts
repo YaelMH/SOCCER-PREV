@@ -1,12 +1,14 @@
+// src/app/features/content/content.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContentService, ContentType, PreventiveContent } from './content.service';
+import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe'; // ajusta ruta según tu árbol
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SafeUrlPipe],
   templateUrl: './content.component.html',
   styleUrl: './content.component.css'
 })
@@ -16,6 +18,9 @@ export class ContentComponent implements OnInit {
   contents: PreventiveContent[] = [];
   loading = false;
   errorMessage = '';
+
+  // contenido seleccionado para mostrar en visor
+  selectedContent: PreventiveContent | null = null;
 
   constructor(private contentService: ContentService) {}
 
@@ -30,6 +35,8 @@ export class ContentComponent implements OnInit {
     this.contentService.getPreventiveContent().subscribe({
       next: (data) => {
         this.contents = data;
+        // seleccionamos el primero por defecto (opcional)
+        this.selectedContent = this.contents.length > 0 ? this.contents[0] : null;
         this.loading = false;
       },
       error: (err) => {
@@ -57,5 +64,10 @@ export class ContentComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  // al dar clic en una tarjeta
+  selectContent(item: PreventiveContent) {
+    this.selectedContent = item;
   }
 }

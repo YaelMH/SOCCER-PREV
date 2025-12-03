@@ -13,16 +13,6 @@
         soccer.
       </p>
     </div>
-
-    <div
-      class="text-[11px] text-text-muted rounded-2xl border border-app-border bg-app-card/80 px-4 py-3 max-w-xs"
-    >
-      <p class="font-semibold text-xs mb-1">Objetivo de este módulo</p>
-      <p>
-        Este módulo atiende:
-        <strong>Informar a jugadores sobre lesiones.</strong>
-      </p>
-    </div>
   </section>
 
   <!-- Filtros -->
@@ -86,14 +76,15 @@
     {{ errorMessage }}
   </div>
 
-  <!-- Grid de contenido -->
+  <!-- Grid de contenido (tarjetas) -->
   <section
     *ngIf="!loading && !errorMessage"
     class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
   >
     <article
       *ngFor="let item of filteredContents"
-      class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-lg shadow-slate-950/50"
+      class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-lg shadow-slate-950/50 cursor-pointer hover:border-primary/60 hover:bg-slate-900 transition"
+      (click)="selectContent(item)"
     >
       <div class="space-y-2">
         <div class="flex items-center justify-between gap-2">
@@ -135,10 +126,84 @@
           [href]="item.sourceUrl"
           target="_blank"
           rel="noopener noreferrer"
+          (click)="$event.stopPropagation()"
         >
           Ver contenido original
         </a>
       </div>
     </article>
+  </section>
+
+  <!-- Visor del contenido seleccionado -->
+  <section
+    *ngIf="selectedContent"
+    class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5 space-y-3 mt-4"
+  >
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+      Contenido seleccionado
+    </p>
+    <h2 class="text-sm sm:text-base font-semibold">
+      {{ selectedContent.title }}
+    </h2>
+    <p class="text-xs text-text-muted">
+      {{ selectedContent.description }}
+    </p>
+
+    <!-- Render según tipo -->
+    <ng-container [ngSwitch]="selectedContent.type">
+
+      <!-- Video -->
+      <div *ngSwitchCase="'video'">
+        <div class="aspect-video rounded-xl overflow-hidden border border-app-border mt-2"
+             *ngIf="selectedContent.embedUrl">
+          <iframe
+            class="w-full h-full"
+            [src]="selectedContent.embedUrl | safeUrl"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- Infografía -->
+      <div *ngSwitchCase="'infografia'">
+        <div class="mt-3" *ngIf="selectedContent.imageUrl">
+          <img
+            [src]="selectedContent.imageUrl"
+            [alt]="selectedContent.title"
+            class="w-full max-h-[500px] object-contain rounded-xl border border-app-border"
+          />
+        </div>
+      </div>
+
+      <!-- Artículo / resumen -->
+      <div *ngSwitchCase="'articulo'">
+        <div class="mt-3 space-y-2">
+          <p class="text-[11px] text-text-muted">
+            Resumen basado en la fuente consultada:
+          </p>
+          <ul class="list-disc list-inside text-xs text-text-muted" *ngIf="selectedContent.keyPoints?.length">
+            <li *ngFor="let point of selectedContent.keyPoints">
+              {{ point }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <div class="pt-3 mt-2 border-t border-app-border text-[11px] text-text-muted flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <span>
+        Fuente original: <strong>{{ selectedContent.sourceName }}</strong>
+      </span>
+      <a
+        class="inline-flex items-center justify-center rounded-full border border-primary/60 bg-primary/10 px-3 py-1 text-[11px] text-primary hover:bg-primary/20 transition"
+        [href]="selectedContent.sourceUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Ver publicación original
+      </a>
+    </div>
   </section>
 </div>

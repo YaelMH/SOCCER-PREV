@@ -4,8 +4,10 @@ const router = express.Router();
 
 /**
  * Contenido preventivo CURADO desde fuentes reales.
- * - description: resumen con tus palabras (no copiado).
+ * - description: resumen con tus palabras (no copiado literal).
+ * - keyPoints: puntos clave resumidos.
  * - sourceName / sourceUrl: referencia al contenido original.
+ * - embedUrl / imageUrl: lo que se mostrará DENTRO de tu app.
  */
 
 const preventiveContent = [
@@ -18,7 +20,9 @@ const preventiveContent = [
     duration: '15 min',
     focusZone: 'Cuerpo completo',
     sourceName: 'FIFA – Prevención de lesiones y fomento de la salud (FIFA 11+)',
-    sourceUrl: 'https://inside.fifa.com/es/health-and-medical/injury-prevention'
+    sourceUrl: 'https://inside.fifa.com/es/health-and-medical/injury-prevention',
+    // Video que se verá embebido en tu app (puede ser tuyo o uno público)
+    embedUrl: 'https://www.youtube.com/embed/CNrrGKUJRd8'
   },
   {
     id: 'c2',
@@ -29,7 +33,12 @@ const preventiveContent = [
     duration: '12 min',
     focusZone: 'Isquiotibiales',
     sourceName: 'Hamstring Injuries Prevention in Soccer – Narrative Review (PMC)',
-    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8236328/'
+    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8236328/',
+    keyPoints: [
+      'Las lesiones de isquiotibiales son frecuentes en acciones de sprint y cambios de ritmo.',
+      'El trabajo excéntrico (ej. Nordic Hamstring) reduce la incidencia si se aplica de forma progresiva.',
+      'Un historial previo de lesión y la fatiga son factores de riesgo importantes.'
+    ]
   },
   {
     id: 'c3',
@@ -40,7 +49,12 @@ const preventiveContent = [
     duration: '10 min',
     focusZone: 'Carga global',
     sourceName: 'Training-Injury Prevention Paradox – British Journal of Sports Medicine',
-    sourceUrl: 'https://bjsm.bmj.com/content/50/5/273'
+    sourceUrl: 'https://bjsm.bmj.com/content/50/5/273',
+    keyPoints: [
+      'La carga demasiado baja no estimula adaptaciones y deja al jugador vulnerable.',
+      'Incrementos bruscos de carga se asocian con mayor riesgo de lesión.',
+      'Una progresión gradual y monitoreo de cargas protege y mejora el rendimiento.'
+    ]
   },
   {
     id: 'c4',
@@ -51,7 +65,8 @@ const preventiveContent = [
     duration: '8 min',
     focusZone: 'Cuerpo completo',
     sourceName: 'Dynamic warm-up for soccer – YouTube',
-    sourceUrl: 'https://www.youtube.com/watch?v=zV7N_7tDvh4'
+    sourceUrl: 'https://www.youtube.com/watch?v=zV7N_7tDvh4',
+    embedUrl: 'https://www.youtube.com/embed/zV7N_7tDvh4'
   },
   {
     id: 'c5',
@@ -63,7 +78,24 @@ const preventiveContent = [
     focusZone: 'Cuerpo completo',
     sourceName: 'Johns Hopkins Medicine – Soccer warmups to prepare for your game',
     sourceUrl:
-      'https://www.hopkinsmedicine.org/health/wellness-and-prevention/soccer-warmups-to-prepare-for-your-game'
+      'https://www.hopkinsmedicine.org/health/wellness-and-prevention/soccer-warmups-to-prepare-for-your-game',
+    keyPoints: [
+      'Iniciar con movilidad articular de cadera, rodillas y tobillos.',
+      'Agregar desplazamientos dinámicos: skipping, talones a glúteos, zancadas.',
+      'Incluir ejercicios pliométricos suaves antes de esfuerzos máximos.'
+    ]
+  },
+  {
+    id: 'c6',
+    title: 'Infografía: Señales tempranas de sobrecarga en futbolistas',
+    description:
+      'Infografía que resume síntomas frecuentes de sobrecarga y cuándo es recomendable disminuir la carga o consultar al especialista.',
+    type: 'infografia',
+    duration: '5 min',
+    focusZone: 'General',
+    sourceName: 'Soccer-Prev (material propio)',
+    sourceUrl: 'https://tu-sitio-o-storage/soccer-prev-infografia-sobrecarga.pdf',
+    imageUrl: 'https://tu-sitio-o-storage/soccer-prev-infografia-sobrecarga.png'
   }
 ];
 
