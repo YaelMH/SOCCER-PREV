@@ -105,7 +105,7 @@
       <!-- Posición -->
       <div class="space-y-1">
         <label class="text-sm font-medium text-text-main">Posición</label>
-        <select name="position" [(ngModel)]="form.position" required (change)="updateSubpositions()"
+        <select name="position" [(ngModel)]="form.position" required
           class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
           <option value="" disabled selected>Seleccione una opción</option>
           <option value="Portero">Portero</option>
@@ -115,14 +115,30 @@
         </select>
       </div>
 
-      <!-- Subposición -->
-      <div class="space-y-1" *ngIf="subPositions.length > 0">
-        <label class="text-sm font-medium text-text-main">Subposición</label>
-        <select name="subPosition" [(ngModel)]="form.subPosition" required
-          class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
-          <option value="" disabled selected>Seleccione una subcategoría</option>
-          <option *ngFor="let sub of subPositions" [value]="sub">{{ sub }}</option>
-        </select>
+      <!-- Pierna dominante + Nivel -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <!-- Pierna dominante -->
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">Pierna dominante</label>
+          <select name="dominantFoot" [(ngModel)]="form.dominantFoot" required
+            class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="Derecha">Derecha</option>
+            <option value="Izquierda">Izquierda</option>
+          </select>
+        </div>
+
+        <!-- Nivel -->
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-text-main">Nivel de juego</label>
+          <select name="level" [(ngModel)]="form.level" required
+            class="w-full rounded-xl border border-app-border bg-slate-900 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition">
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option value="básico">Básico</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzado">Avanzado</option>
+          </select>
+        </div>
       </div>
 
       <!-- Contraseñas (CON TOGGLE Y VALIDACIÓN REGEX) -->

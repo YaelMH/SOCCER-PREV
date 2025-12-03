@@ -99,7 +99,10 @@ export class AuthService {
         weight: data.weight,
         bmi: data.bmi,
         position: data.position,
-        subPosition: data.subPosition,
+
+        // 🔹 Nuevos campos
+        dominantFoot: data.dominantFoot,
+        level: data.level,
 
         createdAt: new Date()
       });

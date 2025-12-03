@@ -26,13 +26,12 @@ export class RegisterComponent {
     weight: '',
     bmi: '',
     position: '',
-    subPosition: '',
+    dominantFoot: '',   // 👈 NUEVO
+    level: '',          // 👈 NUEVO
     password: '',
     confirmPassword: '',
     acceptTerms: false
   };
-
-  subPositions: string[] = [];
 
   loading = false;
   errorMessage = '';
@@ -75,28 +74,9 @@ export class RegisterComponent {
     this.router.navigate(['/login']);
   }
 
-  // Botón "Ir al login" (si lo usas en el template)
+  // Botón "Ir al login"
   goToLogin() {
     this.router.navigate(['/login']);
-  }
-
-  // =====================
-  //   SUBPOSICIONES
-  // =====================
-  updateSubpositions() {
-    const pos = this.form.position;
-
-    if (pos === 'Defensa') {
-      this.subPositions = ['Central', 'Lateral'];
-    } else if (pos === 'Mediocentro') {
-      this.subPositions = ['Defensivo', 'Ofensivo', 'Banda', 'Mediocentro puro'];
-    } else if (pos === 'Delantero') {
-      this.subPositions = ['Delantero', 'Extremo', 'Mediapunta'];
-    } else {
-      this.subPositions = [];
-    }
-
-    this.form.subPosition = '';
   }
 
   // =====================
@@ -122,7 +102,7 @@ export class RegisterComponent {
     this.birthDateError = '';
     this.errorMessage = '';
 
-    // Validaciones de formulario
+    // Validaciones de formulario básicas
     if (!this.form.firstName || !this.form.lastNameP) {
       this.errorMessage = 'Nombre y apellido paterno son obligatorios.';
       return;
@@ -155,6 +135,22 @@ export class RegisterComponent {
       }
     }
 
+    // ✅ Validar posición, pierna dominante y nivel
+    if (!this.form.position) {
+      this.errorMessage = 'La posición de juego es obligatoria.';
+      return;
+    }
+
+    if (!this.form.dominantFoot) {
+      this.errorMessage = 'La pierna dominante es obligatoria.';
+      return;
+    }
+
+    if (!this.form.level) {
+      this.errorMessage = 'El nivel de juego es obligatorio.';
+      return;
+    }
+
     if (this.form.password !== this.form.confirmPassword) {
       this.errorMessage = 'Las contraseñas no coinciden.';
       return;
@@ -170,8 +166,18 @@ export class RegisterComponent {
 
     try {
       const {
-        firstName, lastNameP, lastNameM, email, password, birthDate,
-        height, weight, bmi, position, subPosition
+        firstName,
+        lastNameP,
+        lastNameM,
+        email,
+        password,
+        birthDate,
+        height,
+        weight,
+        bmi,
+        position,
+        dominantFoot,
+        level
       } = this.form;
       
       // 2. Llamada al servicio (incluye sendEmailVerification + Firestore + signOut)
@@ -184,7 +190,8 @@ export class RegisterComponent {
         weight,
         bmi,
         position,
-        subPosition,
+        dominantFoot,  
+        level          
       });
 
       console.log('[REGISTER] registerUser terminó SIN error (usuario ya deslogueado)');

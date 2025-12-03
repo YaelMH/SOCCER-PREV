@@ -13,14 +13,6 @@
         y las de recuperación posterior. Módulo alineado con el caso de uso CU11.
       </p>
     </div>
-
-    <div class="text-[11px] text-text-muted rounded-2xl border border-app-border bg-app-card/80 px-4 py-3 max-w-xs">
-      <p class="font-semibold text-xs mb-1">Relación con el TT-1</p>
-      <p>
-        Este módulo cubre <strong>CU11 – Proporcionar Rutinas de Calentamiento</strong> definido en las
-        tablas de casos de uso del documento.
-      </p>
-    </div>
   </section>
 
   <!-- Layout principal -->
@@ -32,9 +24,68 @@
         Selecciono una rutina para ver el detalle de pasos, duración y zona objetivo.
       </p>
 
+      <!-- 🔹 Recomendadas para el jugador -->
+      <div class="mb-4" *ngIf="recommendedRoutines.length > 0">
+        <p class="text-[11px] font-semibold text-primary mb-1">
+          Recomendadas para ti
+        </p>
+        <div class="space-y-2">
+          <button
+            *ngFor="let routine of recommendedRoutines"
+            type="button"
+            (click)="selectRoutine(routine.id)"
+            class="w-full text-left rounded-2xl border px-4 py-2 text-xs transition border-primary/70 bg-primary/10 hover:bg-primary/20"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-sm font-semibold">
+                  {{ routine.name }}
+                </p>
+                <p class="mt-1 text-[11px] text-text-muted">
+                  Posición: {{ routine.position | titlecase }} · Nivel: {{ routine.level | titlecase }}
+                </p>
+              </div>
+              <span class="text-[11px] text-text-muted">
+                {{ routine.totalTime }}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        <hr class="my-3 border-app-border/70">
+      </div>
+
+      <!-- Filtros de la lista general -->
+      <div class="flex flex-col sm:flex-row gap-2 mb-3 text-[11px]">
+        <label class="flex flex-col gap-1 w-full">
+          <span class="text-text-muted">Filtrar por posición</span>
+          <select
+            [(ngModel)]="selectedPositionFilter"
+            class="rounded-xl bg-slate-950/70 border border-app-border px-2 py-1 text-[11px]"
+          >
+            <option *ngFor="let p of positionOptions" [ngValue]="p.value">
+              {{ p.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-1 w-full">
+          <span class="text-text-muted">Filtrar por nivel</span>
+          <select
+            [(ngModel)]="selectedLevelFilter"
+            class="rounded-xl bg-slate-950/70 border border-app-border px-2 py-1 text-[11px]"
+          >
+            <option *ngFor="let l of levelOptions" [ngValue]="l.value">
+              {{ l.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Lista general con filtros aplicados -->
       <div class="space-y-3">
         <button
-          *ngFor="let routine of routines"
+          *ngFor="let routine of filteredRoutines"
           type="button"
           (click)="selectRoutine(routine.id)"
           class="w-full text-left rounded-2xl border px-4 py-3 text-xs transition"
@@ -50,6 +101,9 @@
               <p class="mt-1 text-[11px] text-text-muted">
                 Tipo: {{ getTypeLabel(routine.type) }} · Zona: {{ routine.focusZone }}
               </p>
+              <p class="mt-1 text-[10px] text-text-muted">
+                Posición: {{ routine.position | titlecase }}
+              </p>
             </div>
             <div class="text-right text-[11px] text-text-muted">
               <p>{{ routine.totalTime }}</p>
@@ -60,59 +114,77 @@
       </div>
     </div>
 
-<!-- Detalle de rutina -->
-<div class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5">
-  <ng-container *ngIf="selectedRoutine as routine; else noRoutine">
-    <div class="flex items-start justify-between gap-3 mb-4">
-      <div>
-        <p class="text-xs font-semibold text-text-muted uppercase tracking-[0.2em]">
-          Detalle de rutina
-        </p>
-        <h2 class="mt-1 text-sm font-semibold">
-          {{ routine.name }}
-        </h2>
-        <p class="mt-1 text-[11px] text-text-muted">
-          Tipo: {{ getTypeLabel(routine.type) }} · Zona: {{ routine.focusZone }}
-        </p>
-      </div>
-      <span class="text-[11px] text-text-muted">
-        Duración total: {{ routine.totalTime }}
-      </span>
-    </div>
-
-    <ol class="space-y-3 text-xs text-text-muted">
-      <li
-        *ngFor="let step of routine.steps"
-        class="rounded-xl bg-slate-950/70 border border-app-border px-3 py-3"
-      >
-        <div class="flex items-start justify-between gap-2">
+    <!-- Detalle de rutina -->
+    <div class="bg-app-card/90 border border-app-border rounded-2xl p-4 sm:p-5">
+      <ng-container *ngIf="selectedRoutine as routine; else noRoutine">
+        <div class="flex items-start justify-between gap-3 mb-4">
           <div>
-            <p class="text-[11px] uppercase tracking-[0.15em] text-primary">
-              Paso {{ step.order }}
+            <p class="text-xs font-semibold text-text-muted uppercase tracking-[0.2em]">
+              Detalle de rutina
             </p>
-            <p class="mt-1 font-semibold text-text-main">
-              {{ step.title }}
+            <h2 class="mt-1 text-sm font-semibold">
+              {{ routine.name }}
+            </h2>
+            <p class="mt-1 text-[11px] text-text-muted">
+              Tipo: {{ getTypeLabel(routine.type) }} · Zona: {{ routine.focusZone }} ·
+              Posición: {{ routine.position | titlecase }}
             </p>
           </div>
           <span class="text-[11px] text-text-muted">
-            {{ step.duration }}
+            Duración total: {{ routine.totalTime }}
           </span>
         </div>
-        <p class="mt-1">
-          {{ step.description }}
+
+        <ol class="space-y-3 text-xs text-text-muted">
+          <li
+            *ngFor="let step of routine.steps"
+            class="rounded-xl bg-slate-950/70 border border-app-border px-3 py-3"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-[11px] uppercase tracking-[0.15em] text-primary">
+                  Paso {{ step.order }}
+                </p>
+                <p class="mt-1 font-semibold text-text-main">
+                  {{ step.title }}
+                </p>
+              </div>
+              <span class="text-[11px] text-text-muted">
+                {{ step.duration }}
+              </span>
+            </div>
+            <p class="mt-1">
+              {{ step.description }}
+            </p>
+          </li>
+        </ol>
+
+        <!-- Video embebido -->
+        <div class="mt-4" *ngIf="routine.videoUrl">
+          <p class="text-[11px] text-text-muted mb-2">
+            Video de referencia de la rutina:
+          </p>
+          <div class="aspect-video rounded-xl overflow-hidden border border-app-border">
+            <iframe
+              class="w-full h-full"
+              [src]="routine.videoUrl | safeUrl"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+
+        <p class="mt-4 text-[11px] text-text-muted">
+          *En la implementación final, este flujo se conecta con el módulo de evaluación de efectividad
+          (CU12) para registrar si el jugador siguió la rutina y cómo la percibió.
         </p>
-      </li>
-    </ol>
+      </ng-container>
 
-    <p class="mt-4 text-[11px] text-text-muted">
-      *En la implementación final, este flujo se conecta con el módulo de evaluación de efectividad
-      (CU12) para registrar si el jugador siguió la rutina y cómo la percibió.
-    </p>
-  </ng-container>
-
-  <ng-template #noRoutine>
-    <p class="text-xs text-text-muted">
-      Selecciono una rutina en el panel izquierdo para ver los pasos detallados.
-    </p>
-  </ng-template>
+      <ng-template #noRoutine>
+        <p class="text-xs text-text-muted">
+          Selecciono una rutina en el panel izquierdo para ver los pasos detallados.
+        </p>
+      </ng-template>
+    </div>
+  </section>
 </div>
