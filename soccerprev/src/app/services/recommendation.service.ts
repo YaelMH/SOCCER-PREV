@@ -13,6 +13,25 @@ export interface RecommendationFeedbackPayload {
   comentario: string;
 }
 
+export interface PerfilLesionesPayload {
+  usuario_id: string;
+  fullName: string;
+  email: string;
+  role: 'player' | 'coach' | 'staff';
+  position: string;
+  age: number;
+  dominantLeg: string;
+  matchesPerWeek: number;
+  trainingsPerWeek: number;
+  injuryHistory: boolean;
+  injuries: {
+    zone: string;
+    severity: string;
+    description: string;
+    date: string;
+  }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -46,12 +65,56 @@ export class RecommendationService {
   //           FEEDBACK
   // ============================
 
-  /**
-   * Envía el feedback que el usuario hace sobre una recomendación concreta.
-   * Se consumirá en el backend en la ruta:
-   *   POST /api/recomendacion/feedback
-   */
   enviarFeedback(payload: RecommendationFeedbackPayload): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/feedback`, payload);
+  }
+
+  // ============================
+  //    PERFIL + LESIONES
+  // ============================
+
+  // POST: guardar perfil + historial de lesiones
+  guardarPerfilLesiones(payload: PerfilLesionesPayload): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/perfil-lesiones`, payload);
+  }
+
+  // GET: recuperar perfil de lesiones (se pueden pedir varios registros)
+  obtenerPerfilLesiones(usuarioId: string, limit = 20): Observable<any[]> {
+    const params = {
+      usuario_id: usuarioId,
+      limit: limit.toString()
+    };
+
+    return this.http.get<any[]>(`${this.apiUrl}/perfil-lesiones`, { params });
+  }
+
+  // ============================
+  //       ELIMINAR DATOS
+  // ============================
+
+  // DELETE: eliminar una recomendación del historial
+  eliminarRecomendacion(
+    usuarioId: string,
+    recommendationId: string | number
+  ): Observable<any> {
+    const params = {
+      usuario_id: usuarioId,
+      recomendacion_id: String(recommendationId)
+    };
+
+    return this.http.delete<any>(`${this.apiUrl}/historial`, { params });
+  }
+
+  // DELETE: eliminar una lesión/evento del perfil
+  eliminarLesion(
+    usuarioId: string,
+    injuryId: string | number
+  ): Observable<any> {
+    const params = {
+      usuario_id: usuarioId,
+      injury_id: String(injuryId)
+    };
+
+    return this.http.delete<any>(`${this.apiUrl}/perfil-lesiones`, { params });
   }
 }

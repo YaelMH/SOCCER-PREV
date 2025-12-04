@@ -18,20 +18,27 @@ const fs = require('fs');
 const router = express.Router();
 
 /* ==========
- * ARCHIVOS LOCALES (historial + feedback + CSV para reentrenar)
+ * ARCHIVOS LOCALES (historial + feedback + perfil + CSV para reentrenar)
  * ========== */
 
 // Carpeta para datos locales del microservicio de recomendación
 const dataDir = path.resolve(__dirname, '../data');
+
 // JSON con historial de recomendaciones
 const historialPath = path.join(dataDir, 'historial_recomendaciones.json');
 // JSON con feedback de recomendaciones
 const feedbackPath = path.join(dataDir, 'feedback_recomendaciones.json');
-// CSV con nuevos casos para reentrenar el modelo
+// JSON con perfiles + lesiones previas reportadas
+const perfilLesionesPath = path.join(dataDir, 'perfil_lesiones.json');
+
+// CSV con nuevos casos para reentrenar el modelo (condición diaria)
 const nuevosCsvPath = path.resolve(
   __dirname,
   '../../ml-inference-service/dataset_soccerprev_nuevos.csv'
 );
+
+// CSV con info resumida de perfiles y lesiones previas
+const perfilLesionesCsvPath = path.join(dataDir, 'perfil_lesiones.csv');
 
 function asegurarArchivosLocales() {
   try {
@@ -45,6 +52,10 @@ function asegurarArchivosLocales() {
 
     if (!fs.existsSync(feedbackPath)) {
       fs.writeFileSync(feedbackPath, '[]', 'utf8');
+    }
+
+    if (!fs.existsSync(perfilLesionesPath)) {
+      fs.writeFileSync(perfilLesionesPath, '[]', 'utf8');
     }
 
     if (!fs.existsSync(nuevosCsvPath)) {
@@ -73,6 +84,25 @@ function asegurarArchivosLocales() {
       ].join(',');
       fs.writeFileSync(nuevosCsvPath, encabezados + '\n', 'utf8');
     }
+
+    if (!fs.existsSync(perfilLesionesCsvPath)) {
+      const encabezadosPerfil = [
+        'usuario_id',
+        'fullName',
+        'age',
+        'role',
+        'position',
+        'dominantLeg',
+        'matchesPerWeek',
+        'trainingsPerWeek',
+        'injuryHistory',
+        'injuriesCount',
+        'lastInjuryZone',
+        'lastInjurySeverity',
+        'lastInjuryDate'
+      ].join(',');
+      fs.writeFileSync(perfilLesionesCsvPath, encabezadosPerfil + '\n', 'utf8');
+    }
   } catch (err) {
     console.error('Error creando archivos locales de datos:', err);
   }
@@ -97,9 +127,9 @@ function guardarRecomendacionLocal(datos, payload) {
       descripcion: payload.descripcion,
       fuente: 'Condición diaria + modelo',
       recomendaciones: payload.recomendaciones ?? [],
-      especialista: payload.especialista ?? null, // para el modal / detalle
-      dolor: payload.dolor ?? null,               // para el modal / detalle
-      estado_fisico: payload.estado_fisico ?? null, // 👈 NUEVO: guardamos estado físico
+      especialista: payload.especialista ?? null,
+      dolor: payload.dolor ?? null,
+      estado_fisico: payload.estado_fisico ?? null, // 👈 estado físico
       aviso: payload.aviso ?? '',
       entrada: datos
     });
@@ -170,16 +200,67 @@ function guardarFeedbackLocal(payload) {
   }
 }
 
+/** Guarda perfil + lesiones previas en JSON y CSV. */
+function guardarPerfilLesiones(perfil) {
+  try {
+    if (!fs.existsSync(perfilLesionesPath)) {
+      fs.writeFileSync(perfilLesionesPath, '[]', 'utf8');
+    }
+
+    const contenido = fs.readFileSync(perfilLesionesPath, 'utf8');
+    const lista = JSON.parse(contenido);
+
+    const ahora = new Date();
+    const registro = {
+      id: Date.now(),
+      fechaISO: ahora.toISOString(),
+      fecha: ahora.toLocaleString('es-MX', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }),
+      ...perfil
+    };
+
+    lista.push(registro);
+    fs.writeFileSync(perfilLesionesPath, JSON.stringify(lista, null, 2), 'utf8');
+
+    // Resumen en CSV
+    const injuries = Array.isArray(perfil.injuries) ? perfil.injuries : [];
+    const injuriesCount = injuries.length;
+    const last = injuriesCount > 0 ? injuries[injuriesCount - 1] : {};
+
+    const fila = [
+      perfil.usuario_id ?? '',
+      perfil.fullName ?? '',
+      perfil.age ?? '',
+      perfil.role ?? '',
+      perfil.position ?? '',
+      perfil.dominantLeg ?? '',
+      perfil.matchesPerWeek ?? '',
+      perfil.trainingsPerWeek ?? '',
+      perfil.injuryHistory ? 1 : 0,
+      injuriesCount,
+      last.zone ?? '',
+      last.severity ?? '',
+      last.date ?? ''
+    ]
+      .map((v) => (v === undefined || v === null ? '' : v))
+      .join(',');
+
+    fs.appendFileSync(perfilLesionesCsvPath, '\n' + fila);
+  } catch (err) {
+    console.error('Error guardando perfil_lesiones:', err);
+  }
+}
+
 /* ==========
  * LÓGICA DE NEGOCIO
  * ========== */
 
-/** Normalizar: se quitan nulos, se recorta y paso a minúsculas. */
 function normStr(v) {
   return (v ?? '').toString().trim().toLowerCase();
 }
 
-/** Devuelve fecha local + ISO. */
 function fechaAhora() {
   const d = new Date();
   return {
@@ -191,10 +272,7 @@ function fechaAhora() {
   };
 }
 
-/* Zonas tipo:
- * No sustituyen al modelo; solo ayudan cuando el modelo es muy genérico
- * o cuando corregimos falsos positivos de "Fractura".
- */
+/* Zonas tipo */
 function normalizaZona(z) {
   z = normStr(z);
   if (!z) return 'desconocida';
@@ -233,16 +311,11 @@ function tipoSugeridoPorZona(zonaNorm) {
   return mapa[zonaNorm] || 'Otra lesión';
 }
 
-/*
- * GRAVEDAD basada en dolor y duración.
- * Tomamos como referencia que dolor muy intenso (≥8/10)
- * o dolor que lleva ≥21 días sin mejorar se trata como "Alta" por seguridad.
- */
+/* Gravedad */
 function gravedadPorDolor(nivel, dias, tipoFinal) {
   const n = Number(nivel) || 0;
   const d = Number(dias) || 0;
 
-  // Si el tipo implica urgencia por definición, priorizo Alta.
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') return 'Alta';
 
   if (n >= 8 || d >= 21) return 'Alta';
@@ -250,29 +323,17 @@ function gravedadPorDolor(nivel, dias, tipoFinal) {
   return 'Baja';
 }
 
-/*
- * Reglas de corrección clínica para el tipo de lesión:
- * - Si el modelo dice "Fractura" pero el dolor es bajo y reciente,
- *   bajamos a Esguince/Desgarre/Otra lesión.
- * - Si dice "Luxación" pero el dolor es bajo, la tratamos como algo menos grave.
- * - Si el modelo es muy genérico ("Otra lesión"), usamos la zona.
- */
+/* Corrección clínica */
 function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolor) {
   const n = Number(nivelDolor) || 0;
   const d = Number(diasDolor) || 0;
   const sugeridoZona = tipoSugeridoPorZona(zonaNorm);
 
-  // 1) Si el modelo está vacío o es muy genérico
   if (!tipoModelo || tipoModelo === 'Otra lesión') {
     return sugeridoZona || 'Otra lesión';
   }
 
-  // 2) Ajuste específico para "Fractura"
   if (tipoModelo === 'Fractura') {
-    // Sospecha fuerte de fractura:
-    // - Dolor muy intenso (≥8)
-    // - O dolor intenso (≥7) y pocos días (≤3)
-    // - O dolor moderado/alto (≥6) que lleva ≥10 días
     const sospechaFuerte =
       n >= 8 ||
       (n >= 7 && d <= 3) ||
@@ -286,7 +347,6 @@ function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolo
     }
   }
 
-  // 3) Ajuste para "Luxación": suele ser muy dolorosa.
   if (tipoModelo === 'Luxación' && n <= 5) {
     if (sugeridoZona && sugeridoZona !== 'Otra lesión') {
       return sugeridoZona;
@@ -294,16 +354,14 @@ function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolo
     return 'Otra lesión';
   }
 
-  // 4) Esguince/Desgarre normalmente se respetan.
   return tipoModelo;
 }
 
-// NIVEL DE URGENCIA / ESPECIALISTA
+/* Especialista / urgencia */
 function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona) {
   const n = Number(nivelDolor) || 0;
   const d = Number(diasDolor) || 0;
 
-  // Siempre urgencia si fractura/luxación
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') {
     return {
       necesario: true,
@@ -313,7 +371,6 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
     };
   }
 
-  // Dolor muy intenso o gravedad alta → valoración prioritaria
   if (gravedad === 'Alta' || n >= 8) {
     return {
       necesario: true,
@@ -323,7 +380,6 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
     };
   }
 
-  // Articulaciones clave con dolor que no cede en ≥10 días
   const zonasCríticas = ['rodilla', 'hombro', 'tobillo'];
   if (zonasCríticas.includes(zona) && d >= 10) {
     return {
@@ -334,7 +390,6 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
     };
   }
 
-  // Caso leve/reciente → autocuidado con vigilancia
   return {
     necesario: false,
     urgente: false,
@@ -343,7 +398,7 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
   };
 }
 
-/** Descripción corta combinando tipo + zona + intensidad/tiempo. */
+/* Descripción + recomendaciones */
 function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
   const base = {
     Esguince:
@@ -365,7 +420,6 @@ function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
   return (base[tipoFinal] || base['Otra lesión']) + ztxt;
 }
 
-/** Recomendaciones tipo PRICE/POLICE ajustadas por tipo y gravedad. */
 function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
   const PRICE = [
     'Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.',
@@ -407,7 +461,6 @@ function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
     ]
   };
 
-  // Si es alta y no es fractura/luxación, enfatizamos la valoración.
   if (
     gravedad === 'Alta' &&
     (tipoFinal === 'Esguince' ||
@@ -432,16 +485,12 @@ function calcularEstadoFisico(datos) {
     datos.hidratacion_ok !== undefined ? Number(datos.hidratacion_ok) : NaN;
   const lesionesUlt = Number(datos.lesiones_ultimo_anno) || 0;
 
-  // Carga base en minutos/semana
-  let cargaMin = freq * dur + extraEntrena * 30; // bonus de 30 min por entrenamiento adicional
+  let cargaMin = freq * dur + extraEntrena * 30; // bonus 30 min por extra
 
-  // Escalamos a 0–100 tomando como referencia ~480 min (8 h/semana)
-  const cargaRefMin = 480;
+  const cargaRefMin = 480; // ~8h/semana
   let indice = (cargaMin / cargaRefMin) * 100;
-
   if (!Number.isFinite(indice)) indice = 0;
 
-  // Ajustes por recuperación
   if (horasSueno >= 7) {
     indice += 5;
   } else if (horasSueno > 0 && horasSueno < 6) {
@@ -455,7 +504,6 @@ function calcularEstadoFisico(datos) {
 
   if (lesionesUlt >= 2) indice -= 5;
 
-  // Clamp 0–100
   if (indice > 100) indice = 100;
   if (indice < 0) indice = 0;
 
@@ -478,12 +526,11 @@ function calcularEstadoFisico(datos) {
 
   return {
     indice: Math.round(indice),
-    categoria,      // 'baja' | 'moderada' | 'alta'
+    categoria, // 'baja' | 'moderada' | 'alta'
     recomendacion
   };
 }
 
-/** Construyo el payload final que consume el frontend. */
 function construirRespuesta({ tipoModelo, datos }) {
   const zonaNorm = normalizaZona(datos.dolor_zona);
   const tipoFinal = decidirTipoFinalSegunClinica(
@@ -506,7 +553,6 @@ function construirRespuesta({ tipoModelo, datos }) {
   );
   const fecha = fechaAhora();
 
-  // 👇 NUEVO: cálculo de estado físico / carga semanal
   const estadoFisico = calcularEstadoFisico(datos);
 
   return {
@@ -514,7 +560,7 @@ function construirRespuesta({ tipoModelo, datos }) {
     fechaISO: fecha.iso,
     tipo_lesion: tipoFinal,
     nombre: `Lesión compatible con ${normStr(tipoFinal)}`,
-    gravedad, // Baja / Media / Alta
+    gravedad,
     especialista,
     descripcion: descripcionPorTipo(
       tipoFinal,
@@ -528,7 +574,7 @@ function construirRespuesta({ tipoModelo, datos }) {
       dias: Number(datos.dolor_dias) || 0,
       zona: zonaNorm
     },
-    estado_fisico: estadoFisico, // 👈 NUEVO: se manda al frontend
+    estado_fisico: estadoFisico,
     aviso:
       'Orientación informativa basada en síntomas reportados. No sustituye una valoración médica ni un diagnóstico profesional.'
   };
@@ -558,14 +604,14 @@ router.post('/', (req, res) => {
   datos.dolor_dias = Number(datos.dolor_dias);
   datos.dolor_zona = normStr(datos.dolor_zona);
 
-  // 👇 Campos numéricos (incluimos posicion porque ahora viene como código 0–3)
+  // numéricos (posicion ahora es código numérico)
   const nums = [
     'edad',
     'peso',
     'estatura_m',
     'frecuencia_juego_semana',
     'duracion_partido_min',
-    'posicion',                // 👈 AHORA numérico
+    'posicion',
     'entrena',
     'calienta',
     'calentamiento_min',
@@ -573,7 +619,6 @@ router.post('/', (req, res) => {
     'hidratacion_ok',
     'lesiones_ultimo_anno',
     'recuperacion_sem',
-    // compatibilidad v1
     'frecuencia_entrenamiento',
     'calentamiento',
     'estiramiento',
@@ -583,7 +628,7 @@ router.post('/', (req, res) => {
     if (datos[k] !== undefined) datos[k] = Number(datos[k]);
   });
 
-  // 👇 Campos string/categóricos (posicion YA NO va aquí)
+  // categóricos (posicion YA NO va aquí)
   ['nivel', 'superficie', 'clima'].forEach((k) => {
     if (datos[k] !== undefined) datos[k] = normStr(datos[k]);
   });
@@ -722,6 +767,90 @@ router.post('/feedback', (req, res) => {
 });
 
 /* ==========
+ * POST /api/recomendacion/perfil-lesiones
+ *  - Guarda perfil del jugador + lesiones previas
+ * ========== */
+
+router.post('/perfil-lesiones', (req, res) => {
+  const body = req.body || {};
+  console.log('==== NUEVO PERFIL /api/recomendacion/perfil-lesiones ====');
+  console.log('payload:', body);
+
+  const { usuario_id } = body;
+  if (!usuario_id) {
+    return res.status(400).json({
+      error: 'Campo requerido: usuario_id'
+    });
+  }
+
+  const perfil = {
+    usuario_id: String(usuario_id),
+    fullName: String(body.fullName || ''),
+    email: String(body.email || ''),
+    role: String(body.role || ''),
+    position: String(body.position || ''),
+    age: body.age !== undefined ? Number(body.age) : null,
+    dominantLeg: String(body.dominantLeg || ''),
+    matchesPerWeek:
+      body.matchesPerWeek !== undefined ? Number(body.matchesPerWeek) : 0,
+    trainingsPerWeek:
+      body.trainingsPerWeek !== undefined ? Number(body.trainingsPerWeek) : 0,
+    injuryHistory: Boolean(body.injuryHistory),
+    injuries: Array.isArray(body.injuries)
+      ? body.injuries.map((inj) => ({
+          zone: String(inj.zone || ''),
+          severity: String(inj.severity || ''),
+          description: String(inj.description || ''),
+          date: String(inj.date || '')
+        }))
+      : []
+  };
+
+  guardarPerfilLesiones(perfil);
+
+  return res.status(201).json({ ok: true });
+});
+
+/* ==========
+ * GET /api/recomendacion/perfil-lesiones
+ * ========== */
+router.get('/perfil-lesiones', (req, res) => {
+  try {
+    const { usuario_id } = req.query;
+
+    if (!fs.existsSync(perfilLesionesPath)) {
+      return res.json(null);
+    }
+
+    const contenido = fs.readFileSync(perfilLesionesPath, 'utf8');
+    let lista = JSON.parse(contenido);
+
+    if (usuario_id) {
+      const uid = String(usuario_id);
+      lista = lista.filter((item) => item.usuario_id === uid);
+    }
+
+    if (!Array.isArray(lista) || lista.length === 0) {
+      return res.json(null);
+    }
+
+    lista.sort((a, b) => {
+      const fa = a.fechaISO || a.fecha || '';
+      const fb = b.fechaISO || b.fecha || '';
+      return fa < fb ? 1 : fa > fb ? -1 : 0;
+    });
+
+    const ultimo = lista[0];
+    return res.json(ultimo);
+  } catch (err) {
+    console.error('Error leyendo perfil_lesiones:', err);
+    return res
+      .status(500)
+      .json({ error: 'No se pudo leer el perfil de lesiones' });
+  }
+});
+
+/* ==========
  * GET /api/recomendacion/historial
  *  - opcional: ?usuario_id=...&limit=10
  * ========== */
@@ -753,6 +882,122 @@ router.get('/historial', (req, res) => {
   } catch (err) {
     console.error('Error leyendo historial:', err);
     return res.status(500).json({ error: 'No se pudo leer el historial' });
+  }
+});
+
+/* ==========
+ * DELETE /api/recomendacion/historial
+ *  - Elimina una recomendación del historial
+ *  - Query: ?usuario_id=...&recomendacion_id=...
+ * ========== */
+
+router.delete('/historial', (req, res) => {
+  try {
+    const { usuario_id, recomendacion_id } = req.query;
+
+    if (!recomendacion_id) {
+      return res.status(400).json({
+        error: 'Campos requeridos: recomendacion_id (y opcionalmente usuario_id)'
+      });
+    }
+
+    if (!fs.existsSync(historialPath)) {
+      return res.status(404).json({ error: 'No hay historial disponible.' });
+    }
+
+    const contenido = fs.readFileSync(historialPath, 'utf8');
+    let historial = JSON.parse(contenido);
+
+    const recIdNum = Number(recomendacion_id);
+    const uid = usuario_id ? String(usuario_id) : null;
+
+    const antes = historial.length;
+
+    historial = historial.filter((item) => {
+      const sameId = Number(item.id) === recIdNum;
+      const sameUser = uid ? String(item.usuario_id) === uid : true;
+      return !(sameId && sameUser);
+    });
+
+    if (historial.length === antes) {
+      return res
+        .status(404)
+        .json({ error: 'Recomendación no encontrada para eliminar.' });
+    }
+
+    fs.writeFileSync(historialPath, JSON.stringify(historial, null, 2), 'utf8');
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error eliminando recomendación del historial:', err);
+    return res
+      .status(500)
+      .json({ error: 'No se pudo eliminar la recomendación.' });
+  }
+});
+
+/* ==========
+ * DELETE /api/recomendacion/perfil-lesiones
+ *  - Elimina una lesión/evento del perfil de un usuario
+ *  - Query: ?usuario_id=...&injury_id=...
+ * ========== */
+
+router.delete('/perfil-lesiones', (req, res) => {
+  try {
+    const { usuario_id, injury_id } = req.query;
+
+    if (!usuario_id || !injury_id) {
+      return res.status(400).json({
+        error: 'Campos requeridos: usuario_id e injury_id'
+      });
+    }
+
+    if (!fs.existsSync(perfilLesionesPath)) {
+      return res.status(404).json({ error: 'No hay perfiles de lesiones.' });
+    }
+
+    const contenido = fs.readFileSync(perfilLesionesPath, 'utf8');
+    let lista = JSON.parse(contenido);
+
+    const uid = String(usuario_id);
+    const injuryIdStr = String(injury_id);
+    let cambio = false;
+
+    lista = lista.map((registro) => {
+      if (String(registro.usuario_id) !== uid) return registro;
+
+      const injuries = Array.isArray(registro.injuries)
+        ? registro.injuries
+        : [];
+
+      const nuevas = injuries.filter((inj) => {
+        const candidateId =
+          inj.id ||
+          inj._id ||
+          `${inj.date || ''}-${inj.zone || ''}`;
+        return String(candidateId) !== injuryIdStr;
+      });
+
+      if (nuevas.length !== injuries.length) {
+        cambio = true;
+        return { ...registro, injuries: nuevas };
+      }
+
+      return registro;
+    });
+
+    if (!cambio) {
+      return res
+        .status(404)
+        .json({ error: 'Lesión no encontrada para ese usuario.' });
+    }
+
+    fs.writeFileSync(perfilLesionesPath, JSON.stringify(lista, null, 2), 'utf8');
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error eliminando lesión del perfil:', err);
+    return res
+      .status(500)
+      .json({ error: 'No se pudo eliminar la lesión del perfil.' });
   }
 });
 

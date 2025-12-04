@@ -1,0 +1,610 @@
+[
+  {
+    "id": 1764643291097,
+    "fechaISO": "2025-12-02T02:41:31.097Z",
+    "fecha": "01/12/25, 8:41 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "Rodilla derecha",
+        "severity": "Moderada",
+        "description": "Lesión por sobrecarga durante pretemporada.",
+        "date": "2024-08"
+      },
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "esguince grado 2",
+        "date": "2025-10"
+      }
+    ]
+  },
+  {
+    "id": 1764644462712,
+    "fechaISO": "2025-12-02T03:01:02.712Z",
+    "fecha": "01/12/25, 9:01 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "Rodilla derecha",
+        "severity": "Moderada",
+        "description": "Lesión por sobrecarga durante pretemporada.",
+        "date": "2024-08"
+      },
+      {
+        "zone": "tobillo izquierdo",
+        "severity": "Leve",
+        "description": "esguince grado 1",
+        "date": "2021-10"
+      }
+    ]
+  },
+  {
+    "id": 1764644500705,
+    "fechaISO": "2025-12-02T03:01:40.705Z",
+    "fecha": "01/12/25, 9:01 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "Rodilla derecha",
+        "severity": "Moderada",
+        "description": "Lesión por sobrecarga durante pretemporada.",
+        "date": "2024-08"
+      },
+      {
+        "zone": "mano derecha",
+        "severity": "Grave",
+        "description": "luxacion",
+        "date": "2024-02"
+      }
+    ]
+  },
+  {
+    "id": 1764646084400,
+    "fechaISO": "2025-12-02T03:28:04.400Z",
+    "fecha": "01/12/25, 9:28 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "tobillo derecho ",
+        "date": "2022-01"
+      }
+    ]
+  },
+  {
+    "id": 1764646181229,
+    "fechaISO": "2025-12-02T03:29:41.229Z",
+    "fecha": "01/12/25, 9:29 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "hombro derecho",
+        "severity": "Leve",
+        "description": "hombro derecho",
+        "date": "2021-09"
+      }
+    ]
+  },
+  {
+    "id": 1764646526369,
+    "fechaISO": "2025-12-02T03:35:26.369Z",
+    "fecha": "01/12/25, 9:35 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "muñeca derecha",
+        "severity": "Leve",
+        "description": "muñeca derecha",
+        "date": "2020-10"
+      }
+    ]
+  },
+  {
+    "id": 1764646583195,
+    "fechaISO": "2025-12-02T03:36:23.195Z",
+    "fecha": "01/12/25, 9:36 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "muñeca derecha",
+        "severity": "Leve",
+        "description": "holaaaa",
+        "date": "2025-11"
+      }
+    ]
+  },
+  {
+    "id": 1764646753083,
+    "fechaISO": "2025-12-02T03:39:13.083Z",
+    "fecha": "01/12/25, 9:39 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "hombro izquierdo",
+        "severity": "Leve",
+        "description": "hola prueba",
+        "date": "2021-10"
+      }
+    ]
+  },
+  {
+    "id": 1764649068888,
+    "fechaISO": "2025-12-02T04:17:48.888Z",
+    "fecha": "01/12/25, 10:17 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "Esguince de primer grado",
+        "date": "2024-10"
+      }
+    ]
+  },
+  {
+    "id": 1764651215418,
+    "fechaISO": "2025-12-02T04:53:35.418Z",
+    "fecha": "01/12/25, 10:53 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "hola",
+        "date": "2025-10"
+      }
+    ]
+  },
+  {
+    "id": 1764652880363,
+    "fechaISO": "2025-12-02T05:21:20.363Z",
+    "fecha": "01/12/25, 11:21 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "esguince de segundo grado",
+        "date": "2024-10"
+      }
+    ]
+  },
+  {
+    "id": 1764653303443,
+    "fechaISO": "2025-12-02T05:28:23.443Z",
+    "fecha": "01/12/25, 11:28 p.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "esguince grado 2",
+        "date": "2022-10"
+      }
+    ]
+  },
+  {
+    "id": 1764679385670,
+    "fechaISO": "2025-12-02T12:43:05.670Z",
+    "fecha": "02/12/25, 6:43 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 1,
+    "trainingsPerWeek": 3,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo izquierdo ",
+        "severity": "Leve",
+        "description": "esguince de primer grado",
+        "date": "octubre/2025"
+      }
+    ]
+  },
+  {
+    "id": 1764680306543,
+    "fechaISO": "2025-12-02T12:58:26.543Z",
+    "fecha": "02/12/25, 6:58 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": false,
+    "injuries": []
+  },
+  {
+    "id": 1764680352577,
+    "fechaISO": "2025-12-02T12:59:12.577Z",
+    "fecha": "02/12/25, 6:59 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "rodilla derecha",
+        "severity": "Leve",
+        "description": "dolor en la rodilla por torcedura",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764680390341,
+    "fechaISO": "2025-12-02T12:59:50.341Z",
+    "fecha": "02/12/25, 6:59 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "ambas",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": false,
+    "injuries": []
+  },
+  {
+    "id": 1764680437167,
+    "fechaISO": "2025-12-02T13:00:37.167Z",
+    "fecha": "02/12/25, 7:00 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo ",
+        "severity": "Leve",
+        "description": "esguince de grado. 2",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764680479534,
+    "fechaISO": "2025-12-02T13:01:19.534Z",
+    "fecha": "02/12/25, 7:01 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "",
+        "severity": "Leve",
+        "description": "",
+        "date": ""
+      }
+    ]
+  },
+  {
+    "id": 1764680489758,
+    "fechaISO": "2025-12-02T13:01:29.758Z",
+    "fecha": "02/12/25, 7:01 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yair Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "",
+        "severity": "Leve",
+        "description": "",
+        "date": ""
+      }
+    ]
+  },
+  {
+    "id": 1764681166776,
+    "fechaISO": "2025-12-02T13:12:46.776Z",
+    "fecha": "02/12/25, 7:12 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho ",
+        "severity": "Leve",
+        "description": "esguince de grado 2",
+        "date": "2024-10"
+      }
+    ]
+  },
+  {
+    "id": 1764681219022,
+    "fechaISO": "2025-12-02T13:13:39.022Z",
+    "fecha": "02/12/25, 7:13 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo",
+        "severity": "Leve",
+        "description": "esguince grado 2",
+        "date": "2024-10"
+      }
+    ]
+  },
+  {
+    "id": 1764682137117,
+    "fechaISO": "2025-12-02T13:28:57.117Z",
+    "fecha": "02/12/25, 7:28 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "esguince grado 3",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764682207417,
+    "fechaISO": "2025-12-02T13:30:07.417Z",
+    "fecha": "02/12/25, 7:30 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "rodilla derecha",
+        "severity": "Leve",
+        "description": "esguince de 2 grado",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764682770851,
+    "fechaISO": "2025-12-02T13:39:30.851Z",
+    "fecha": "02/12/25, 7:39 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Moderada",
+        "description": "esguince de grado 2",
+        "date": "2023-10"
+      },
+      {
+        "zone": "dedo del pie",
+        "severity": "Leve",
+        "description": "Luxacion",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764682816215,
+    "fechaISO": "2025-12-02T13:40:16.215Z",
+    "fecha": "02/12/25, 7:40 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "rodilla derecha",
+        "severity": "Leve",
+        "description": "dolor en el menisco",
+        "date": "2023-10"
+      }
+    ]
+  },
+  {
+    "id": 1764685438215,
+    "fechaISO": "2025-12-02T14:23:58.215Z",
+    "fecha": "02/12/25, 8:23 a.m.",
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fullName": "Yael  Mendez Hernandez",
+    "email": "yael894.ym@gmail.com",
+    "role": "player",
+    "position": "Delantero",
+    "age": 22,
+    "dominantLeg": "derecha",
+    "matchesPerWeek": 0,
+    "trainingsPerWeek": 0,
+    "injuryHistory": true,
+    "injuries": [
+      {
+        "zone": "tobillo derecho",
+        "severity": "Leve",
+        "description": "esguince de grado 2",
+        "date": "2024-09"
+      }
+    ]
+  }
+]

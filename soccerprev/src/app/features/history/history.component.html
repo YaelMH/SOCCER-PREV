@@ -53,6 +53,14 @@
         <p class="text-xs text-text-muted">
           Estoy mostrando las recomendaciones generadas en diferentes fechas, con su tipo y nivel de riesgo.
         </p>
+
+        <!-- estados de carga / error -->
+        <p *ngIf="loading" class="mt-1 text-[11px] text-text-muted">
+          Cargando historial de recomendaciones...
+        </p>
+        <p *ngIf="!loading && error" class="mt-1 text-[11px] text-danger">
+          {{ error }}
+        </p>
       </div>
 
       <div class="flex flex-wrap gap-2 text-[11px] text-text-muted">
@@ -101,6 +109,13 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-app-border/70">
+          <!-- sin datos -->
+          <tr *ngIf="!loading && filteredRecommendations.length === 0">
+            <td colspan="6" class="py-4 text-center text-text-muted">
+              Aún no se han generado recomendaciones.
+            </td>
+          </tr>
+
           <tr *ngFor="let rec of filteredRecommendations">
             <td class="py-2 pr-3 whitespace-nowrap">
               {{ rec.fechaTexto || rec.date }}
@@ -123,13 +138,22 @@
             <td class="py-2 whitespace-nowrap text-text-muted">
               {{ rec.source }}
             </td>
-            <td class="py-2 pl-3 whitespace-nowrap text-right">
+            <td class="py-2 pl-3 whitespace-nowrap text-right space-x-2">
               <button
                 type="button"
                 class="px-3 py-1 rounded-full border border-app-border text-[11px] hover:border-primary hover:text-primary transition"
                 (click)="openDetail(rec)"
               >
                 Ver detalle
+              </button>
+
+              <button
+                type="button"
+                class="px-3 py-1 rounded-full border border-danger/60 text-[11px] text-danger hover:bg-danger/10 transition"
+                (click)="confirmDeleteRecommendation(rec)"
+                [disabled]="isDeletingRecommendationId === rec.id"
+              >
+                {{ isDeletingRecommendationId === rec.id ? 'Eliminando…' : 'Eliminar' }}
               </button>
             </td>
           </tr>
@@ -151,8 +175,16 @@
         </p>
       </div>
 
-      <div class="text-[11px] text-text-muted">
-        Datos sincronizados con el <span class="font-semibold">perfil del jugador</span>.
+      <div class="text-[11px] text-text-muted text-right space-y-0.5">
+        <p *ngIf="loadingInjuries">
+          Cargando lesiones previas desde tu perfil...
+        </p>
+        <p *ngIf="!loadingInjuries && !errorInjuries">
+          Datos tomados de tu perfil del jugador (lesiones previas registradas).
+        </p>
+        <p *ngIf="!loadingInjuries && errorInjuries" class="text-danger">
+          {{ errorInjuries }}
+        </p>
       </div>
     </div>
 
@@ -165,13 +197,15 @@
             <th class="pb-2 pr-3 font-medium">Tipo</th>
             <th class="pb-2 pr-3 font-medium">Descripción</th>
             <th class="pb-2 pr-3 font-medium">Gravedad</th>
-            <th class="pb-2 font-medium">Tiempo de recuperación</th>
+            <th class="pb-2 pr-3 font-medium">Tiempo de recuperación</th>
+            <th class="pb-2 font-medium text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-app-border/70">
-          <tr *ngIf="injuries.length === 0">
-            <td colspan="6" class="py-4 text-center text-text-muted">
-              No se han registrado lesiones en tu perfil.
+          <!-- sin lesiones -->
+          <tr *ngIf="!loadingInjuries && injuries.length === 0">
+            <td colspan="7" class="py-4 text-center text-text-muted">
+              Aún no has registrado lesiones previas en tu perfil.
             </td>
           </tr>
 
@@ -193,12 +227,35 @@
                 class="inline-flex items-center gap-1 rounded-full px-2 py-0.5"
                 [ngClass]="getSeverityPillClasses(injury.severity)"
               >
-                <span class="h-1.5 w-1.5 rounded-full" [ngClass]="getSeverityDotClasses(injury.severity)"></span>
+                <span
+                  class="h-1.5 w-1.5 rounded-full"
+                  [ngClass]="getSeverityDotClasses(injury.severity)"
+                ></span>
                 {{ injury.severity }}
               </span>
             </td>
             <td class="py-2 whitespace-nowrap text-text-muted">
               {{ injury.recoveryTime || 'No especificado' }}
+            </td>
+            <td class="py-2 pl-3 whitespace-nowrap text-right">
+              <button
+                type="button"
+                class="px-3 py-1 rounded-full border border-danger/60 text-[11px] text-danger hover:bg-danger/10 transition"
+                (click)="confirmDeleteInjury(injury)"
+                [disabled]="isDeletingInjuryId === injury.id"
+              >
+                {{ isDeletingInjuryId === injury.id ? 'Eliminando…' : 'Eliminar' }}
+              </button>
+            </td>
+            <td class="py-2 pl-3 whitespace-nowrap text-right">
+              <button
+                type="button"
+                class="px-3 py-1 rounded-full border border-danger/60 text-[11px] text-danger hover:bg-danger/10 transition"
+                (click)="confirmDeleteInjury(injury)"
+                [disabled]="isDeletingInjuryId === injury.id"
+              >
+                {{ isDeletingInjuryId === injury.id ? 'Eliminando…' : 'Eliminar' }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -225,6 +282,8 @@
       <p class="text-[11px] text-text-muted mb-1">
         Fecha:
         <span class="font-medium text-text-main">{{ rec.fechaTexto || rec.date }}</span>
+        Fecha:
+        <span class="font-medium text-text-main">{{ rec.fechaTexto || rec.date }}</span>
       </p>
       <h2 class="text-lg font-semibold mb-1">
         Resultado de la recomendación
@@ -233,7 +292,9 @@
         Tipo de lesión estimada:
         <span class="font-semibold text-text-main">{{ rec.type }}</span> ·
         Gravedad:
-        <span class="font-semibold text-text-main">{{ rec.gravedadRaw || (rec.riskLevel | titlecase) }}</span>
+        <span class="font-semibold text-text-main">
+          {{ rec.gravedadRaw || (rec.riskLevel | titlecase) }}
+        </span>
       </p>
 
       <p class="text-sm text-text-main mb-3">
@@ -266,7 +327,9 @@
         <p class="text-xs text-text-muted">
           <span class="font-medium text-text-main">
             {{ rec.especialista.necesario ? 'Sí' : 'Por ahora no es imprescindible' }}
-            <ng-container *ngIf="rec.especialista.urgente"> (urgente)</ng-container>
+            <ng-container *ngIf="rec.especialista.urgente">
+              (urgente)
+            </ng-container>
           </span>
           · {{ rec.especialista.motivo }}
         </p>
