@@ -1,4 +1,3 @@
-// src/app/features/history/history.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RecommendationService } from '../../services/recommendation.service';
@@ -7,27 +6,17 @@ import { AuthService } from '../../auth/auth.service';
 type RiskLevel = 'bajo' | 'medio' | 'alto';
 
 interface RecommendationHistoryItem {
+  // identificador para el modal / tracking
   id: number | string;
-  date: string;
-  fechaTexto: string;
-  type: string;
-  description: string;
+
+  // fechas
+  date: string;        // normalmente fechaISO
+  fechaTexto: string;  // fecha legible (local)
+
+  // datos principales
+  type: string;        // tipo_lesion
+  description: string; // descripcion
   riskLevel: RiskLevel;
-<<<<<<< HEAD
-  gravedadRaw: string;
-  source: string;
-  recomendaciones: string[];
-  dolor?: {
-    nivel: number;
-    dias: number;
-    zona: string;
-  } | null;
-  especialista?: {
-    necesario: boolean;
-    urgente: boolean;
-    motivo: string;
-  } | null;
-=======
   gravedadRaw: string; // "Baja" | "Media" | "Alta" (texto original backend)
   source: string;      // fuente
 
@@ -47,24 +36,17 @@ interface RecommendationHistoryItem {
         motivo: string;
       }
     | null;
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
   aviso?: string;
 }
 
 interface InjuryHistoryItem {
-<<<<<<< HEAD
-  id?: number | string;
-=======
-  // id opcional para poder eliminar desde UI/backend
-  id?: string | number;
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
+  id: string; // 👈 identificador interno para poder eliminar
   date: string;
   zone: string;
   type: string;
   description: string;
   severity: 'Leve' | 'Moderada' | 'Grave';
   recoveryTime: string;
-  origin?: string;
 }
 
 @Component({
@@ -78,15 +60,14 @@ export class HistoryComponent implements OnInit {
   // Tabs
   activeTab: 'recomendaciones' | 'lesiones' = 'recomendaciones';
 
-  // Recomendaciones desde backend Node
+  // usuario actual (uid de Firebase, necesario para eliminar)
+  private currentUserId: string | null = null;
+
+  // Datos que vienen del backend
   recommendations: RecommendationHistoryItem[] = [];
   filteredRecommendations: RecommendationHistoryItem[] = [];
 
-<<<<<<< HEAD
-  // Lesiones: ahora vendrán de Firestore (users/{uid}.injuries)
-  injuries: InjuryHistoryItem[] = [];
-=======
-  // Mock por defecto, por si aún no hay lesiones guardadas en el backend
+  // 🔹 Mock por defecto, por si aún no hay lesiones guardadas en el backend
   private readonly defaultMockInjuries: InjuryHistoryItem[] = [
     {
       id: 'mock-1',
@@ -108,9 +89,8 @@ export class HistoryComponent implements OnInit {
       recoveryTime: '2 meses aprox.',
     },
   ];
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
 
-  // Lesiones (se intentan cargar del backend y, si no hay, quedan estos mocks)
+  // Lesiones (ahora se intentan cargar del backend y, si no hay, quedan estos mocks)
   injuries: InjuryHistoryItem[] = [...this.defaultMockInjuries];
 
   // estado de carga / error (recomendaciones)
@@ -125,12 +105,9 @@ export class HistoryComponent implements OnInit {
   showDetailModal = false;
   selectedRecommendation: RecommendationHistoryItem | null = null;
 
-  // usuario actual
-  currentUserId: string | null = null;
-
-  // flags para deshabilitar botones mientras borra
+  // estado de eliminación
   isDeletingRecommendationId: string | number | null = null;
-  isDeletingInjuryId: string | number | null = null;
+  isDeletingInjuryId: string | null = null;
 
   constructor(
     private recommendationService: RecommendationService,
@@ -138,59 +115,22 @@ export class HistoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Me suscribo al usuario actual de Firebase
     this.authService.authChanges().subscribe((user) => {
       if (!user) {
-<<<<<<< HEAD
-        this.recommendations = [];
-        this.filteredRecommendations = [];
-        this.injuries = [];
-=======
+        // si no hay sesión, dejo vacío
         this.currentUserId = null;
         this.recommendations = [];
         this.filteredRecommendations = [];
         this.injuries = [...this.defaultMockInjuries];
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
         return;
       }
 
       const usuarioId = user.uid;
-<<<<<<< HEAD
-
-      // 1) Cargar historial de recomendaciones desde el backend
-      this.cargarHistorial(usuarioId);
-
-      // 2) Suscribirnos al perfil en Firestore para leer las lesiones
-      this.authService.getUserProfile(usuarioId).subscribe((data) => {
-        const rawInjuries: any[] = Array.isArray(data?.injuries)
-          ? data.injuries
-          : [];
-
-        this.injuries = rawInjuries.map((inj) => {
-          const gravedad = (inj.severity || 'Moderada') as
-            | 'Leve'
-            | 'Moderada'
-            | 'Grave';
-
-          return {
-            id: inj.id ?? Date.now(),
-            date: inj.date ?? '',
-            zone: inj.zone ?? 'Zona no especificada',
-            type: inj.type ?? 'Lesión',
-            description:
-              inj.description ||
-              'Lesión registrada automáticamente a partir de una recomendación.',
-            severity: gravedad,
-            recoveryTime: inj.recoveryTime ?? 'Por definir según evolución',
-            origin: inj.origin ?? 'manual'
-          } as InjuryHistoryItem;
-        });
-      });
-=======
       this.currentUserId = usuarioId;
 
       this.cargarHistorial(usuarioId);
       this.cargarLesionesPrevias(usuarioId);
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
     });
   }
 
@@ -209,12 +149,7 @@ export class HistoryComponent implements OnInit {
             const riskLevel = this.gravedadToRiskLevel(item.gravedad);
 
             return {
-              id:
-                item.id ??
-                item._id ??
-                item.fechaISO ??
-                item.fecha ??
-                Date.now().toString(),
+              id: item.id ?? item.fechaISO ?? item.fecha ?? Date.now().toString(),
               date: item.fechaISO ?? item.fecha ?? '',
               fechaTexto: item.fecha ?? item.fechaISO ?? '',
               type: item.tipo_lesion ?? 'Recomendación',
@@ -256,6 +191,7 @@ export class HistoryComponent implements OnInit {
     );
   }
 
+  // Mapea "Baja" | "Media" | "Alta" del backend a 'bajo' | 'medio' | 'alto'
   private gravedadToRiskLevel(gravedad: string | undefined): RiskLevel {
     const g = (gravedad || '').toLowerCase();
     if (g === 'alta') return 'alto';
@@ -273,49 +209,6 @@ export class HistoryComponent implements OnInit {
   closeDetail() {
     this.showDetailModal = false;
     this.selectedRecommendation = null;
-  }
-
-  // ===== ELIMINAR RECOMENDACIÓN (HISTORIAL) =====
-
-  confirmDeleteRecommendation(rec: RecommendationHistoryItem) {
-    if (!this.currentUserId) return;
-
-    const confirmed = window.confirm(
-      '¿Seguro que quieres eliminar esta recomendación del historial? Esta acción no se puede deshacer.'
-    );
-
-    if (!confirmed) return;
-
-    this.isDeletingRecommendationId = rec.id;
-
-    this.recommendationService
-      .eliminarRecomendacion(this.currentUserId, rec.id)
-      .subscribe({
-        next: () => {
-          this.recommendations = this.recommendations.filter(
-            (r) => r.id !== rec.id
-          );
-          this.filteredRecommendations = this.filteredRecommendations.filter(
-            (r) => r.id !== rec.id
-          );
-
-          if (
-            this.selectedRecommendation &&
-            this.selectedRecommendation.id === rec.id
-          ) {
-            this.closeDetail();
-          }
-
-          this.isDeletingRecommendationId = null;
-        },
-        error: (err) => {
-          console.error('Error eliminando recomendación:', err);
-          alert(
-            'Ocurrió un error al eliminar la recomendación. Intenta de nuevo más tarde.'
-          );
-          this.isDeletingRecommendationId = null;
-        },
-      });
   }
 
   // ===== ESTILOS RECOMENDACIÓN =====
@@ -346,8 +239,6 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-<<<<<<< HEAD
-=======
   // ============================
   //   LESIONES / EVENTOS PERFIL
   // ============================
@@ -360,9 +251,11 @@ export class HistoryComponent implements OnInit {
       next: (resp: any) => {
         this.loadingInjuries = false;
 
+        // El endpoint devuelve un único objeto o un array
         const perfil = Array.isArray(resp) ? resp[0] : resp;
         if (!perfil || !Array.isArray(perfil.injuries) || !perfil.injuries.length) {
           // Si no hay lesiones guardadas todavía, dejamos las mock
+          this.injuries = [...this.defaultMockInjuries];
           return;
         }
 
@@ -374,19 +267,26 @@ export class HistoryComponent implements OnInit {
         this.errorInjuries =
           'No se pudo cargar el historial de lesiones previas desde tu perfil.';
         // En error también dejamos las mock
+        this.injuries = [...this.defaultMockInjuries];
       },
     });
   }
 
   private mapPerfilInjuries(rawInjuries: any[]): InjuryHistoryItem[] {
-    return rawInjuries.map((inj) => {
+    return rawInjuries.map((inj, index): InjuryHistoryItem => {
+      // Normalizamos gravedad a algo de nuestro enum
       const sevRaw = String(inj.severity || '').toLowerCase();
       let severity: InjuryHistoryItem['severity'] = 'Leve';
       if (sevRaw === 'moderada') severity = 'Moderada';
       else if (sevRaw === 'grave') severity = 'Grave';
 
+      const idCandidate =
+        inj.id ||
+        inj._id ||
+        `${inj.date || ''}-${inj.zone || ''}-${index}`;
+
       return {
-        id: inj.id || inj._id || `${inj.date || ''}-${inj.zone || ''}`,
+        id: String(idCandidate),
         date: inj.date || '',
         zone: inj.zone || '',
         type: inj.type || 'Lesión previa',
@@ -397,43 +297,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  // ===== ELIMINAR LESIÓN / EVENTO DEL PERFIL =====
-
-  confirmDeleteInjury(injury: InjuryHistoryItem) {
-    if (!this.currentUserId) return;
-
-    const confirmed = window.confirm(
-      '¿Seguro que quieres eliminar esta lesión/evento de tu historial?'
-    );
-
-    if (!confirmed) return;
-
-    // Si es mock (id no real), solo la quitamos localmente
-    if (!injury.id || String(injury.id).startsWith('mock-')) {
-      this.injuries = this.injuries.filter((i) => i !== injury);
-      return;
-    }
-
-    this.isDeletingInjuryId = injury.id;
-
-    this.recommendationService
-      .eliminarLesion(this.currentUserId, injury.id)
-      .subscribe({
-        next: () => {
-          this.injuries = this.injuries.filter((i) => i.id !== injury.id);
-          this.isDeletingInjuryId = null;
-        },
-        error: (err) => {
-          console.error('Error eliminando lesión del perfil:', err);
-          alert(
-            'Ocurrió un error al eliminar la lesión. Intenta de nuevo más tarde.'
-          );
-          this.isDeletingInjuryId = null;
-        },
-      });
-  }
-
->>>>>>> 01f4183 (Eliminar recomendación e historial de lesiones)
   // ===== ESTILOS LESIONES =====
 
   getSeverityPillClasses(severity: InjuryHistoryItem['severity']): string {
@@ -460,5 +323,82 @@ export class HistoryComponent implements OnInit {
       default:
         return 'bg-app-border';
     }
+  }
+
+  // ============================
+  //     ELIMINAR REGISTROS
+  // ============================
+
+  confirmDeleteRecommendation(rec: RecommendationHistoryItem) {
+    if (!this.currentUserId) {
+      alert('Debes iniciar sesión para eliminar una recomendación.');
+      return;
+    }
+
+    const ok = window.confirm(
+      '¿Seguro que quieres eliminar esta recomendación del historial?'
+    );
+    if (!ok) return;
+
+    this.isDeletingRecommendationId = rec.id;
+
+    this.recommendationService
+      .eliminarRecomendacion(this.currentUserId, rec.id)
+      .subscribe({
+        next: () => {
+          // quitamos de las listas locales
+          this.recommendations = this.recommendations.filter(
+            (r) => r.id !== rec.id
+          );
+          this.filteredRecommendations = this.filteredRecommendations.filter(
+            (r) => r.id !== rec.id
+          );
+          this.isDeletingRecommendationId = null;
+        },
+        error: (err) => {
+          console.error('Error eliminando recomendación:', err);
+          alert('No se pudo eliminar la recomendación. Intenta de nuevo.');
+          this.isDeletingRecommendationId = null;
+        },
+      });
+  }
+
+  confirmDeleteInjury(injury: InjuryHistoryItem) {
+    // Si es mock, solo la quitamos localmente (no pegamos al backend)
+    if (injury.id.startsWith('mock-')) {
+      const ok = window.confirm(
+        'Esta es una lesión de ejemplo. ¿Quieres ocultarla de la lista?'
+      );
+      if (!ok) return;
+
+      this.injuries = this.injuries.filter((i) => i.id !== injury.id);
+      return;
+    }
+
+    if (!this.currentUserId) {
+      alert('Debes iniciar sesión para eliminar una lesión de tu perfil.');
+      return;
+    }
+
+    const ok = window.confirm(
+      '¿Seguro que quieres eliminar esta lesión de tu perfil?'
+    );
+    if (!ok) return;
+
+    this.isDeletingInjuryId = injury.id;
+
+    this.recommendationService
+      .eliminarLesion(this.currentUserId, injury.id)
+      .subscribe({
+        next: () => {
+          this.injuries = this.injuries.filter((i) => i.id !== injury.id);
+          this.isDeletingInjuryId = null;
+        },
+        error: (err) => {
+          console.error('Error eliminando lesión del perfil:', err);
+          alert('No se pudo eliminar la lesión. Intenta de nuevo.');
+          this.isDeletingInjuryId = null;
+        },
+      });
   }
 }
