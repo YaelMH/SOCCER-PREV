@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
 
 type InjurySeverity = 'Leve' | 'Moderada' | 'Grave';
-type DominantLeg = 'derecha' | 'izquierda' | 'ambas' | '';
+type DominantLeg = 'derecha' | 'izquierda' | '';
 
 interface Injury {
   id?: number | string;
@@ -113,7 +113,6 @@ export class ProfileComponent implements OnInit {
         let dominantLeg: DominantLeg = this.profile.dominantLeg;
         if (domRaw === 'derecha' || domRaw === 'right') dominantLeg = 'derecha';
         else if (domRaw === 'izquierda' || domRaw === 'left') dominantLeg = 'izquierda';
-        else if (domRaw === 'ambas' || domRaw === 'both') dominantLeg = 'ambas';
 
         // --- Nivel ---
         const levelRaw = ((data.level ?? '') as string).toLowerCase();

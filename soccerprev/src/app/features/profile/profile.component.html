@@ -132,8 +132,6 @@
                   ? 'Derecha'
                   : profile.dominantLeg === 'izquierda'
                   ? 'Izquierda'
-                  : profile.dominantLeg === 'ambas'
-                  ? 'Ambas'
                   : 'No especificado'
               }}
             </p>
@@ -146,7 +144,6 @@
               <option [ngValue]="null">Selecciona una opción</option>
               <option value="derecha">Derecha</option>
               <option value="izquierda">Izquierda</option>
-              <option value="ambas">Ambas</option>
             </select>
           </ng-template>
         </div>
