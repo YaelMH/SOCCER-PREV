@@ -558,12 +558,14 @@ router.post('/', (req, res) => {
   datos.dolor_dias = Number(datos.dolor_dias);
   datos.dolor_zona = normStr(datos.dolor_zona);
 
+  // 👇 Campos numéricos (incluimos posicion porque ahora viene como código 0–3)
   const nums = [
     'edad',
     'peso',
     'estatura_m',
     'frecuencia_juego_semana',
     'duracion_partido_min',
+    'posicion',                // 👈 AHORA numérico
     'entrena',
     'calienta',
     'calentamiento_min',
@@ -580,7 +582,9 @@ router.post('/', (req, res) => {
   nums.forEach((k) => {
     if (datos[k] !== undefined) datos[k] = Number(datos[k]);
   });
-  ['nivel', 'superficie', 'clima', 'posicion'].forEach((k) => {
+
+  // 👇 Campos string/categóricos (posicion YA NO va aquí)
+  ['nivel', 'superficie', 'clima'].forEach((k) => {
     if (datos[k] !== undefined) datos[k] = normStr(datos[k]);
   });
 

@@ -1,3 +1,4 @@
+// src/app/features/history/history.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RecommendationService } from '../../services/recommendation.service';
@@ -6,22 +7,15 @@ import { AuthService } from '../../auth/auth.service';
 type RiskLevel = 'bajo' | 'medio' | 'alto';
 
 interface RecommendationHistoryItem {
-  // identificador para el modal / tracking
   id: number | string;
-
-  // fechas
-  date: string;        // normalmente fechaISO
-  fechaTexto: string;  // fecha legible (local)
-
-  // datos principales
-  type: string;        // tipo_lesion
-  description: string; // descripcion
+  date: string;
+  fechaTexto: string;
+  type: string;
+  description: string;
   riskLevel: RiskLevel;
-  gravedadRaw: string; // "Baja" | "Media" | "Alta" (texto original backend)
-  source: string;      // fuente
-
-  // info extra de la recomendación
-  recomendaciones: string[]; // array de strings
+  gravedadRaw: string;
+  source: string;
+  recomendaciones: string[];
   dolor?: {
     nivel: number;
     dias: number;
@@ -36,12 +30,14 @@ interface RecommendationHistoryItem {
 }
 
 interface InjuryHistoryItem {
+  id?: number | string;
   date: string;
   zone: string;
   type: string;
   description: string;
   severity: 'Leve' | 'Moderada' | 'Grave';
   recoveryTime: string;
+  origin?: string;
 }
 
 @Component({
@@ -55,30 +51,12 @@ export class HistoryComponent implements OnInit {
   // Tabs
   activeTab: 'recomendaciones' | 'lesiones' = 'recomendaciones';
 
-  // Datos que vienen del backend
+  // Recomendaciones desde backend Node
   recommendations: RecommendationHistoryItem[] = [];
   filteredRecommendations: RecommendationHistoryItem[] = [];
 
-  // Lesiones mock (por ahora)
-  injuries: InjuryHistoryItem[] = [
-    {
-      date: '2024-08-15',
-      zone: 'Rodilla derecha',
-      type: 'Sobrecarga',
-      description:
-        'Molestia posterior a sesiones de alta intensidad sin descanso suficiente.',
-      severity: 'Moderada',
-      recoveryTime: '3 semanas aprox.',
-    },
-    {
-      date: '2023-03-02',
-      zone: 'Tobillo izquierdo',
-      type: 'Esguince',
-      description: 'Lesión durante un partido en superficie irregular.',
-      severity: 'Grave',
-      recoveryTime: '2 meses aprox.',
-    },
-  ];
+  // Lesiones: ahora vendrán de Firestore (users/{uid}.injuries)
+  injuries: InjuryHistoryItem[] = [];
 
   // estado de carga / error
   loading = false;
@@ -94,17 +72,45 @@ export class HistoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Me suscribo al usuario actual de Firebase
     this.authService.authChanges().subscribe((user) => {
       if (!user) {
-        // si no hay sesión, dejo vacío
         this.recommendations = [];
         this.filteredRecommendations = [];
+        this.injuries = [];
         return;
       }
 
       const usuarioId = user.uid;
+
+      // 1) Cargar historial de recomendaciones desde el backend
       this.cargarHistorial(usuarioId);
+
+      // 2) Suscribirnos al perfil en Firestore para leer las lesiones
+      this.authService.getUserProfile(usuarioId).subscribe((data) => {
+        const rawInjuries: any[] = Array.isArray(data?.injuries)
+          ? data.injuries
+          : [];
+
+        this.injuries = rawInjuries.map((inj) => {
+          const gravedad = (inj.severity || 'Moderada') as
+            | 'Leve'
+            | 'Moderada'
+            | 'Grave';
+
+          return {
+            id: inj.id ?? Date.now(),
+            date: inj.date ?? '',
+            zone: inj.zone ?? 'Zona no especificada',
+            type: inj.type ?? 'Lesión',
+            description:
+              inj.description ||
+              'Lesión registrada automáticamente a partir de una recomendación.',
+            severity: gravedad,
+            recoveryTime: inj.recoveryTime ?? 'Por definir según evolución',
+            origin: inj.origin ?? 'manual'
+          } as InjuryHistoryItem;
+        });
+      });
     });
   }
 
@@ -159,7 +165,6 @@ export class HistoryComponent implements OnInit {
     );
   }
 
-  // Mapea "Baja" | "Media" | "Alta" del backend a 'bajo' | 'medio' | 'alto'
   private gravedadToRiskLevel(gravedad: string | undefined): RiskLevel {
     const g = (gravedad || '').toLowerCase();
     if (g === 'alta') return 'alto';
@@ -207,7 +212,7 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-  // ===== ESTILOS LESIONES MOCK =====
+  // ===== ESTILOS LESIONES =====
 
   getSeverityPillClasses(severity: InjuryHistoryItem['severity']): string {
     switch (severity) {

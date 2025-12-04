@@ -55,9 +55,9 @@ export class DashboardComponent implements OnInit {
   tendenciaTexto = 'Sin datos';
   tendenciaColorClass = 'text-text-muted';
 
-  // ====== ALERTA DE CAMBIO DE RIESGO (NUEVO) ======
-  riskAlertMessage: string | null = null;              // texto de la alerta
-  riskAlertType: 'up' | 'down' | 'first' | 'none' = 'none'; // para estilos
+  // ====== ALERTA DE CAMBIO DE RIESGO ======
+  riskAlertMessage: string | null = null;
+  riskAlertType: 'up' | 'down' | 'first' | 'none' = 'none';
 
   constructor(
     private recommendationService: RecommendationService,
@@ -67,7 +67,10 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.authService.authChanges().subscribe(user => {
       this.user = user;
-      this.usuarioId = user?.uid ?? null;
+
+      // 🔴 IMPORTANTE: usar la misma lógica que en ConditionComponent
+      const usuarioId = user ? (user.uid || user.email || null) : null;
+      this.usuarioId = usuarioId;
 
       if (this.usuarioId) {
         this.cargarHistorial(this.usuarioId);
@@ -113,7 +116,7 @@ export class DashboardComponent implements OnInit {
         // Tomamos la más reciente (la API ya viene ordenada desc)
         this.ultimaRecomendacion = this.historial[0];
 
-        // 👇 ahora actualizamos riesgo + alerta y estado físico
+        // Actualizamos riesgo + alerta y estado físico
         this.actualizarRiesgoActualYAlertas();
         this.actualizarEstadoFisico();
       },
@@ -181,7 +184,7 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // 🔥 AQUÍ METEMOS LA DETECCIÓN DE CAMBIO DE RIESGO
+  // 🔥 Detección de cambio de riesgo
   private actualizarRiesgoActualYAlertas(): void {
     if (!this.ultimaRecomendacion) {
       this.riesgoActualNivel = 'bajo';
@@ -194,35 +197,29 @@ export class DashboardComponent implements OnInit {
     const actual = this.ultimaRecomendacion.riesgo;
     const previo = this.historial.length > 1 ? this.historial[1].riesgo : null;
 
-    // Actualizamos el pill
     this.riesgoActualNivel = actual;
     this.riesgoActualTexto =
       actual === 'alto' ? 'Alto' : actual === 'medio' ? 'Medio' : 'Bajo';
 
-    // No hay registro previo → primera vez
     if (!previo) {
       this.riskAlertMessage = `Se ha calculado tu primer nivel de riesgo: ${this.riesgoActualTexto}.`;
       this.riskAlertType = 'first';
       return;
     }
 
-    // Si no cambió el nivel, no mostramos alerta
     if (previo === actual) {
       this.riskAlertMessage = null;
       this.riskAlertType = 'none';
       return;
     }
 
-    // Definimos si subió o bajó
     const nivelToNum = (r: RiskLevel) => (r === 'bajo' ? 1 : r === 'medio' ? 2 : 3);
     const diff = nivelToNum(actual) - nivelToNum(previo);
 
     if (diff > 0) {
-      // Riesgo aumentó
       this.riskAlertMessage = `⚠️ Tu riesgo de lesión ha aumentado de ${previo.toUpperCase()} a ${actual.toUpperCase()}. Revisa tus recomendaciones y considera ajustar la carga.`;
       this.riskAlertType = 'up';
     } else {
-      // Riesgo disminuyó
       this.riskAlertMessage = `✅ Tu riesgo de lesión ha disminuido de ${previo.toUpperCase()} a ${actual.toUpperCase()}. Mantén tus hábitos de prevención.`;
       this.riskAlertType = 'down';
     }

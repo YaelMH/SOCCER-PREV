@@ -9,8 +9,8 @@
         Registro para recomendación de lesión
       </h1>
       <p class="mt-2 text-sm text-text-muted max-w-xl">
-        Completa los datos de la sesión y de tu condición actual. Estos valores se envían al backend
-        para que el modelo de Soccer-Prev calcule el tipo de lesión más probable y la gravedad.
+        Completa los datos de la sesión y de tu condición actual. Los datos del jugador se toman de tu perfil
+        para que el modelo de Soccer-Prev personalice la recomendación.
       </p>
     </div>
 
@@ -21,105 +21,85 @@
 
   <!-- Formulario -->
   <form class="space-y-5" (ngSubmit)="onSubmit()" #condForm="ngForm">
-    <!-- DATOS DEL JUGADOR -->
+    <!-- DATOS DEL JUGADOR (solo lectura) -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
-      <h2 class="text-sm font-semibold">Datos del jugador</h2>
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-sm font-semibold">Datos del jugador</h2>
+        <p class="text-[11px] text-text-muted">
+          Edita estos datos desde tu <span class="font-semibold">Perfil</span> si necesitas cambiarlos.
+        </p>
+      </div>
 
       <div class="grid sm:grid-cols-3 gap-4 text-sm">
         <!-- Edad -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Edad (años)</label>
-          <input
-            type="number"
-            min="15"
-            max="60"
-            [(ngModel)]="conditionForm.edad"
-            name="edad"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
+          <p class="text-xs text-text-muted">Edad (años)</p>
+          <p class="font-medium text-text-main">
+            {{ conditionForm.edad !== null ? conditionForm.edad + ' años' : 'Sin dato' }}
+          </p>
         </div>
 
         <!-- Peso -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Peso (kg)</label>
-          <input
-            type="number"
-            min="40"
-            max="120"
-            step="0.5"
-            [(ngModel)]="conditionForm.peso"
-            name="peso"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
+          <p class="text-xs text-text-muted">Peso (kg)</p>
+          <p class="font-medium text-text-main">
+            {{ conditionForm.peso !== null ? (conditionForm.peso | number:'1.1-1') + ' kg' : 'Sin dato' }}
+          </p>
         </div>
 
         <!-- Estatura -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Estatura (m)</label>
-          <input
-            type="number"
-            min="1.4"
-            max="2.1"
-            step="0.01"
-            [(ngModel)]="conditionForm.estatura_m"
-            name="estatura_m"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
+          <p class="text-xs text-text-muted">Estatura (m)</p>
+          <p class="font-medium text-text-main">
+            {{
+              conditionForm.estatura_m !== null
+                ? (conditionForm.estatura_m | number:'1.2-2') + ' m'
+                : 'Sin dato'
+            }}
+          </p>
         </div>
       </div>
 
       <div class="grid sm:grid-cols-3 gap-4 text-sm">
         <!-- Posición -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Posición principal</label>
-          <select
-            [(ngModel)]="conditionForm.posicion"
-            name="posicion"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          >
-            <option [ngValue]="0">Portero</option>
-            <option [ngValue]="1">Defensa</option>
-            <option [ngValue]="2">Medio</option>
-            <option [ngValue]="3">Delantero</option>
-          </select>
+          <p class="text-xs text-text-muted">Posición principal</p>
+          <p class="font-medium text-text-main">
+            {{ conditionForm.posicion || 'Sin dato' }}
+          </p>
         </div>
 
         <!-- Nivel -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Nivel</label>
-          <select
-            [(ngModel)]="conditionForm.nivel"
-            name="nivel"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          >
-            <option value="basico">Básico</option>
-            <option value="intermedio">Intermedio</option>
-            <option value="avanzado">Avanzado</option>
-          </select>
+          <p class="text-xs text-text-muted">Nivel</p>
+          <p class="font-medium text-text-main">
+            {{
+              conditionForm.nivel === 'basico'
+                ? 'Básico'
+                : conditionForm.nivel === 'intermedio'
+                ? 'Intermedio'
+                : conditionForm.nivel === 'avanzado'
+                ? 'Avanzado'
+                : (conditionForm.nivel || 'Sin dato')
+            }}
+          </p>
         </div>
 
         <!-- Partidos por semana -->
         <div class="space-y-1">
-          <label class="text-xs text-text-muted">Partidos por semana</label>
-          <input
-            type="number"
-            min="0"
-            max="7"
-            [(ngModel)]="conditionForm.frecuencia_juego_semana"
-            name="frecuencia_juego_semana"
-            class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
-                   focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
+          <p class="text-xs text-text-muted">Partidos por semana</p>
+          <p class="font-medium text-text-main">
+            {{
+              conditionForm.frecuencia_juego_semana !== null
+                ? conditionForm.frecuencia_juego_semana
+                : 'Sin dato'
+            }}
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- CONTEXTO DE LA SESIÓN -->
+    <!-- CONTEXTO DE LA SESIÓN (editable) -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
       <h2 class="text-sm font-semibold">Datos de la sesión</h2>
 
@@ -133,6 +113,7 @@
             max="150"
             [(ngModel)]="conditionForm.duracion_partido_min"
             name="duracion_partido_min"
+            placeholder="Ejemplo: 90"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -147,6 +128,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option value="" disabled>Selecciona la superficie</option>
             <option value="pasto">Pasto natural</option>
             <option value="sintetico">Sintético</option>
             <option value="tierra">Tierra / mixta</option>
@@ -162,6 +144,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option value="" disabled>Selecciona el clima</option>
             <option value="templado">Templado</option>
             <option value="calido">Cálido</option>
             <option value="frio">Frío</option>
@@ -179,6 +162,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Sí</option>
             <option [ngValue]="0">No</option>
           </select>
@@ -193,6 +177,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Sí</option>
             <option [ngValue]="0">No</option>
           </select>
@@ -207,6 +192,7 @@
             max="60"
             [(ngModel)]="conditionForm.calentamiento_min"
             name="calentamiento_min"
+            placeholder="Ejemplo: 15"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -222,6 +208,7 @@
             step="0.5"
             [(ngModel)]="conditionForm.horas_sueno"
             name="horas_sueno"
+            placeholder="Ejemplo: 7.5"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -238,6 +225,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Sí</option>
             <option [ngValue]="0">No</option>
           </select>
@@ -252,6 +240,7 @@
             max="10"
             [(ngModel)]="conditionForm.lesiones_ultimo_anno"
             name="lesiones_ultimo_anno"
+            placeholder="Ejemplo: 1"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -266,6 +255,7 @@
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           >
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Sí</option>
             <option [ngValue]="0">No</option>
           </select>
@@ -273,7 +263,7 @@
       </div>
     </div>
 
-    <!-- DOLOR ACTUAL -->
+    <!-- DOLOR ACTUAL (editable) -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
       <h2 class="text-sm font-semibold">Dolor o molestia actual</h2>
 
@@ -287,6 +277,7 @@
             max="10"
             [(ngModel)]="conditionForm.dolor_nivel"
             name="dolor_nivel"
+            placeholder="Ejemplo: 4"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -301,6 +292,7 @@
             max="60"
             [(ngModel)]="conditionForm.dolor_dias"
             name="dolor_dias"
+            placeholder="Ejemplo: 3"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
@@ -313,70 +305,72 @@
             type="text"
             [(ngModel)]="conditionForm.dolor_zona"
             name="dolor_zona"
+            placeholder="Ejemplo: tobillo derecho, rodilla izquierda…"
             class="w-full rounded-lg border border-app-border bg-slate-900 px-3 py-2 text-sm outline-none
                    focus:border-primary focus:ring-2 focus:ring-primary/40"
-            placeholder="Ejemplo: tobillo derecho, rodilla izquierda…"
           />
         </div>
       </div>
     </div>
 
-  <!-- Mensaje submit -->
-<div *ngIf="submitMessage" class="text-xs bg-accent/10 border border-accent/40 text-accent rounded-lg px-3 py-2 mb-3">
-  {{ submitMessage }}
-</div>
+    <!-- Mensajes -->
+    <div *ngIf="submitMessage" class="text-xs bg-accent/10 border border-accent/40 text-accent rounded-lg px-3 py-2 mb-3">
+      {{ submitMessage }}
+    </div>
 
-<div *ngIf="error" class="text-xs bg-danger/10 border border-danger/40 text-danger rounded-lg px-3 py-2 mb-3">
-  {{ error }}
-</div>
+    <div *ngIf="error" class="text-xs bg-danger/10 border border-danger/40 text-danger rounded-lg px-3 py-2 mb-3">
+      {{ error }}
+    </div>
 
-<!-- Card con la recomendación -->
-<div *ngIf="recomendacion" class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-3 mt-2">
-  <h2 class="text-sm font-semibold">Resultado de la recomendación</h2>
+    <!-- Card con la recomendación -->
+    <div *ngIf="recomendacion" class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-3 mt-2">
+      <h2 class="text-sm font-semibold">Resultado de la recomendación</h2>
 
-  <p class="text-xs text-text-muted">
-    Fecha: {{ recomendacion.fecha }} · Gravedad:
-    <span class="font-semibold">{{ recomendacion.gravedad }}</span>
-  </p>
+      <p class="text-xs text-text-muted">
+        Fecha: {{ recomendacion.fecha }} · Gravedad:
+        <span class="font-semibold">{{ recomendacion.gravedad }}</span>
+      </p>
 
-  <p class="text-sm font-medium">
-    Tipo de lesión estimada:
-    <span class="font-semibold">{{ recomendacion.tipo_lesion }}</span>
-  </p>
+      <p class="text-sm font-medium">
+        Tipo de lesión estimada:
+        <span class="font-semibold">{{ recomendacion.tipo_lesion }}</span>
+      </p>
 
-  <p class="text-sm text-text-muted">
-    {{ recomendacion.descripcion }}
-  </p>
+      <p class="text-sm text-text-muted">
+        {{ recomendacion.descripcion }}
+      </p>
 
-  <div class="text-xs mt-2">
-    <p class="font-semibold mb-1">Recomendaciones:</p>
-    <ul class="list-disc list-inside space-y-1">
-      <li *ngFor="let rec of recomendacion.recomendaciones">
-        {{ rec }}
-      </li>
-    </ul>
-  </div>
+      <div class="text-xs mt-2">
+        <p class="font-semibold mb-1">Recomendaciones:</p>
+        <ul class="list-disc list-inside space-y-1">
+          <li *ngFor="let rec of recomendacion.recomendaciones">
+            {{ rec }}
+          </li>
+        </ul>
+      </div>
 
-  <div class="text-xs mt-3">
-    <p class="font-semibold mb-1">¿Debes acudir con especialista?</p>
-    <p>
-      <span *ngIf="recomendacion.especialista?.necesario; else noEspecialista">
-        ✅ Sí. {{ recomendacion.especialista?.motivo }}
-      </span>
-      <ng-template #noEspecialista>
-        ℹ️ No estrictamente, pero {{ recomendacion.especialista?.motivo }}
-      </ng-template>
-    </p>
-  </div>
-</div>
+      <div class="text-xs mt-3">
+        <p class="font-semibold mb-1">¿Debes acudir con especialista?</p>
+        <p>
+          <span *ngIf="recomendacion.especialista?.necesario; else noEspecialista">
+            ✅ Sí. {{ recomendacion.especialista?.motivo }}
+          </span>
+          <ng-template #noEspecialista>
+            ℹ️ No estrictamente, pero {{ recomendacion.especialista?.motivo }}
+          </ng-template>
+        </p>
+      </div>
+    </div>
 
-<!-- Botón -->
-<div class="flex justify-end mt-4">
-  <button
-    type="submit"
-    [disabled]="cargando"
-    class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark transition disabled:opacity-60 disabled:cursor-not-allowed"
-  >
-    {{ cargando ? 'Generando...' : 'Generar recomendación de hoy' }}
-  </button>
+    <!-- Botón -->
+    <div class="flex justify-end mt-4">
+      <button
+        type="submit"
+        [disabled]="cargando"
+        class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary-dark transition disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {{ cargando ? 'Generando...' : 'Generar recomendación de hoy' }}
+      </button>
+    </div>
+  </form>
 </div>

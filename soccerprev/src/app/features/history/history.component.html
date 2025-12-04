@@ -103,7 +103,7 @@
         <tbody class="divide-y divide-app-border/70">
           <tr *ngFor="let rec of filteredRecommendations">
             <td class="py-2 pr-3 whitespace-nowrap">
-              {{ rec.date }}
+              {{ rec.fechaTexto || rec.date }}
             </td>
             <td class="py-2 pr-3 whitespace-nowrap">
               {{ rec.type }}
@@ -147,12 +147,12 @@
       <div>
         <h2 class="text-sm font-semibold">Historial de lesiones y eventos de riesgo</h2>
         <p class="text-xs text-text-muted">
-          Estoy visualizando las lesiones registradas y eventos donde el sistema detectó riesgo alto.
+          Estoy visualizando las lesiones registradas en tu perfil. Cualquier cambio aquí se refleja también en la sección de perfil.
         </p>
       </div>
 
       <div class="text-[11px] text-text-muted">
-        *Estos datos se conectan después al backend / Firebase del proyecto.
+        Datos sincronizados con el <span class="font-semibold">perfil del jugador</span>.
       </div>
     </div>
 
@@ -169,6 +169,12 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-app-border/70">
+          <tr *ngIf="injuries.length === 0">
+            <td colspan="6" class="py-4 text-center text-text-muted">
+              No se han registrado lesiones en tu perfil.
+            </td>
+          </tr>
+
           <tr *ngFor="let injury of injuries">
             <td class="py-2 pr-3 whitespace-nowrap">
               {{ injury.date }}
@@ -177,7 +183,7 @@
               {{ injury.zone }}
             </td>
             <td class="py-2 pr-3 whitespace-nowrap">
-              {{ injury.type }}
+              {{ injury.type || 'Lesión' }}
             </td>
             <td class="py-2 pr-3 text-text-muted">
               {{ injury.description }}
@@ -192,7 +198,7 @@
               </span>
             </td>
             <td class="py-2 whitespace-nowrap text-text-muted">
-              {{ injury.recoveryTime }}
+              {{ injury.recoveryTime || 'No especificado' }}
             </td>
           </tr>
         </tbody>
@@ -217,7 +223,8 @@
       </button>
 
       <p class="text-[11px] text-text-muted mb-1">
-        Fecha: <span class="font-medium text-text-main">{{ rec.fechaTexto || rec.date }}</span>
+        Fecha:
+        <span class="font-medium text-text-main">{{ rec.fechaTexto || rec.date }}</span>
       </p>
       <h2 class="text-lg font-semibold mb-1">
         Resultado de la recomendación

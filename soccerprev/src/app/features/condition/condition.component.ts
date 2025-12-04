@@ -1,17 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RecommendationService } from '../../services/recommendation.service';
-import { AuthService } from '../../auth/auth.service';  // 👈 ESTA ES LA RUTA
+import { AuthService } from '../../auth/auth.service';
 
 interface ConditionForm {
-  usuario_id?: string | null;   // 👈 para ligar historial por usuario
+  usuario_id?: string | null;
 
+  // DATOS DEL JUGADOR (solo lectura en UI, se llenan desde perfil)
   edad: number | null;
   peso: number | null;
   estatura_m: number | null;
-  duracion_partido_min: number | null;
   frecuencia_juego_semana: number | null;
+  posicion: any;
+  nivel: string;
+
+  // DATOS DE LA SESIÓN (editables)
+  duracion_partido_min: number | null;
   entrena: number | null;
   calienta: number | null;
   calentamiento_min: number | null;
@@ -19,10 +24,10 @@ interface ConditionForm {
   hidratacion_ok: number | null;
   lesiones_ultimo_anno: number | null;
   recuperacion_sem: number | null;
-  posicion: string;
-  nivel: string;
   superficie: string;
   clima: string;
+
+  // DOLOR (obligatorio)
   dolor_nivel: number | null;
   dolor_zona: string;
   dolor_dias: number | null;
@@ -35,31 +40,39 @@ interface ConditionForm {
   templateUrl: './condition.component.html',
   styleUrl: './condition.component.css'
 })
-export class ConditionComponent {
+export class ConditionComponent implements OnInit {
   today = new Date();
 
-  conditionForm: ConditionForm = {
-    usuario_id: null,   // se llenará con el uid/email del usuario
+  // para poder guardar la lesión luego
+  private currentUserUid: string | null = null;
 
-    edad: 22,
-    peso: 63,
-    estatura_m: 1.63,
-    duracion_partido_min: 90,
-    frecuencia_juego_semana: 2,
-    entrena: 1,
-    calienta: 1,
-    calentamiento_min: 15,
-    horas_sueno: 7,
-    hidratacion_ok: 1,
-    lesiones_ultimo_anno: 1,
-    recuperacion_sem: 1,
-    posicion: '1',
-    nivel: 'intermedio',
-    superficie: 'pasto',
-    clima: 'templado',
-    dolor_nivel: 4,
-    dolor_zona: 'tobillo izquierdo',
-    dolor_dias: 3
+  conditionForm: ConditionForm = {
+    usuario_id: null,
+
+    // DATOS DEL JUGADOR (se rellenan desde perfil)
+    edad: null,
+    peso: null,
+    estatura_m: null,
+    frecuencia_juego_semana: null,
+    posicion: '',
+    nivel: '',
+
+    // DATOS DE LA SESIÓN
+    duracion_partido_min: null,
+    entrena: null,
+    calienta: null,
+    calentamiento_min: null,
+    horas_sueno: null,
+    hidratacion_ok: null,
+    lesiones_ultimo_anno: null,
+    recuperacion_sem: null,
+    superficie: '',
+    clima: '',
+
+    // DOLOR
+    dolor_nivel: null,
+    dolor_zona: '',
+    dolor_dias: null
   };
 
   submitMessage = '';
@@ -70,13 +83,72 @@ export class ConditionComponent {
   constructor(
     private recommendationService: RecommendationService,
     private authService: AuthService
-  ) {
-    // Escuchamos el usuario que está loggeado
+  ) {}
+
+  ngOnInit(): void {
     this.authService.authChanges().subscribe((user) => {
-      const usuarioId = user?.uid || user?.email || null;
+      if (!user) {
+        this.conditionForm.usuario_id = null;
+        this.currentUserUid = null;
+        return;
+      }
+
+      const usuarioId = user.uid || user.email || null;
       this.conditionForm.usuario_id = usuarioId;
+      this.currentUserUid = user.uid;
       console.log('usuario_id desde Firebase/Auth =>', usuarioId);
+
+      // 🔹 Traer datos del jugador desde Firestore
+      this.authService.getUserProfile(user.uid).subscribe((data) => {
+        if (!data) return;
+
+        // Edad desde birthDate
+        if (data.birthDate) {
+          const edad = this.calcularEdad(data.birthDate);
+          if (edad !== null) this.conditionForm.edad = edad;
+        }
+
+        if (data.weight !== undefined && data.weight !== null) {
+          this.conditionForm.peso = Number(data.weight);
+        }
+
+        if (data.height !== undefined && data.height !== null) {
+          this.conditionForm.estatura_m = Number(data.height);
+        }
+
+        if (data.position !== undefined && data.position !== null) {
+          this.conditionForm.posicion = data.position;
+        }
+
+        if (data.level) {
+          this.conditionForm.nivel = String(data.level);
+        }
+
+        if (data.matchesPerWeek !== undefined && data.matchesPerWeek !== null) {
+          this.conditionForm.frecuencia_juego_semana = Number(data.matchesPerWeek);
+        }
+      });
     });
+  }
+
+  // ===========================
+  //     UTIL: calcular edad
+  // ===========================
+  private calcularEdad(fecha: string | Date): number | null {
+    const nacimiento = new Date(fecha);
+    if (Number.isNaN(nacimiento.getTime())) {
+      return null;
+    }
+
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+
+    return edad;
   }
 
   onSubmit() {
@@ -85,12 +157,62 @@ export class ConditionComponent {
     this.submitMessage = '';
     this.recomendacion = null;
 
+    // Validación mínima: dolor
+    if (
+      this.conditionForm.dolor_nivel === null ||
+      this.conditionForm.dolor_dias === null ||
+      !this.conditionForm.dolor_zona
+    ) {
+      this.cargando = false;
+      this.error =
+        'Por favor, completa al menos el nivel de dolor, los días con dolor y la zona principal para generar la recomendación.';
+      return;
+    }
+
     this.recommendationService.generarRecomendacion(this.conditionForm).subscribe({
-      next: (respuesta) => {
+      next: async (respuesta) => {
         console.log('Respuesta del backend:', respuesta);
         this.cargando = false;
         this.recomendacion = respuesta;
         this.submitMessage = 'Recomendación generada correctamente.';
+
+        // ⭐ Crear lesión automática en el perfil
+        if (this.currentUserUid && this.conditionForm.dolor_zona) {
+          const gravedad = (respuesta.gravedad || '').toString().toLowerCase();
+
+          const severity =
+            gravedad === 'alta'
+              ? 'Grave'
+              : gravedad === 'media'
+              ? 'Moderada'
+              : 'Leve';
+
+          const recoveryTime =
+            gravedad === 'alta'
+              ? '4–8 semanas aprox.'
+              : gravedad === 'media'
+              ? '2–4 semanas aprox.'
+              : '1–2 semanas aprox.';
+
+          const newInjury = {
+            date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
+            zone: this.conditionForm.dolor_zona,
+            type: respuesta.tipo_lesion || 'Lesión estimada',
+            description: respuesta.descripcion || 'Lesión generada a partir de la recomendación de hoy.',
+            severity,
+            recoveryTime
+          };
+
+          try {
+            await this.authService.addInjuryFromRecommendation(
+              this.currentUserUid,
+              newInjury
+            );
+            console.log('Lesión automática guardada en el perfil:', newInjury);
+          } catch (e) {
+            console.error('Error guardando lesión automática en perfil:', e);
+          }
+        }
       },
       error: (error) => {
         console.error('Error al generar recomendación:', error);

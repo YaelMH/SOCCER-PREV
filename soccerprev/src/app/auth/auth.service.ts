@@ -1,6 +1,7 @@
+// src/app/auth/auth.service.ts
 import { Injectable, inject } from '@angular/core';
 
-// IMPORTS DE AUTH (incluye reset de contraseña)
+// AUTH
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -12,11 +13,17 @@ import {
   sendPasswordResetEmail
 } from '@angular/fire/auth';
 
-// 👇 Importamos la persistencia de Firebase (SDK base)
+// Persistencia
 import { browserSessionPersistence, setPersistence } from 'firebase/auth';
 
-// IMPORTS DE FIRESTORE (incluye docData para leer perfil)
-import { Firestore, doc, setDoc, docData } from '@angular/fire/firestore';
+// FIRESTORE
+import {
+  Firestore,
+  doc,
+  setDoc,
+  docData,
+  getDoc
+} from '@angular/fire/firestore';
 
 import { Observable } from 'rxjs';
 
@@ -29,9 +36,6 @@ export class AuthService {
   private firestore = inject(Firestore);
 
   constructor() {
-    // 🔥 Persistencia por sesión de pestaña:
-    // - Cierra sesión al CERRAR la pestaña.
-    // - Si solo recargas la misma pestaña, la sesión sigue (comportamiento normal).
     setPersistence(this.auth, browserSessionPersistence)
       .then(() => {
         console.log('[AuthService] Persistencia configurada a browserSessionPersistence');
@@ -61,7 +65,7 @@ export class AuthService {
   }
 
   // ===========================
-  //      PERFIL (LECTURA)
+  //  PERFIL (LECTURA)
   // ===========================
   getUserProfile(uid: string): Observable<any> {
     const ref = doc(this.firestore, 'users', uid);
@@ -73,20 +77,53 @@ export class AuthService {
   }
 
   // ===========================
+  //  PERFIL (ESCRITURA / UPDATE)
+  // ===========================
+  async updateUserProfile(uid: string, partialData: any): Promise<void> {
+    const ref = doc(this.firestore, 'users', uid);
+    await setDoc(ref, partialData, { merge: true });
+  }
+
+  /**
+   * Añadir una lesión al arreglo `injuries` del usuario.
+   * La usamos cuando se genera una recomendación con dolor/molestia.
+   */
+  async addInjuryFromRecommendation(uid: string, injury: any): Promise<void> {
+    const ref = doc(this.firestore, 'users', uid);
+    const snap = await getDoc(ref);
+
+    let currentInjuries: any[] = [];
+    if (snap.exists()) {
+      const data = snap.data() as any;
+      if (Array.isArray(data.injuries)) {
+        currentInjuries = data.injuries;
+      }
+    }
+
+    const newInjuries = [injury, ...currentInjuries];
+
+    await setDoc(
+      ref,
+      {
+        injuries: newInjuries,
+        injuryHistory: newInjuries.length > 0
+      },
+      { merge: true }
+    );
+  }
+
+  // ===========================
   //          REGISTRO
   // ===========================
   async registerUser(email: string, password: string, data: any): Promise<void> {
 
-    // 1. Crear el usuario en Firebase Authentication
     const credential = await createUserWithEmailAndPassword(this.auth, email, password);
     const user = credential.user;
     const uid = user.uid;
 
     try {
-      // 2. Enviar verificación de correo
       await sendEmailVerification(user);
 
-      // 3. Guardar datos adicionales en Firestore
       await setDoc(doc(this.firestore, 'users', uid), {
         email: email,
 
@@ -100,15 +137,20 @@ export class AuthService {
         bmi: data.bmi,
         position: data.position,
 
-        // 🔹 Nuevos campos
         dominantFoot: data.dominantFoot,
         level: data.level,
+
+        // Por si luego quieres usarlo
+        matchesPerWeek: data.matchesPerWeek ?? null,
+        trainingsPerWeek: data.trainingsPerWeek ?? null,
+
+        injuryHistory: false,
+        injuries: [],
 
         createdAt: new Date()
       });
 
     } finally {
-      // Siempre cerramos sesión tras el registro
       await signOut(this.auth);
     }
   }
