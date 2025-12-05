@@ -17,6 +17,9 @@ const fs = require('fs');
 
 const router = express.Router();
 
+// 👉 Comando de Python configurable (ideal para Docker/Render)
+const pythonCmd = process.env.PYTHON_CMD || 'python3';
+
 /* ==========
  * ARCHIVOS LOCALES (historial + feedback + perfil + CSV para reentrenar)
  * ========== */
@@ -639,7 +642,8 @@ router.post('/', (req, res) => {
   console.log('mlDir      =>', mlDir);
   console.log('scriptPath =>', scriptPath);
 
-  const py = spawn('python3', [scriptPath, JSON.stringify(datos)], {
+  // 👉 aquí usamos pythonCmd (PYTHON_CMD o python3 por defecto)
+  const py = spawn(pythonCmd, [scriptPath, JSON.stringify(datos)], {
     cwd: mlDir
   });
 

@@ -1805,5 +1805,61 @@
       "dolor_zona": "mano derecha",
       "dolor_dias": 5
     }
+  },
+  {
+    "id": 1764949080115,
+    "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+    "fechaISO": "2025-12-05T15:38:00.077Z",
+    "fecha": "05/12/25, 9:38 a.m.",
+    "tipo_lesion": "Otra lesión",
+    "gravedad": "Baja",
+    "descripcion": "Molestia inespecífica (contusión, sobrecarga, tendinopatía u otra alteración de tejidos blandos). Reportas dolor en mano_muñeca (intensidad 4/10, 5 día(s)).",
+    "fuente": "Condición diaria + modelo",
+    "recomendaciones": [
+      "Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.",
+      "Reposo relativo: mantente activo, pero sin forzar la zona dolorida.",
+      "Hielo 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).",
+      "Compresión ligera con venda elástica si es posible, sin cortar la circulación.",
+      "Elevación del segmento afectado para ayudar a disminuir la inflamación.",
+      "Si el dolor o la inflamación no mejoran en 48–72 horas, o te limitan para entrenar, busca valoración médica o fisioterapia."
+    ],
+    "especialista": {
+      "necesario": false,
+      "urgente": false,
+      "motivo": "Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad o no puedes apoyar, acude a valoración."
+    },
+    "dolor": {
+      "nivel": 4,
+      "dias": 5,
+      "zona": "mano_muñeca"
+    },
+    "estado_fisico": {
+      "indice": 8,
+      "categoria": "baja",
+      "recomendacion": "Tu carga semanal parece baja o tu recuperación no es óptima. Aumenta volumen e intensidad de forma progresiva y cuida sueño y calentamiento."
+    },
+    "aviso": "Orientación informativa basada en síntomas reportados. No sustituye una valoración médica ni un diagnóstico profesional.",
+    "entrada": {
+      "usuario_id": "gOnvpR97m0Q6B8WtZpsG0l8hXdY2",
+      "edad": 22,
+      "peso": 60.2,
+      "estatura_m": 1.63,
+      "frecuencia_juego_semana": 0,
+      "posicion": null,
+      "nivel": "intermedio",
+      "duracion_partido_min": 90,
+      "entrena": 0,
+      "calienta": 1,
+      "calentamiento_min": 14,
+      "horas_sueno": 8,
+      "hidratacion_ok": 1,
+      "lesiones_ultimo_anno": 1,
+      "recuperacion_sem": 1,
+      "superficie": "sintetico",
+      "clima": "calido",
+      "dolor_nivel": 4,
+      "dolor_zona": "mano derecha",
+      "dolor_dias": 5
+    }
   }
 ]

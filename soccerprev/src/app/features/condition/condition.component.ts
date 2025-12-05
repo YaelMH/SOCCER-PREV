@@ -43,6 +43,9 @@ interface ConditionForm {
 export class ConditionComponent implements OnInit {
   today = new Date();
 
+  // 👉 para resaltar en el navbar que estamos en "Recomendación"
+  readonly activeNavItem = 'recomendacion'; // úsalo en el HTML si no usas routerLinkActive
+
   // para poder guardar la lesión luego
   private currentUserUid: string | null = null;
 
@@ -131,9 +134,8 @@ export class ConditionComponent implements OnInit {
     });
   }
 
-  // ===========================
   //     UTIL: calcular edad
-  // ===========================
+
   private calcularEdad(fecha: string | Date): number | null {
     const nacimiento = new Date(fecha);
     if (Number.isNaN(nacimiento.getTime())) {
@@ -149,6 +151,34 @@ export class ConditionComponent implements OnInit {
     }
 
     return edad;
+  }
+
+
+  //   LÓGICA CALENTAMIENTO 
+  
+
+  /**
+   * Se llama cuando cambia el campo "calienta" (¿Realizaste calentamiento?).
+   * value puede venir como string ("1", "0") o número (1, 0).
+   */
+  onCalientaChange(value: any) {
+    const numeric =
+      value === '' || value === null || value === undefined ? null : Number(value);
+
+    this.conditionForm.calienta = numeric;
+
+    // Si responde NO (0) o no ha seleccionado, limpiamos y "deshabilitamos" minutos
+    if (numeric === 0 || numeric === null) {
+      this.conditionForm.calentamiento_min = null;
+    }
+  }
+
+  /**
+   * Getter para saber si debe estar deshabilitado el input de minutos de calentamiento.
+   * Úsalo en el HTML: [disabled]="deshabilitarCalentamientoMin"
+   */
+  get deshabilitarCalentamientoMin(): boolean {
+    return this.conditionForm.calienta === 0 || this.conditionForm.calienta === null;
   }
 
   onSubmit() {
@@ -198,7 +228,9 @@ export class ConditionComponent implements OnInit {
             date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
             zone: this.conditionForm.dolor_zona,
             type: respuesta.tipo_lesion || 'Lesión estimada',
-            description: respuesta.descripcion || 'Lesión generada a partir de la recomendación de hoy.',
+            description:
+              respuesta.descripcion ||
+              'Lesión generada a partir de la recomendación de hoy.',
             severity,
             recoveryTime
           };

@@ -18,7 +18,8 @@
       <div class="flex items-center gap-2">
         <!-- Logo nuevo -->
         <div
-          class="h-16 w-16 flex items-center justify-center rounded-xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden"
+          class="h-16 w-16 flex items-center justify-center rounded-xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden cursor-pointer"
+          routerLink="/dashboard"
         >
           <img
             src="assets/LogoSoccer.png"
@@ -38,57 +39,63 @@
         </div>
       </div>
 
-      <!-- NAV: Solo visible si ya hay sesión -->
+              <!-- NAV: Solo visible si ya hay sesión -->
       <nav
         class="hidden sm:flex items-center gap-4 text-xs"
         *ngIf="(isAuthenticated$ | async)"
       >
         <a
           routerLink="/dashboard"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Panel
         </a>
+
         <a
           routerLink="/perfil"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Perfil
         </a>
+
         <a
           routerLink="/condicion-actual"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Recomendación
         </a>
+
         <a
           routerLink="/historial"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Historial
         </a>
+
         <a
           routerLink="/contenido"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Contenido
         </a>
+
         <a
           routerLink="/feedback"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Feedback
         </a>
+
         <a
           routerLink="/calentamiento"
-          routerLinkActive="text-primary"
-          class="text-text-muted hover:text-primary transition"
+          routerLinkActive="text-text-main border-b-2 border-white pb-1"
+          class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
         >
           Calentamiento
         </a>
