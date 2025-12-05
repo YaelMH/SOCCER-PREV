@@ -37,8 +37,10 @@ export interface PerfilLesionesPayload {
 })
 export class RecommendationService {
 
-  // URL base del backend (por ejemplo: http://localhost:3000/api/recomendacion)
-  private apiUrl = `${environment.backendUrl}/recomendacion`;
+  // URL base del backend para este módulo:
+  // dev:  http://localhost:3000/api/recomendacion
+  // prod: https://soccerprev.onrender.com/api/recomendacion
+  private apiUrl = `${environment.backendUrl}/api/recomendacion`;
 
   constructor(private http: HttpClient) {}
 
@@ -78,7 +80,7 @@ export class RecommendationService {
     return this.http.post<any>(`${this.apiUrl}/perfil-lesiones`, payload);
   }
 
-  // GET: recuperar perfil de lesiones (se pueden pedir varios registros)
+  // GET: recuperar perfil de lesiones
   obtenerPerfilLesiones(usuarioId: string, limit = 20): Observable<any[]> {
     const params = {
       usuario_id: usuarioId,
