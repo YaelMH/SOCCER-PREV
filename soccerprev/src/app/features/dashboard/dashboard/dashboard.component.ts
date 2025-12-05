@@ -51,7 +51,11 @@ export class DashboardComponent implements OnInit {
   riesgoActualTexto = 'Bajo';
 
   // ====== Estado físico / índice de carga semanal ======
+  // estado que viene de las recomendaciones (backend)
   estadoFisicoActual: EstadoFisico | null = null;
+  // 🔹 nuevo: estado físico calculado a partir del perfil (Resumen deportivo)
+  estadoFisicoPerfil: EstadoFisico | null = null;
+
   tendenciaTexto = 'Sin datos';
   tendenciaColorClass = 'text-text-muted';
 
@@ -73,13 +77,17 @@ export class DashboardComponent implements OnInit {
       this.usuarioId = usuarioId;
 
       if (this.usuarioId) {
+        // Historial de recomendaciones (riesgo, tendencia, etc.)
         this.cargarHistorial(this.usuarioId);
+        // 🔹 nuevo: estado físico basado en el perfil (partidos, entrenos, lesiones)
+        this.cargarEstadoFisicoDesdePerfil(this.usuarioId);
       } else {
         this.historial = [];
         this.ultimaRecomendacion = null;
         this.riesgoActualTexto = 'Sin registros';
         this.riesgoActualNivel = 'bajo';
         this.estadoFisicoActual = null;
+        this.estadoFisicoPerfil = null;
         this.tendenciaTexto = 'Sin datos';
         this.tendenciaColorClass = 'text-text-muted';
         this.riskAlertMessage = null;
@@ -87,6 +95,9 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+
+  //   HISTORIAL RECOMENDACIONES
 
   private cargarHistorial(usuarioId: string): void {
     this.cargando = true;
@@ -225,7 +236,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** Calcula estado físico actual + tendencia respecto al registro anterior. */
+  /** Calcula estado físico actual + tendencia respecto al registro anterior (basado en historial). */
   private actualizarEstadoFisico(): void {
     if (!this.ultimaRecomendacion || !this.ultimaRecomendacion.estado_fisico) {
       this.estadoFisicoActual = null;
@@ -258,9 +269,80 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // =========================
+
+  //   ESTADO FÍSICO DESDE PERFIL
+
+  /** Carga el perfil de Firestore y calcula el estado físico a partir de él. */
+  private cargarEstadoFisicoDesdePerfil(uid: string): void {
+    this.authService.getUserProfile(uid).subscribe({
+      next: (profile) => {
+        if (!profile) {
+          this.estadoFisicoPerfil = null;
+          return;
+        }
+        this.estadoFisicoPerfil = this.calcularEstadoFisicoDesdePerfil(profile);
+      },
+      error: (err) => {
+        console.error('Error cargando perfil para estado físico:', err);
+        this.estadoFisicoPerfil = null;
+      }
+    });
+  }
+
+  /** Usa los datos del perfil (partidos, entrenos, lesiones) para estimar el índice. */
+  private calcularEstadoFisicoDesdePerfil(profile: any): EstadoFisico {
+    // Datos de perfil que ya tienes en "Resumen deportivo"
+    const partidos = Number(profile.matchesPerWeek) || 0;      // Partidos por semana
+    const entrenos = Number(profile.trainingsPerWeek) || 0;    // Entrenamientos por semana
+    const lesiones = Array.isArray(profile.injuries)
+      ? profile.injuries.length
+      : 0;
+
+    // Sesiones totales por semana
+    const sesiones = partidos + entrenos;
+
+    // Suposición: 60 min por sesión (si luego tienes duración real, lo cambiamos)
+    const minutosPorSesion = 60;
+    let cargaMin = sesiones * minutosPorSesion;
+
+    // Referencia: 8 horas/semana ≈ 480 min ⇒ índice 100
+    const referenciaMin = 480;
+    let indice = (cargaMin / referenciaMin) * 100;
+
+    // Penalización por historial de lesiones
+    if (lesiones >= 2) {
+      indice -= 10;
+    }
+
+    if (!Number.isFinite(indice)) indice = 0;
+    if (indice < 0) indice = 0;
+    if (indice > 100) indice = 100;
+
+    indice = Math.round(indice);
+
+    let categoria: EstadoCategoria;
+    let recomendacion: string;
+
+    if (indice < 50) {
+      categoria = 'baja';
+      recomendacion =
+        'Tu carga semanal parece baja o tu recuperación no es óptima. Aumenta volumen e intensidad de forma progresiva y cuida sueño y calentamiento.';
+    } else if (indice < 75) {
+      categoria = 'moderada';
+      recomendacion =
+        'Tu carga semanal es moderada. Mantén la progresión gradual, respeta los días de descanso y escucha signos tempranos de fatiga.';
+    } else {
+      categoria = 'alta';
+      recomendacion =
+        'Tu carga semanal es alta. Vigila molestias persistentes, ajusta la intensidad si notas sobrecarga y refuerza la recuperación (sueño, hidratación, estiramientos).';
+    }
+
+    return { indice, categoria, recomendacion };
+  }
+
+
   //  Helpers de estilos pills
-  // =========================
+
   getRiskPillClasses(risk: RiskLevel): string {
     switch (risk) {
       case 'bajo':
@@ -287,9 +369,8 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // =========================
   //  Cuidados y resumen última sesión
-  // =========================
+
   get cuidadosProximaSesion(): string[] {
     if (!this.ultimaRecomendacion || !this.ultimaRecomendacion.recomendaciones?.length) {
       return [
@@ -306,22 +387,27 @@ export class DashboardComponent implements OnInit {
     return `Última lesión: ${this.ultimaRecomendacion.tipo_lesion} (riesgo ${this.ultimaRecomendacion.gravedad.toLowerCase()}).`;
   }
 
-  // =========================
   //  Getters para el card "Estado físico"
-  // =========================
+  /** Índice que se muestra: primero el del perfil, si no hay, el de la última recomendación. */
   get indiceCargaSemanal(): number | null {
-    return this.estadoFisicoActual ? this.estadoFisicoActual.indice : null;
+    const fuente = this.estadoFisicoPerfil || this.estadoFisicoActual;
+    return fuente ? fuente.indice : null;
   }
 
+  /** Texto "Baja / Moderada / Alta" para el estado general. */
   get categoriaEstadoTexto(): string {
-    if (!this.estadoFisicoActual) return 'Sin datos';
-    const c = this.estadoFisicoActual.categoria;
+    const fuente = this.estadoFisicoPerfil || this.estadoFisicoActual;
+    if (!fuente) return 'Sin datos';
+
+    const c = fuente.categoria;
     if (c === 'alta') return 'Alta';
     if (c === 'moderada') return 'Moderada';
     return 'Baja';
   }
 
+  /** Texto descriptivo del estado físico. */
   get recomendacionEstadoFisico(): string {
-    return this.estadoFisicoActual?.recomendacion ?? '';
+    const fuente = this.estadoFisicoPerfil || this.estadoFisicoActual;
+    return fuente?.recomendacion ?? '';
   }
 }

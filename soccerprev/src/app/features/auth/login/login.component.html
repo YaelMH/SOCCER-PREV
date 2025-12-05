@@ -1,139 +1,154 @@
-<div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-stretch">
+<!-- CONTENEDOR GENERAL -->
+<div class="flex flex-col gap-8">
 
-  <!-- Lado visual -->
-  <section class="hidden lg:flex flex-col justify-between rounded-3xl border border-app-border/80 bg-gradient-to-br from-slate-900/90 via-slate-900 to-slate-950 p-7 shadow-2xl shadow-primary/20">
-    <div class="space-y-4">
+  <!-- FILA SUPERIOR: logo + login -->
+  <div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-center">
+
+    <!-- IZQUIERDA: SOLO IMAGEN PNG DEL LOGO (sin card) -->
+    <section class="hidden lg:flex items-center justify-center">
+      <img
+        src="assets/LogoSoccer.png"
+        alt="SOCCER-PREV Logo"
+        class="w-auto h-[400px] object-contain"
+      />
+    </section>
+
+    <!-- DERECHA: LOGIN COMPLETO -->
+    <section class="w-full">
+      <div class="bg-app-card/90 backdrop-blur border border-app-border rounded-3xl shadow-xl p-6 sm:p-8">
+        
+        <div class="mb-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+            Iniciar sesión
+          </p>
+          <h2 class="mt-2 text-2xl sm:text-3xl font-bold">
+            Bienvenido a Soccer-Prev
+          </h2>
+          <p class="mt-2 text-sm text-text-muted">
+            Inicio sesión para acceder a mi panel, registrar mi condición actual y consultar
+            las recomendaciones personalizadas.
+          </p>
+        </div>
+
+        <form class="space-y-4" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
+          <!-- correo -->
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-text-main">Correo electrónico</label>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="form.email"
+              required
+              class="w-full rounded-xl border border-app-border bg-slate-950 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
+              placeholder="ejemplo@escom.ipn.mx"
+            />
+          </div>
+
+          <!-- password con ojo -->
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-text-main">Contraseña</label>
+
+            <div class="relative">
+              <input
+                [type]="passwordType"
+                name="password"
+                [(ngModel)]="form.password"
+                required
+                minlength="6"
+                class="w-full rounded-xl border border-app-border bg-slate-950 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition pr-10"
+                placeholder="********"
+              />
+
+              <!-- Botón del ojo -->
+              <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-primary transition h-full"
+              >
+                <!-- Icono ojo cerrado -->
+                <svg *ngIf="passwordType === 'password'" xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.98.88A.825.825 0 0 1 4.75 0h14.5a.825.825 0 0 1 .77.625L19.5 3h-15L3.98.88ZM15 5.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1 .5-.5h6Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+                </svg>
+
+                <!-- Icono ojo abierto -->
+                <svg *ngIf="passwordType === 'text'" xmlns="http://www.w3.org/2000/svg"
+                     fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.042 12A8.25 8.25 0 0 0 10.25 1.5C5.875 1.5 2.25 5.125 2.25 9.5c0 4.375 3.625 8 7.992 8.5L12 17.5c4.375 0 8-3.625 8-8s-3.625-8-8-8z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- error -->
+          <div *ngIf="errorMessage"
+               class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-lg px-3 py-2">
+            {{ errorMessage }}
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="loginForm.invalid || loading"
+            class="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/40 hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition"
+          >
+            <span *ngIf="!loading">Entrar</span>
+            <span *ngIf="loading">Validando credenciales...</span>
+          </button>
+        </form>
+
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-text-muted">
+          <button type="button" class="underline underline-offset-4 hover:text-primary text-left" (click)="goToRecover()">
+            Olvidé mi contraseña
+          </button>
+
+          <button type="button" class="underline underline-offset-4 hover:text-primary text-left" (click)="goToRegister()">
+            Crear una cuenta nueva
+          </button>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- PARTE DE ABAJO: CARD “MENOS LESIONES…” (fuera del grid, a lo ancho) -->
+  <section
+    class="rounded-3xl border border-app-border/80 bg-gradient-to-br from-slate-900/90 via-slate-900 to-slate-950 p-7 shadow-2xl shadow-primary/20 w-full"
+  >
+    <div class="space-y-4 text-center max-w-3xl mx-auto">
       <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
         SOCCER-PREV
       </p>
-      <h1 class="text-3xl font-bold leading-tight">
-        Menos lesiones,<br />
-        más minutos en la cancha.
+      <h1 class="text-3xl sm:text-4xl font-bold leading-tight">
+        Menos lesiones, más minutos en la cancha.
       </h1>
-      <p class="text-sm text-text-muted max-w-md">
+      <p class="text-sm text-text-muted">
         Aquí concentro el módulo de autenticación. A partir de este acceso el sistema ajusta las
         recomendaciones según el perfil del jugador, su carga de entrenamiento y su condición diaria.
       </p>
-
-      <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
-        <div class="rounded-2xl border border-app-border bg-slate-950/80 p-3">
-          <p class="text-[11px] text-text-muted">Enfoque</p>
-          <p class="mt-1 font-semibold">Recomendación para prevención de lesiones</p>
-          <p class="mt-1 text-[11px] text-text-muted">
-            Basado en condición, historial y carga física.
-          </p>
-        </div>
-        <div class="rounded-2xl border border-app-border bg-slate-950/80 p-3">
-          <p class="text-[11px] text-text-muted">Usuarios objetivo</p>
-          <p class="mt-1 font-semibold">Jugadores de fútbol soccer</p>
-          <p class="mt-1 text-[11px] text-text-muted">
-            Pensado para usuarios de fútbol escolar / amateur.
-          </p>
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- Lado formulario -->
-  <section class="w-full">
-    <div class="bg-app-card/90 backdrop-blur border border-app-border rounded-3xl shadow-xl p-6 sm:p-8">
-      
-      <div class="mb-6">
-        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
-          Iniciar sesión
-        </p>
-        <h2 class="mt-2 text-2xl sm:text-3xl font-bold">
-          Bienvenido a Soccer-Prev
-        </h2>
-        <p class="mt-2 text-sm text-text-muted">
-          Inicio sesión para acceder a mi panel, registrar mi condición actual y consultar
-          las recomendaciones personalizadas.
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 max-w-3xl mx-auto text-xs">
+      <div class="rounded-2xl border border-app-border bg-slate-950/80 p-4">
+        <p class="text-[11px] text-text-muted">Enfoque</p>
+        <p class="mt-1 font-semibold">Recomendación para prevención de lesiones</p>
+        <p class="mt-1 text-[11px] text-text-muted">
+          Basado en condición, historial y carga física.
         </p>
       </div>
-
-      <form class="space-y-4" (ngSubmit)="onSubmit()" #loginForm="ngForm">
-
-        <!-- correo -->
-        <div class="space-y-1">
-          <label class="text-sm font-medium text-text-main">Correo electrónico</label>
-          <input
-            type="email"
-            name="email"
-            [(ngModel)]="form.email"
-            required
-            class="w-full rounded-xl border border-app-border bg-slate-950 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition"
-            placeholder="ejemplo@escom.ipn.mx"
-          />
-        </div>
-
-        <!-- password con ojo -->
-        <div class="space-y-1">
-          <label class="text-sm font-medium text-text-main">Contraseña</label>
-
-          <div class="relative">
-            <input
-              [type]="passwordType"
-              name="password"
-              [(ngModel)]="form.password"
-              required
-              minlength="6"
-              class="w-full rounded-xl border border-app-border bg-slate-950 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition pr-10"
-              placeholder="********"
-            />
-
-            <!-- Botón del ojo -->
-            <button
-              type="button"
-              (click)="togglePasswordVisibility()"
-              class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-primary transition h-full"
-            >
-              <!-- Icono ojo cerrado -->
-              <svg *ngIf="passwordType === 'password'" xmlns="http://www.w3.org/2000/svg"
-                   fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                   stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3.98.88A.825.825 0 0 1 4.75 0h14.5a.825.825 0 0 1 .77.625L19.5 3h-15L3.98.88ZM15 5.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h6Z" />
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
-              </svg>
-
-              <!-- Icono ojo abierto -->
-              <svg *ngIf="passwordType === 'text'" xmlns="http://www.w3.org/2000/svg"
-                   fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                   stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M15.042 12A8.25 8.25 0 0 0 10.25 1.5C5.875 1.5 2.25 5.125 2.25 9.5c0 4.375 3.625 8 7.992 8.5L12 17.5c4.375 0 8-3.625 8-8s-3.625-8-8-8z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- error -->
-        <div *ngIf="errorMessage"
-             class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-lg px-3 py-2">
-          {{ errorMessage }}
-        </div>
-
-        <button
-          type="submit"
-          [disabled]="loginForm.invalid || loading"
-          class="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/40 hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition"
-        >
-          <span *ngIf="!loading">Entrar</span>
-          <span *ngIf="loading">Validando credenciales...</span>
-        </button>
-      </form>
-
-      <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-text-muted">
-        <button type="button" class="underline underline-offset-4 hover:text-primary text-left" (click)="goToRecover()">
-          Olvidé mi contraseña
-        </button>
-
-        <button type="button" class="underline underline-offset-4 hover:text-primary text-left" (click)="goToRegister()">
-          Crear una cuenta nueva
-        </button>
+      <div class="rounded-2xl border border-app-border bg-slate-950/80 p-4">
+        <p class="text-[11px] text-text-muted">Usuarios objetivo</p>
+        <p class="mt-1 font-semibold">Jugadores de fútbol soccer</p>
+        <p class="mt-1 text-[11px] text-text-muted">
+          Pensado para usuarios de fútbol escolar / amateur.
+        </p>
       </div>
-
     </div>
   </section>
 </div>

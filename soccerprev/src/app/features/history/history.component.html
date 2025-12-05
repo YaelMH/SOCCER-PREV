@@ -37,7 +37,7 @@
             : 'border-app-border text-text-muted hover:border-primary hover:text-primary'
         ]"
       >
-        Lesiones / eventos de riesgo
+        Lesiones previas / eventos de riesgo
       </button>
     </div>
   </div>
@@ -147,14 +147,14 @@
                 Ver detalle
               </button>
 
-              <button
+              <!--<button
                 type="button"
                 class="px-3 py-1 rounded-full border border-danger/60 text-[11px] text-danger hover:bg-danger/10 transition"
                 (click)="confirmDeleteRecommendation(rec)"
                 [disabled]="isDeletingRecommendationId === rec.id"
               >
                 {{ isDeletingRecommendationId === rec.id ? 'Eliminando…' : 'Eliminar' }}
-              </button>
+              </button>-->
             </td>
           </tr>
         </tbody>
@@ -236,16 +236,6 @@
             </td>
             <td class="py-2 whitespace-nowrap text-text-muted">
               {{ injury.recoveryTime || 'No especificado' }}
-            </td>
-            <td class="py-2 pl-3 whitespace-nowrap text-right">
-              <button
-                type="button"
-                class="px-3 py-1 rounded-full border border-danger/60 text-[11px] text-danger hover:bg-danger/10 transition"
-                (click)="confirmDeleteInjury(injury)"
-                [disabled]="isDeletingInjuryId === injury.id"
-              >
-                {{ isDeletingInjuryId === injury.id ? 'Eliminando…' : 'Eliminar' }}
-              </button>
             </td>
             <td class="py-2 pl-3 whitespace-nowrap text-right">
               <button
