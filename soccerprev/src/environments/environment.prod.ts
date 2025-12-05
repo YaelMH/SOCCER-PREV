@@ -2,7 +2,7 @@ export const environment = {
   production: true,
 
   // En producción también llamar al backend
-  backendUrl: 'https://soccerprev.onrender.com',
+  backendUrl: 'https://soccerprev.onrender.com/api',
 
   firebaseConfig: {
     apiKey: "AIzaSyCUrL2txjWdPlWr2J3Z2D3dqpmS0p3FjFI",
