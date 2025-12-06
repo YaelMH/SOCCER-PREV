@@ -3,7 +3,7 @@ export const environment = {
   production: false,
 
   // URL base de tu backend Node
-  backendUrl: 'https://soccerprev.onrender.com',
+  backendUrl: 'http://localhost:3000/api',
 
   // Config de Firebase 
   firebaseConfig: {

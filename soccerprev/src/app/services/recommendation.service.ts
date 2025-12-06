@@ -40,7 +40,7 @@ export class RecommendationService {
   // URL base del backend para este módulo:
   // dev:  http://localhost:3000/api/recomendacion
   // prod: https://soccerprev.onrender.com/api/recomendacion
-  private apiUrl = `${environment.backendUrl}/api/recomendacion`;
+  private apiUrl = `${environment.backendUrl}/recomendacion`;
 
   constructor(private http: HttpClient) {}
 
