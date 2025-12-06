@@ -24,6 +24,17 @@ export class AppComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+
+  mobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
+  }
+  
   // Ruta CORRECTA - el archivo está en src/assets/
   logoPath = 'assets/LogoSoccer.png';
   imageLoaded = true;
