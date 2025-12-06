@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export type ContentType = 'video' | 'infografia' | 'articulo';
 
@@ -26,7 +27,7 @@ export interface PreventiveContent {
 })
 export class ContentService {
   // ajusta el endpoint a como tengas montado tu backend
-  private apiUrl = 'http://localhost:3000/api/contenido-preventivo';
+  private apiUrl = `${environment.backendUrl}/contenido-preventivo`;
 
   constructor(private http: HttpClient) {}
 
