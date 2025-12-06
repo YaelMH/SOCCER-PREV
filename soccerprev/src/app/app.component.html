@@ -13,142 +13,137 @@
   <div class="relative z-10 flex min-h-screen flex-col">
     <!-- NAVBAR (siempre visible) -->
     <header
-        class="border-b border-app-border/70 bg-app-card/80 backdrop-blur flex items-center px-4 sm:px-6 py-3"
-      >
-        <!-- IZQUIERDA: logo + marca -->
-        <div class="flex items-center gap-2">
-          <div
-            class="h-13 w-13 sm:h-16 sm:w-16 flex items-center justify-center rounded-2xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden cursor-pointer"
-            routerLink="/dashboard"
-          >
-            <img
-              src="assets/LogoSoccer.png"
-              alt="SOCCER-PREV Logo"
-              class="h-12 w-12 sm:h-14 sm:w-14 object-contain"
-            />
-          </div>
-
-          <div class="flex flex-col justify-center leading-tight">
-            <p class="text-sm font-semibold tracking-wide">
-              SOCCER-PREV
-            </p>
-            <p class="text-[11px] text-text-muted">
-              ESCOM
-            </p>
-          </div>
+      class="border-b border-app-border/70 bg-app-card/80 backdrop-blur
+            flex items-center justify-between px-4 sm:px-6 py-3"
+    >
+      <!-- IZQUIERDA: Logo + texto -->
+      <div class="flex items-center gap-2">
+        <div
+          class="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center
+                rounded-xl bg-app-card shadow-lg shadow-primary/40 overflow-hidden
+                cursor-pointer"
+          routerLink="/dashboard"
+        >
+          <img
+            src="assets/LogoSoccer.png"
+            alt="SOCCER-PREV Logo"
+            class="h-10 w-10 sm:h-12 sm:w-12 object-contain"
+          />
         </div>
 
-        <!-- DERECHA: nav / usuario / hamburguesa -->
-        <div class="ml-auto flex items-center gap-3">
-          <!-- NAV DESKTOP -->
-          <nav
-            class="hidden sm:flex items-center gap-4 text-xs"
-            *ngIf="(isAuthenticated$ | async)"
+        <div class="flex flex-col leading-tight">
+          <p class="font-semibold tracking-wide text-xs sm:text-sm">
+            SOCCER-PREV
+          </p>
+          <p class="text-[10px] sm:text-[11px] text-text-muted">
+            ESCOM
+          </p>
+        </div>
+      </div>
+
+      <!-- CENTRO: Nav + usuario (solo desktop) -->
+      <div
+        class="hidden sm:flex flex-1 items-center justify-between ml-6"
+        *ngIf="(isAuthenticated$ | async)"
+      >
+        <!-- Nav centrado -->
+        <nav class="flex-1 flex justify-center items-center gap-4 text-xs">
+          <a
+            routerLink="/dashboard"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
           >
-            <a
-              routerLink="/dashboard"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Panel
-            </a>
+            Panel
+          </a>
 
-            <a
-              routerLink="/perfil"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Perfil
-            </a>
+          <a
+            routerLink="/perfil"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Perfil
+          </a>
 
-            <a
-              routerLink="/condicion-actual"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Recomendación
-            </a>
+          <a
+            routerLink="/condicion-actual"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Recomendación
+          </a>
 
-            <a
-              routerLink="/historial"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Historial
-            </a>
+          <a
+            routerLink="/historial"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Historial
+          </a>
 
-            <a
-              routerLink="/contenido"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Contenido
-            </a>
+          <a
+            routerLink="/contenido"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Contenido
+          </a>
 
-            <a
-              routerLink="/feedback"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Feedback
-            </a>
+          <a
+            routerLink="/feedback"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Feedback
+          </a>
 
-            <a
-              routerLink="/calentamiento"
-              routerLinkActive="text-text-main border-b-2 border-white pb-1"
-              class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
-            >
-              Calentamiento
-            </a>
-          </nav>
+          <a
+            routerLink="/calentamiento"
+            routerLinkActive="text-text-main border-b-2 border-white pb-1"
+            class="text-text-muted hover:text-primary transition border-b-2 border-transparent pb-1"
+          >
+            Calentamiento
+          </a>
+        </nav>
 
-          <!-- INFO USUARIO + CERRAR SESIÓN (solo desktop) -->
-          <div class="hidden sm:flex items-center gap-2 text-[11px]">
-            <ng-container *ngIf="(isAuthenticated$ | async); else noSession">
-              <div class="flex flex-col items-end leading-tight">
-                <span class="font-medium">
-                  {{ (userData$ | async)?.nombre }}
-                  {{ (userData$ | async)?.apellidoPaterno }}
-                </span>
-                <span class="text-text-muted">
-                  {{ (userData$ | async)?.position }}
-                  ·
-                  {{ (userData$ | async)?.level }}
-                </span>
-              </div>
-              <button
-                type="button"
-                class="rounded-full border border-app-border px-2 py-1 text-[11px] text-text-muted hover:border-danger hover:text-danger transition"
-                (click)="logout()"
-              >
-                Cerrar sesión
-              </button>
-            </ng-container>
-            <ng-template #noSession>
-              <span class="text-text-muted">No he iniciado sesión</span>
-            </ng-template>
+        <!-- Info usuario + logout (desktop) -->
+        <div class="flex items-center gap-2 text-[11px]">
+          <div class="flex flex-col items-end leading-tight">
+            <span class="font-medium">
+              {{ (userData$ | async)?.nombre }}
+              {{ (userData$ | async)?.apellidoPaterno }}
+            </span>
+            <span class="text-text-muted">
+              {{ (userData$ | async)?.position }}
+              ·
+              {{ (userData$ | async)?.level }}
+            </span>
           </div>
-
-          <!-- HAMBURGUESA (solo mobile) -->
           <button
             type="button"
-            class="sm:hidden inline-flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-2xl border border-app-border bg-app-card/80 text-text-muted hover:border-primary hover:text-primary transition"
-            (click)="toggleMobileMenu()"
+            class="rounded-full border border-app-border px-2 py-1 text-[11px] text-text-muted hover:border-danger hover:text-danger transition"
+            (click)="logout()"
           >
-            <span class="sr-only">Abrir menú</span>
-            <svg xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-6 w-6 sm:h-7 sm:w-7">
-              <path d="M4 7h16M4 12h16M4 17h16"/>
-            </svg>
+            Cerrar sesión
           </button>
         </div>
-      </header>
+      </div>
+
+      <!-- DERECHA: Botón hamburguesa (solo móvil) -->
+      <button
+        type="button"
+        class="sm:hidden flex items-center justify-center
+              h-11 w-11 rounded-2xl border border-app-border bg-slate-900/80
+              text-text-muted hover:text-primary hover:border-primary transition"
+        (click)="toggleMobileMenu()"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+        </svg>
+      </button>
+    </header>
     <!-- MENÚ MÓVIL DESPLEGABLE -->
     <nav
       *ngIf="(isAuthenticated$ | async) && mobileMenuOpen"
