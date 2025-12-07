@@ -5,7 +5,9 @@
       <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
         Generar recomendación
       </p>
-      <h1 class="mt-1 text-2xl sm:text-3xl font-bold">
+      <h1
+        class="mt-1 text-2xl sm:text-3xl font-bold leading-tight break-words"
+      >
         Registro para recomendación de lesión
       </h1>
       <p class="mt-2 text-sm text-text-muted max-w-xl">
@@ -23,14 +25,24 @@
   <form class="space-y-5" (ngSubmit)="onSubmit()" #condForm="ngForm">
     <!-- DATOS DEL JUGADOR (solo lectura) -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
-      <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">Datos del jugador</h2>
-        <p class="text-[11px] text-text-muted">
-          Edita estos datos desde tu <span class="font-semibold">Perfil</span> si necesitas cambiarlos.
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3"
+      >
+        <h2 class="text-base sm:text-sm font-semibold">
+          Datos del jugador
+        </h2>
+
+        <p
+          class="text-xs sm:text-[11px] text-text-muted sm:text-right max-w-md"
+        >
+          Edita estos datos desde tu
+          <span class="font-semibold">Perfil</span>
+          si necesitas cambiarlos.
         </p>
       </div>
 
-      <div class="grid sm:grid-cols-3 gap-4 text-sm">
+      <!-- Grid 1: edad / peso / estatura -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
         <!-- Edad -->
         <div class="space-y-1">
           <p class="text-xs text-text-muted">Edad (años)</p>
@@ -60,7 +72,8 @@
         </div>
       </div>
 
-      <div class="grid sm:grid-cols-3 gap-4 text-sm">
+      <!-- Grid 2: posición / nivel / partidos -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm mt-1 sm:mt-0">
         <!-- Posición -->
         <div class="space-y-1">
           <p class="text-xs text-text-muted">Posición principal</p>
