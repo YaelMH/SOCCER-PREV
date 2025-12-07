@@ -313,13 +313,25 @@ function tipoSugeridoPorZona(zonaNorm) {
   };
   return mapa[zonaNorm] || 'Otra lesión';
 }
-
+function esZonaOseaCritica(zonaNorm) {
+  // Articulaciones / segmentos donde una fractura es especialmente relevante
+  return [
+    'tobillo',
+    'rodilla',
+    'mano_muñeca',
+    'pie'
+  ].includes(zonaNorm);
+}
 /* Gravedad */
 function gravedadPorDolor(nivel, dias, tipoFinal) {
   const n = Number(nivel) || 0;
   const d = Number(dias) || 0;
 
+  // Fractura o luxación siempre se tratan como alta gravedad
   if (tipoFinal === 'Fractura' || tipoFinal === 'Luxación') return 'Alta';
+
+  // Dolor 9–10 siempre se considera clínicamente relevante
+  if (n >= 9) return 'Alta';
 
   if (n >= 8 || d >= 21) return 'Alta';
   if (n >= 5 || d >= 7) return 'Media';
@@ -332,17 +344,40 @@ function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolo
   const d = Number(diasDolor) || 0;
   const sugeridoZona = tipoSugeridoPorZona(zonaNorm);
 
+  // 1) REGLA DE SEGURIDAD: posible fractura por clínica
+  //
+  // Dolor muy alto y agudo en zona ósea/articular de riesgo
+  // → tratamos como sospecha de fractura aunque el modelo no lo diga.
+  const posibleFracturaClinica =
+    esZonaOseaCritica(zonaNorm) &&
+    (
+      n >= 9 ||                  // dolor 9–10/10
+      (n >= 8 && d <= 3)         // dolor alto y muy reciente (trauma agudo)
+    );
+
+  if (posibleFracturaClinica) {
+    // Si el modelo ya sugiere algo grave, lo respetamos
+    if (tipoModelo === 'Fractura' || tipoModelo === 'Luxación') {
+      return tipoModelo;
+    }
+    // Si no, forzamos "Fractura" como etiqueta clínica de sospecha
+    return 'Fractura';
+  }
+
+  // 2) Si el modelo no da una etiqueta clara, usamos la zona
   if (!tipoModelo || tipoModelo === 'Otra lesión') {
     return sugeridoZona || 'Otra lesión';
   }
 
+  // 3) Si el modelo dice Fractura pero la clínica no es tan fuerte,
+  //    podemos ajustar un poco para no sobrediagnosticar.
   if (tipoModelo === 'Fractura') {
-    const sospechaFuerte =
+    const sospechaFuerteModelo =
       n >= 8 ||
       (n >= 7 && d <= 3) ||
       (n >= 6 && d >= 10);
 
-    if (!sospechaFuerte) {
+    if (!sospechaFuerteModelo) {
       if (sugeridoZona && sugeridoZona !== 'Otra lesión') {
         return sugeridoZona;
       }
@@ -350,6 +385,8 @@ function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolo
     }
   }
 
+  // 4) Si el modelo dice Luxación pero el dolor es poco intenso,
+  //    podemos bajar a algo de tejidos blandos.
   if (tipoModelo === 'Luxación' && n <= 5) {
     if (sugeridoZona && sugeridoZona !== 'Otra lesión') {
       return sugeridoZona;
@@ -357,9 +394,9 @@ function decidirTipoFinalSegunClinica(tipoModelo, zonaNorm, nivelDolor, diasDolo
     return 'Otra lesión';
   }
 
+  // 5) En el resto de casos, respetamos lo que dice el modelo.
   return tipoModelo;
 }
-
 /* Especialista / urgencia */
 function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona) {
   const n = Number(nivelDolor) || 0;
@@ -370,7 +407,7 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
       necesario: true,
       urgente: true,
       motivo:
-        'Sospecha de daño óseo/articular importante. Es recomendable acudir a urgencias o valoración médica inmediata, sobre todo si hay deformidad, imposibilidad para apoyar o hinchazón marcada.'
+        'Sospecha de daño óseo o articular importante. Es recomendable acudir a urgencias o valoración médica inmediata, sobre todo si hay deformidad visible, imposibilidad para apoyar, pérdida de fuerza o hinchazón marcada.'
     };
   }
 
@@ -379,7 +416,7 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
       necesario: true,
       urgente: false,
       motivo:
-        'Dolor muy intenso o persistente. Se recomienda valoración médica o fisioterapia en los próximos días.'
+        'Dolor muy intenso o persistente. Se recomienda valoración médica o fisioterapia en los próximos días. Si el dolor te despierta por la noche, aparece entumecimiento, hormigueo, pérdida de fuerza o dificultad clara para caminar, acude antes.'
     };
   }
 
@@ -389,7 +426,7 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
       necesario: true,
       urgente: false,
       motivo:
-        'Dolor persistente en una articulación importante. Es recomendable una valoración para descartar lesiones estructurales.'
+        'Dolor persistente en una articulación importante. Es recomendable una valoración presencial para descartar lesiones estructurales (meniscos, ligamentos, cartílago, etc.).'
     };
   }
 
@@ -397,7 +434,7 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
     necesario: false,
     urgente: false,
     motivo:
-      'Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad o no puedes apoyar, acude a valoración.'
+      'Por ahora parecen medidas de autocuidado (reposo relativo, hielo, compresión y elevación). Si el dolor empeora, aparece deformidad, pérdida de fuerza o no puedes apoyar con normalidad, acude a valoración médica o fisioterapia.'
   };
 }
 
@@ -405,16 +442,17 @@ function debeAcudirEspecialista(tipoFinal, gravedad, nivelDolor, diasDolor, zona
 function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
   const base = {
     Esguince:
-      'Lesión de ligamentos por torsión/inestabilidad articular, frecuente en tobillo y rodilla.',
+      'Lesión de ligamentos por torsión o inestabilidad articular. Es frecuente en tobillo y rodilla y suele acompañarse de inflamación y molestia al apoyar o cambiar de dirección.',
     Desgarre:
-      'Lesión de fibras musculares (desde sobrecarga leve hasta ruptura parcial) típica en muslo, pantorrilla o ingle.',
+      'Lesión de fibras musculares (desde sobrecarga leve hasta ruptura parcial). Es típica en muslo, pantorrilla o ingle y suele dar sensación de tirón, pinchazo o rigidez al correr o acelerar.',
     Fractura:
-      'Posible rotura ósea. Suele acompañarse de dolor muy intenso, dificultad para apoyar y, a veces, deformidad visible.',
+      'Sospecha de rotura ósea. Suele acompañarse de dolor muy intenso localizado, dificultad importante para apoyar o mover la zona y, en algunos casos, deformidad visible. Requiere valoración presencial y, habitualmente, estudios de imagen.',
     Luxación:
-      'Pérdida de congruencia de la articulación (se “zafa”), habitualmente muy dolorosa y con limitación importante del movimiento.',
+      'Pérdida de congruencia de la articulación (se “zafa”), habitualmente muy dolorosa, con limitación casi completa del movimiento y sensación de que la articulación está fuera de lugar.',
     'Otra lesión':
-      'Molestia inespecífica (contusión, sobrecarga, tendinopatía u otra alteración de tejidos blandos).'
+      'Molestia inespecífica (contusión, sobrecarga, tendinopatía u otra alteración de tejidos blandos). Puede aparecer por golpes directos, gestos repetidos o aumento brusco de carga.'
   };
+
   const ztxt =
     zona !== 'desconocida'
       ? ` Reportas dolor en ${zona} (intensidad ${nivel}/10, ${dias} día(s)).`
@@ -425,42 +463,45 @@ function descripcionPorTipo(tipoFinal, zona, nivel, dias) {
 
 function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
   const PRICE = [
-    'Proteger la zona lesionada: evita impactos y gestos que aumenten el dolor.',
-    'Reposo relativo: mantente activo, pero sin forzar la zona dolorida.',
-    'Hielo 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).',
-    'Compresión ligera con venda elástica si es posible, sin cortar la circulación.',
-    'Elevación del segmento afectado para ayudar a disminuir la inflamación.'
+    'Proteger la zona lesionada: evita impactos y gestos que aumenten claramente el dolor.',
+    'Reposo relativo: mantente activo, pero sin forzar la zona dolorida ni “aguantar” el dolor fuerte.',
+    'Aplicar frío 15–20 minutos cada 2–3 horas durante las primeras 48 horas (siempre envuelto, no directo sobre la piel).',
+    'Compresión ligera con venda elástica si es posible, sin cortar la circulación (vigila cambio de color o adormecimiento).',
+    'Elevación del segmento afectado por encima del nivel del corazón cuando sea posible, para ayudar a disminuir la inflamación.'
   ];
 
   const porTipo = {
     Esguince: [
       ...PRICE,
       'Evita calor local y masajes intensos durante las primeras 48–72 horas.',
-      'Introduce movilidad suave y progresiva cuando el dolor lo permita.',
-      'Valora entrenamiento de fuerza y propiocepción para prevenir recaídas.'
+      'Introduce movilidad suave y progresiva cuando el dolor lo permita (flexión/extensión sin rebotes bruscos).',
+      'Valora entrenamiento de fuerza y propiocepción (equilibrio) para prevenir recaídas antes de volver a la competición.',
+      'Antes de regresar al partido, asegúrate de caminar y trotar sin dolor relevante ni cojera.'
     ],
     Desgarre: [
       ...PRICE,
       'Evita estiramientos fuertes sobre el músculo lesionado en los primeros 3–5 días.',
-      'Reincorpora la carga de forma progresiva (caminar, trote suave, sprints) según tolere el dolor.',
-      'Considera fisioterapia guiada si el dolor limita tus entrenamientos.'
+      'Reincorpora la carga de forma progresiva: caminar sin dolor, luego trote suave, y más adelante cambios de ritmo o sprints según tolerancia.',
+      'Considera fisioterapia guiada si el dolor limita tus entrenamientos o reaparece al aumentar la intensidad.',
+      'No fuerces la vuelta al juego si aún hay dolor punzante al correr o golpear el balón.'
     ],
     Fractura: [
       'Inmoviliza la zona en la posición más cómoda posible.',
-      'No intentes recolocar la articulación ni “acomodar” el hueso.',
-      'Aplica frío envuelto si hay inflamación, evitando presionar directamente sobre posible deformidad.',
-      'No apoyes peso si hay sospecha en miembros inferiores.',
-      'Acude a urgencias o valoración médica inmediata.'
+      'No intentes recolocar la articulación ni “acomodar” el hueso por tu cuenta.',
+      'Aplica frío envuelto si hay inflamación, evitando presionar directamente sobre una posible deformidad.',
+      'No apoyes peso si hay sospecha en miembros inferiores o si el dolor aumenta claramente al intentar cargar.',
+      'Acude a urgencias o valoración médica inmediata para descartar o confirmar fractura y definir el tratamiento.'
     ],
     Luxación: [
-      'Inmoviliza la articulación tal y como quedó tras la lesión.',
-      'No intentes recolocarla por tu cuenta.',
-      'Aplica frío envuelto alrededor de la articulación.',
-      'Acude a urgencias de inmediato para reducción y valoración de tejidos asociados.'
+      'Inmoviliza la articulación tal y como quedó tras la lesión, evitando movimientos bruscos.',
+      'No intentes recolocarla por tu cuenta ni dejes que alguien sin formación sanitaria lo haga.',
+      'Aplica frío envuelto alrededor de la articulación para aliviar dolor e inflamación.',
+      'Acude a urgencias de inmediato para reducción y valoración de posibles daños en ligamentos, cartílago o nervios.'
     ],
     'Otra lesión': [
       ...PRICE,
-      'Si el dolor o la inflamación no mejoran en 48–72 horas, o te limitan para entrenar, busca valoración médica o fisioterapia.'
+      'Si el dolor o la inflamación no mejoran en 48–72 horas, o te limitan para entrenar o caminar con normalidad, busca valoración médica o fisioterapia.',
+      'Evita aumentar de golpe el volumen o la intensidad de tus entrenamientos hasta que el dolor esté claramente controlado.'
     ]
   };
 
@@ -471,13 +512,12 @@ function recomendacionesPorTipoYDolor(tipoFinal, gravedad) {
       tipoFinal === 'Otra lesión')
   ) {
     porTipo[tipoFinal].push(
-      'El nivel de dolor o la duración sugieren una lesión relevante. Es recomendable una valoración médica para descartar daños estructurales.'
+      'El nivel de dolor o la duración sugieren una lesión relevante. Es recomendable una valoración médica o fisioterapia para descartar daños estructurales y planificar la recuperación.'
     );
   }
 
   return porTipo[tipoFinal] || porTipo['Otra lesión'];
 }
-
 /** Calcula un índice simple de carga semanal (0–100) y recomendación breve. */
 function calcularEstadoFisico(datos) {
   const freq = Number(datos.frecuencia_juego_semana) || 0;   // sesiones/semana
