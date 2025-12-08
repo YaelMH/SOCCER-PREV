@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe'; // ajusta ruta si es otra
-import { AuthService } from '../../auth/auth.service';           // 👈 IMPORTANTE
+import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe'; 
+import { AuthService } from '../../auth/auth.service';           
 
 type WarmupType = 'pre_partido' | 'pre_entreno' | 'recuperacion';
 type PlayerPosition = 'general' | 'portero' | 'defensa' | 'medio' | 'delantero';
@@ -165,7 +165,7 @@ export class WarmupComponent {
     focusZone: 'Cuerpo completo',
     level: 'intermedio',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_I1',
+    videoUrl: 'https://www.youtube.com/embed/ObZgKs40TO0',//ya cambiado
     steps: [
       {
         order: 1,
@@ -195,7 +195,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'intermedio',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_I2',
+    videoUrl: 'https://www.youtube.com/embed/SBzZToxZpZ8',//ya cambiado
     steps: [
       {
         order: 1,
@@ -225,7 +225,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona lumbar',
     level: 'intermedio',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_I3',
+    videoUrl: 'https://www.youtube.com/embed/c8mKv7uUV4Q',//Ya cambiado
     steps: [
       {
         order: 1,
@@ -259,7 +259,7 @@ export class WarmupComponent {
     focusZone: 'Cuerpo completo',
     level: 'avanzado',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_A1',
+    videoUrl: 'https://www.youtube.com/embed/uZH9bQQd6q0?si=o3co8uNNyEck5jEC',//ya cambiado
     steps: [
       {
         order: 1,
@@ -289,7 +289,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y potencia',
     level: 'avanzado',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_A2',
+    videoUrl: 'https://www.youtube.com/embed/uZH9bQQd6q0',//ya cambiado
     steps: [
       {
         order: 1,
@@ -319,7 +319,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'avanzado',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_A3',
+    videoUrl: 'https://www.youtube.com/embed/CA0OVDSbiMA', //YA CAMBIADO
     steps: [
       {
         order: 1,
@@ -349,7 +349,7 @@ export class WarmupComponent {
     focusZone: 'Cuerpo completo',
     level: 'avanzado',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GEN_A4',
+    videoUrl: 'https://www.youtube.com/embed/DcUXqegCQk0',//YA CAMBIADO
     steps: [
       {
         order: 1,
@@ -376,7 +376,7 @@ export class WarmupComponent {
     focusZone: 'Brazos y tronco',
     level: 'básico',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_B1',
+    videoUrl: 'https://www.youtube.com/embed/94suilqUIhg',//ya cambiado
     steps: [
       {
         order: 1,
@@ -406,7 +406,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona baja',
     level: 'básico',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_B2',
+    videoUrl: 'https://www.youtube.com/embed/3Hg6yPHSWyA',//ya cambiado
     steps: [
       {
         order: 1,
@@ -440,7 +440,7 @@ export class WarmupComponent {
     focusZone: 'Lateralidad y reflejos',
     level: 'intermedio',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_I1',
+    videoUrl: 'https://www.youtube.com/embed/ToofjgRTXgA',//ya cambiado
     steps: [
       {
         order: 1,
@@ -470,7 +470,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y control de balón',
     level: 'intermedio',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_I2',
+    videoUrl: 'https://www.youtube.com/embed/_Wrjbwm7Tbo',//ya cambiado
     steps: [
       {
         order: 1,
@@ -504,7 +504,7 @@ export class WarmupComponent {
     focusZone: 'Juego aéreo y saltos',
     level: 'avanzado',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_A1',
+    videoUrl: 'https://www.youtube.com/embed/O14kG3ehgn8',//ya cambiado
     steps: [
       {
         order: 1,
@@ -534,7 +534,7 @@ export class WarmupComponent {
     focusZone: 'Reflejos y reacción',
     level: 'avanzado',
     position: 'portero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_GK_A2',
+    videoUrl: 'https://www.youtube.com/embed/TmfFw5kU35k',//ya cambiado
     steps: [
       {
         order: 1,
@@ -567,7 +567,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'básico',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_B1',
+    videoUrl: 'https://www.youtube.com/embed/s7tqVeORGRM',//ya cambiado
     steps: [
       {
         order: 1,
@@ -597,7 +597,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y timing defensivo',
     level: 'básico',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_B2',
+    videoUrl: 'https://www.youtube.com/embed/jGqdXIrQT9Y',//ya cambiado
     steps: [
       {
         order: 1,
@@ -631,7 +631,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y lectura de juego',
     level: 'intermedio',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_I1',
+    videoUrl: 'https://www.youtube.com/embed/yBcfqr5Wf6Q',//ya cambiado
     steps: [
       {
         order: 1,
@@ -661,7 +661,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'intermedio',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_I2',
+    videoUrl: 'https://www.youtube.com/embed/BHJPVtdWYWI',//ya cambiado
     steps: [
       {
         order: 1,
@@ -695,7 +695,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y resistencia específica',
     level: 'avanzado',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_A1',
+    videoUrl: 'https://www.youtube.com/embed/ojM7tHCv8pY',//ya cambiado
     steps: [
       {
         order: 1,
@@ -725,7 +725,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y tronco superior',
     level: 'avanzado',
     position: 'defensa',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_DEF_A2',
+    videoUrl: 'https://www.youtube.com/embed/K6XMLOTcup4',//ya cambiado
     steps: [
       {
         order: 1,
@@ -758,7 +758,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'básico',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_B1',
+    videoUrl: 'https://www.youtube.com/embed/RL5KAbnOYlM',//ya cambiado
     steps: [
       {
         order: 1,
@@ -788,7 +788,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y coordinación',
     level: 'básico',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_B2',
+    videoUrl: 'https://www.youtube.com/embed/IOquzk-t6Os',//ya cambiado
     steps: [
       {
         order: 1,
@@ -822,7 +822,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y resistencia',
     level: 'intermedio',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_I1',
+    videoUrl: 'https://www.youtube.com/embed/uq2s2ilSj80',//ya cambiado
     steps: [
       {
         order: 1,
@@ -852,7 +852,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y cardio',
     level: 'intermedio',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_I2',
+    videoUrl: 'https://www.youtube.com/embed/K5ye57tVcZ0',//ya cambiado
     steps: [
       {
         order: 1,
@@ -949,7 +949,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y coordinación',
     level: 'básico',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_B1',
+    videoUrl: 'https://www.youtube.com/embed/R8LXGNLE4bk', //ya cambiado
     steps: [
       {
         order: 1,
@@ -979,7 +979,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'básico',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_B2',
+    videoUrl: 'https://www.youtube.com/embed/4OklFG61XEw',//ya cambiado
     steps: [
       {
         order: 1,
@@ -1013,7 +1013,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y explosividad',
     level: 'intermedio',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_I1',
+    videoUrl: 'https://www.youtube.com/embed/zgkMCo8J2sQ',//ya cambiado
     steps: [
       {
         order: 1,
