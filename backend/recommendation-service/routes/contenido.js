@@ -94,8 +94,8 @@ const preventiveContent = [
     duration: '5 min',
     focusZone: 'General',
     sourceName: 'Soccer-Prev (material propio)',
-    sourceUrl: 'https://tu-sitio-o-storage/soccer-prev-infografia-sobrecarga.pdf',
-    imageUrl: 'https://tu-sitio-o-storage/soccer-prev-infografia-sobrecarga.png'
+    sourceUrl: '/assets/soccer-prev-infografia-sobrecarga.pdf',
+    imageUrl: '/assets/Infografia.jpg'
   }
 ];
 

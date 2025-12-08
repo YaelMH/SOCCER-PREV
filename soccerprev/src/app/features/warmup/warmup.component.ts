@@ -77,7 +77,7 @@ export class WarmupComponent {
     focusZone: 'Cuerpo completo',
     level: 'básico',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/CNrrGKUJRd8',
+    videoUrl: 'https://www.youtube.com/embed/Q96lOwg_1o8',//ya cambiada
     steps: [
       {
         order: 1,
@@ -137,7 +137,7 @@ export class WarmupComponent {
     focusZone: 'Piernas',
     level: 'básico',
     position: 'general',
-    videoUrl: 'https://www.youtube.com/embed/CNrrGKUJRd8',
+    videoUrl: 'https://www.youtube.com/embed/PDQG7rXftEc',//ya cambiada
     steps: [
       {
         order: 1,
@@ -886,7 +886,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y zona media',
     level: 'avanzado',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_A1',
+    videoUrl: 'https://www.youtube.com/embed/ahw0oOZdbeU?si=Itvj0TNrK0vSKQQI',//ya cambiado
     steps: [
       {
         order: 1,
@@ -916,7 +916,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y resistencia anaeróbica',
     level: 'avanzado',
     position: 'medio',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_MID_A2',
+    videoUrl: 'https://www.youtube.com/embed/exUDedqdidE?si=bWwX8hWAs4_1HOLe',//ya cambiado
     steps: [
       {
         order: 1,
@@ -1043,7 +1043,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y coordinación',
     level: 'intermedio',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_I2',
+    videoUrl: 'https://www.youtube.com/embed/V_WtKaUZQBg?si=3Mra8E05gqoUr53V',//ya cambiado
     steps: [
       {
         order: 1,
@@ -1077,7 +1077,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y potencia',
     level: 'avanzado',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_A1',
+    videoUrl: 'https://www.youtube.com/embed/rbUAP3ceimA?si=lBdKwqgO0HnZscWj',//ya cambiado
     steps: [
       {
         order: 1,
@@ -1107,7 +1107,7 @@ export class WarmupComponent {
     focusZone: 'Piernas y tronco superior',
     level: 'avanzado',
     position: 'delantero',
-    videoUrl: 'https://www.youtube.com/embed/VIDEO_ID_FW_A2',
+    videoUrl: 'https://www.youtube.com/embed/baRzkiEKkdk?si=NkM0wRwxM9o94HUu',//ya cambiado
     steps: [
       {
         order: 1,
