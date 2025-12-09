@@ -1,11 +1,13 @@
-<div class="w-full max-w-6xl mx-auto space-y-6">
+<div class="w-full max-w-full sm:max-w-6xl mx-auto space-y-6 px-4 sm:px-0 overflow-x-hidden">
   <!-- Encabezado -->
   <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
     <div>
       <p class="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
         Feedback
       </p>
-      <h1 class="mt-1 text-2xl sm:text-3xl font-bold leading-tight break-words">
+      <h1
+        class="mt-1 text-2xl sm:text-3xl font-bold leading-tight break-words"
+      >
         Evalúa tus recomendaciones
       </h1>
       <p class="mt-2 text-sm text-text-muted max-w-xl">
@@ -16,24 +18,20 @@
   </div>
 
   <!-- Mensajes -->
-  <div
-    *ngIf="error"
-    class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-xl px-3 py-2"
-  >
+  <div *ngIf="error" class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-xl px-3 py-2">
     {{ error }}
   </div>
-  <div
-    *ngIf="submitMessage"
-    class="text-xs text-accent bg-accent/10 border border-accent/40 rounded-xl px-3 py-2"
-  >
+  <div *ngIf="submitMessage" class="text-xs text-accent bg-accent/10 border border-accent/40 rounded-xl px-3 py-2">
     {{ submitMessage }}
   </div>
 
   <!-- Contenido principal: dos tarjetas -->
-  <div class="grid gap-4 md:grid-cols-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <!-- Columna izquierda: últimas recomendaciones -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-3">
-      <h2 class="text-sm font-semibold">Últimas recomendaciones</h2>
+      <p class="text-2xl sm:text-4xl font-semibold leading-tight">
+        Últimas recomendaciones
+      </p>
       <p class="text-xs text-text-muted">
         Selecciona una recomendación reciente para evaluarla.
       </p>
@@ -42,38 +40,38 @@
         <ul class="space-y-1.5 text-xs">
           <li
             *ngFor="let rec of recommendations"
-            class="flex items-start gap-2"
+            class="w-full"
           >
             <button
               type="button"
               (click)="selectRecommendation(rec)"
-              class="flex-1 text-left px-3 py-2 rounded-xl border text-[11px] transition
-                     flex items-start justify-between gap-2"
+              class="w-full text-left px-3 py-2 rounded-xl border text-[11px] transition
+                     flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2"
               [ngClass]="
                 selectedRecommendation?.id === rec.id
                   ? 'border-primary bg-primary/10 text-text-main'
                   : 'border-app-border bg-slate-950/40 text-text-muted hover:border-primary/60 hover:text-text-main'
               "
             >
-              <div>
+              <!-- Texto de la recomendación -->
+              <div class="min-w-0">
                 <p class="font-medium text-xs">
                   {{ rec.tipo }}
                 </p>
-                <p class="text-[11px] truncate max-w-xs">
+                <p class="text-[11px] truncate">
                   {{ rec.descripcion }}
                 </p>
                 <p class="text-[10px] text-text-muted/80 mt-0.5">
                   {{ rec.fechaTexto }} · {{ rec.fuente }}
                 </p>
               </div>
+
+              <!-- Pill de riesgo -->
               <span
-                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px]"
+                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] self-start sm:self-center"
                 [ngClass]="getRiskPillClasses(rec.riskLevel)"
               >
-                <span
-                  class="h-1.5 w-1.5 rounded-full"
-                  [ngClass]="getRiskDotClasses(rec.riskLevel)"
-                ></span>
+                <span class="h-1.5 w-1.5 rounded-full" [ngClass]="getRiskDotClasses(rec.riskLevel)"></span>
                 {{ rec.riskLevel | titlecase }}
               </span>
             </button>
@@ -86,8 +84,7 @@
           class="text-xs text-text-muted bg-slate-950/40 border border-dashed border-app-border rounded-xl px-3 py-3"
         >
           Aún no tienes recomendaciones registradas o no se pudieron cargar.
-          Genera una recomendación desde la sección
-          <span class="font-medium">Recomendación</span> para poder evaluarla.
+          Genera una recomendación desde la sección <span class="font-medium">Recomendación</span> para poder evaluarla.
         </div>
       </ng-template>
     </div>
@@ -95,8 +92,10 @@
     <!-- Columna derecha: formulario de evaluación -->
     <div class="bg-app-card border border-app-border rounded-2xl p-4 sm:p-5 space-y-4">
       <div class="flex items-start justify-between gap-3">
-        <div>
-          <h2 class="text-sm font-semibold">Evalúa tu recomendación</h2>
+        <div class="min-w-0">
+          <p class="text-2xl sm:text-4xl font-semibold leading-tight">
+            Evalúa tu recomendación
+          </p>
           <p class="text-xs text-text-muted">
             Recomendación:
             <span class="font-medium text-text-main">
@@ -106,12 +105,7 @@
         </div>
       </div>
 
-      <!-- FORMULARIO -->
-      <form
-        *ngIf="selectedRecommendation"
-        (ngSubmit)="submitFeedback()"
-        class="space-y-3"
-      >
+      <form (ngSubmit)="submitFeedback()" class="space-y-3" *ngIf="selectedRecommendation">
         <!-- ¿Aplicaste la recomendación? -->
         <div class="space-y-1">
           <label class="text-xs font-semibold block">
@@ -191,7 +185,9 @@
               (click)="setStars(s)"
               class="focus:outline-none"
             >
-              <span [ngClass]="s <= stars ? 'text-yellow-300' : 'text-slate-600'">
+              <span
+                [ngClass]="s <= stars ? 'text-yellow-300' : 'text-slate-600'"
+              >
                 ★
               </span>
             </button>
@@ -212,8 +208,8 @@
           ></textarea>
         </div>
 
-        <!-- Botón centrado en móvil, alineado a la izq en desktop -->
-        <div class="pt-2 flex justify-center md:justify-start">
+        <!-- Botón centrado -->
+        <div class="pt-1 flex justify-center">
           <button
             type="submit"
             [disabled]="loading"
@@ -224,7 +220,6 @@
         </div>
       </form>
 
-      <!-- Mensaje cuando no hay recomendación seleccionada -->
       <div *ngIf="!selectedRecommendation && !loading" class="text-xs text-text-muted">
         Primero selecciona una recomendación en la tarjeta de la izquierda para poder evaluarla.
       </div>
