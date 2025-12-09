@@ -16,10 +16,16 @@
   </div>
 
   <!-- Mensajes -->
-  <div *ngIf="error" class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-xl px-3 py-2">
+  <div
+    *ngIf="error"
+    class="text-xs text-danger bg-danger/10 border border-danger/40 rounded-xl px-3 py-2"
+  >
     {{ error }}
   </div>
-  <div *ngIf="submitMessage" class="text-xs text-accent bg-accent/10 border border-accent/40 rounded-xl px-3 py-2">
+  <div
+    *ngIf="submitMessage"
+    class="text-xs text-accent bg-accent/10 border border-accent/40 rounded-xl px-3 py-2"
+  >
     {{ submitMessage }}
   </div>
 
@@ -42,7 +48,7 @@
               type="button"
               (click)="selectRecommendation(rec)"
               class="flex-1 text-left px-3 py-2 rounded-xl border text-[11px] transition
-              flex items-start justify-between gap-2"
+                     flex items-start justify-between gap-2"
               [ngClass]="
                 selectedRecommendation?.id === rec.id
                   ? 'border-primary bg-primary/10 text-text-main'
@@ -64,7 +70,10 @@
                 class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px]"
                 [ngClass]="getRiskPillClasses(rec.riskLevel)"
               >
-                <span class="h-1.5 w-1.5 rounded-full" [ngClass]="getRiskDotClasses(rec.riskLevel)"></span>
+                <span
+                  class="h-1.5 w-1.5 rounded-full"
+                  [ngClass]="getRiskDotClasses(rec.riskLevel)"
+                ></span>
                 {{ rec.riskLevel | titlecase }}
               </span>
             </button>
@@ -77,7 +86,8 @@
           class="text-xs text-text-muted bg-slate-950/40 border border-dashed border-app-border rounded-xl px-3 py-3"
         >
           Aún no tienes recomendaciones registradas o no se pudieron cargar.
-          Genera una recomendación desde la sección <span class="font-medium">Recomendación</span> para poder evaluarla.
+          Genera una recomendación desde la sección
+          <span class="font-medium">Recomendación</span> para poder evaluarla.
         </div>
       </ng-template>
     </div>
@@ -96,13 +106,18 @@
         </div>
       </div>
 
-      <form (ngSubmit)="submitFeedback()" class="space-y-3" *ngIf="selectedRecommendation">
+      <!-- FORMULARIO -->
+      <form
+        *ngIf="selectedRecommendation"
+        (ngSubmit)="submitFeedback()"
+        class="space-y-3"
+      >
         <!-- ¿Aplicaste la recomendación? -->
         <div class="space-y-1">
           <label class="text-xs font-semibold block">
             ¿Aplicaste la recomendación?
           </label>
-          <div class="flex gap-3 text-[11px] text-text-muted">
+          <div class="flex flex-wrap gap-3 text-[11px] text-text-muted">
             <label class="inline-flex items-center gap-1 cursor-pointer">
               <input
                 type="radio"
@@ -176,9 +191,7 @@
               (click)="setStars(s)"
               class="focus:outline-none"
             >
-              <span
-                [ngClass]="s <= stars ? 'text-yellow-300' : 'text-slate-600'"
-              >
+              <span [ngClass]="s <= stars ? 'text-yellow-300' : 'text-slate-600'">
                 ★
               </span>
             </button>
@@ -199,7 +212,8 @@
           ></textarea>
         </div>
 
-        <div class="pt-1">
+        <!-- Botón centrado en móvil, alineado a la izq en desktop -->
+        <div class="pt-2 flex justify-center md:justify-start">
           <button
             type="submit"
             [disabled]="loading"
@@ -210,6 +224,7 @@
         </div>
       </form>
 
+      <!-- Mensaje cuando no hay recomendación seleccionada -->
       <div *ngIf="!selectedRecommendation && !loading" class="text-xs text-text-muted">
         Primero selecciona una recomendación en la tarjeta de la izquierda para poder evaluarla.
       </div>
