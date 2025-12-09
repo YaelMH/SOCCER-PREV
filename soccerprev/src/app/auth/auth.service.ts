@@ -165,9 +165,16 @@ export class AuthService {
   // ===========================
   //   RESTABLECER CONTRASEÑA
   // ===========================
+  // src/app/auth/auth.service.ts
   async resetPassword(email: string): Promise<void> {
-    return sendPasswordResetEmail(this.auth, email);
-  }
+  const actionCodeSettings = {
+    url: 'http://soccreprev-front.onrender.com/restablecer-password',
+    handleCodeInApp: true
+  };
+  return sendPasswordResetEmail(this.auth, email, actionCodeSettings);
+}
+
+
 
   // ===========================
   //           LOGOUT

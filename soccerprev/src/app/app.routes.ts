@@ -9,12 +9,15 @@ import { HistoryComponent } from './features/history/history.component';
 import { ContentComponent } from './features/content/content.component';
 import { WarmupComponent } from './features/warmup/warmup.component';
 import { authGuard } from './auth/auth.guard';
+import { SetNewPasswordComponent } from './features/auth/newpassword/set-new-password.component';
 
 export const routes: Routes = [
   // rutas públicas
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegisterComponent },
   { path: 'recuperar-password', component: RecoverPasswordComponent },
+  { path: 'restablecer-password', component: SetNewPasswordComponent },
+
 
   // rutas protegidas
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
@@ -30,5 +33,6 @@ export const routes: Routes = [
   // redirect por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
+  
   
 ];
